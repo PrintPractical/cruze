@@ -1,0 +1,16 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # The walking-skeleton change replaces this step with format, lint, build,
+      # test, `cruze check` and `cruze trace`.
+      - name: Placeholder
+        run: echo "CI stub created by cruze init. The walking-skeleton change makes it real."
