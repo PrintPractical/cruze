@@ -2,7 +2,7 @@
 
 `docs/specs/<capability>.md` holds the living behaviour of one capability, meaning what the system does as seen from outside. Requirements say what must hold. Scenarios are worked examples that become behaviour tests. Nothing in a spec names classes, files or libraries; those belong in the architecture.
 
-Template: `../templates/spec.md`.
+Template: [../templates/spec.md](../templates/spec.md).
 
 ## Spec file
 

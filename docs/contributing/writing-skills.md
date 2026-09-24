@@ -9,11 +9,12 @@ Cruze skills are read by agents, not people. Write them for the agent that reads
 - A skill is a folder under `skills/` with a `SKILL.md`. It is installed as `cruze-<folder>`, and the frontmatter `name` must be exactly that. The `name` is lowercase letters, digits and single hyphens, at most 64 characters.
 - The frontmatter holds `name` and `description` as flat `key: value` lines. The description is at most 1024 characters.
 - The body of `SKILL.md` is at most 150 lines. Templates, checklists, rubrics and examples go in sibling files, each reached by a pointer line that says when to read it.
+- Point to a sibling file with a relative Markdown link, such as `[contracts.md](contracts.md)`. Point to another Cruze skill's file by its installed path in backticks, such as `.agents/skills/cruze-formats/reference/work-items.md`, because that is where the agent finds it in a project. Every pointer must resolve, and every Markdown file in a skill must be reachable by links from its `SKILL.md`.
 
 ## Two kinds of skill
 
 - **Workflow skills** are the commands a person runs: `explore`, `envision`, `architect`, `plan`, `build`, `verify`, `land`, `triage`, `rethink`, `next`. The description is one plain sentence saying what the command does. Each one ends by naming the next step, taken from `cruze status`.
-- **Knowledge skills** hold standards: `hexagonal-design`, `behavioural-testing`, `grilling` and so on. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by path, at the step that needs them, so nothing depends on a trigger firing.
+- **Knowledge skills** hold standards: `hexagonal-design`, `behavioural-testing`, `grilling`, `domain-language`, `dependency-approval` and `research`. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by installed path, at the step that needs them, so nothing depends on a trigger firing. A knowledge skill opens with the procedure an agent follows when it applies the standard, then the rules, and puts material only some runs need (a language, runtime concerns, worked examples) in sibling files.
 
 ## Agent neutrality
 
@@ -42,6 +43,6 @@ Skills run under Claude Code, Codex, OpenCode and others. Name the action, never
 
 ## Testing a skill
 
-- **Load test.** Run the workflow skill on the fixture project and confirm from the transcript that it read every knowledge file it names.
+- **Load test.** Run the workflow skill on the fixture project, then run `node evals/load_check.ts skills/<folder> <transcript.jsonl> [subagent transcripts...]`. It lists every knowledge file the skill names by installed path that the run never loaded, and fails when there is one. See [evals/README.md](../../evals/README.md).
 - **Fixture run.** The skill's completion criteria hold on the fixture, and the `cruze` commands it calls leave the expected `.cruze/` state.
 - **Evals.** A change to a skill, role or template reruns the evals in `evals/` once they exist.

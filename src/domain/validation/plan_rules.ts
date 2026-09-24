@@ -10,7 +10,8 @@ const TEST_KINDS = ["behaviour", "contract", "domain", "smoke"];
 
 /**
  * Rules for one buildable change: its scope names only things that can be built,
- * every scope ID is proved by a task, and every delivered scenario has a behaviour test.
+ * every scope ID is proved by a task, every delivered scenario has a behaviour test, and
+ * every port a built adapter implements has a contract test.
  */
 export function changePlanProblems(
   view: ProjectView,
@@ -61,6 +62,12 @@ export function changePlanProblems(
       problems.push(error(path, scope.line, "missing-behaviour-test", `${id} is delivered but has no behaviour row in the test plan`));
     }
   }
+  for (const adapter of scope.builds.filter((id) => kindOf(id) === "ADP")) {
+    const ports = (factsOfScoped(view, delta.doc, delta.delta, adapter).get("Implements") ?? []).flatMap(findIds).filter((id) => kindOf(id) === "PORT");
+    for (const port of ports.filter((p) => !rows.some((row) => findIds(row.subject)[0] === p && row.kind === "contract"))) {
+      problems.push(error(path, scope.line, "missing-contract-test", `${adapter} implements ${port} but the test plan has no contract row for ${port}`));
+    }
+  }
   return problems;
 }
 
@@ -85,9 +92,13 @@ function scopeTargetProblems(view: ProjectView, path: string, scope: Scope, delt
   return problems;
 }
 
-function modulePathsOf(view: ProjectView, doc: MarkdownDoc, delta: Delta, id: string): string[] {
+/** An element's facts as this item will build it: from its delta when it has one, else from the living docs. */
+function factsOfScoped(view: ProjectView, doc: MarkdownDoc, delta: Delta, id: string): Map<string, string[]> {
   const fromDelta = delta.entries.find((e) => e.element.id === id);
   const living = view.living.elements.get(id);
-  const facts = fromDelta !== undefined ? factsOf(doc, fromDelta.element) : living !== undefined ? factsOf(living.doc, living.element) : new Map<string, string[]>();
-  return (facts.get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? "")).filter((p) => p !== "");
+  return fromDelta !== undefined ? factsOf(doc, fromDelta.element) : living !== undefined ? factsOf(living.doc, living.element) : new Map<string, string[]>();
+}
+
+function modulePathsOf(view: ProjectView, doc: MarkdownDoc, delta: Delta, id: string): string[] {
+  return (factsOfScoped(view, doc, delta, id).get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? "")).filter((p) => p !== "");
 }

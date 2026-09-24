@@ -2,7 +2,7 @@
 
 Work in progress lives in `.cruze/`. A **feature** carries the design: its intent, its deltas and the ordered list of its changes. A **change** is one buildable slice: its scope, its test plan and its tasks. A small tweak is a **standalone change** that carries its own deltas. When work lands it is archived, and its deltas become part of the living docs.
 
-Templates: `../templates/feature.md`, `../templates/change.md` and `../templates/standalone-change.md`.
+Templates: [../templates/feature.md](../templates/feature.md), [../templates/change.md](../templates/change.md) and [../templates/standalone-change.md](../templates/standalone-change.md).
 
 ## IDs and folders
 
@@ -17,8 +17,8 @@ Templates: `../templates/feature.md`, `../templates/change.md` and `../templates
 | `## Intent` | The problem and outcome in the user's words, who it is for, constraints, and what is out of scope |
 | `## Settled decisions` | Decisions the user confirmed, one bullet each as `D<n>: <decision> (<reason>)`, including overrides of Cruze's advice |
 | `## Adopt or build` | Table of components that aren't domain logic, as Component, Decision (`adopt` or `build`), Choice and Reason |
-| `## Spec delta` | See `specs.md` |
-| `## Architecture delta` | See `architecture.md` |
+| `## Spec delta` | See [specs.md](specs.md) |
+| `## Architecture delta` | See [architecture.md](architecture.md) |
 | `## Changes` | Table of the ordered changes, as Change, Delivers, Builds, Removes (optional) and Depends on |
 | `## Progress` | Managed: state of each change, landed commits and the deviation log |
 
@@ -33,7 +33,7 @@ Templates: `../templates/feature.md`, `../templates/change.md` and `../templates
 | `## Risks` | What could break and the riskiest task, when there are any |
 | `## Progress` | Managed: ticked tasks with their commits, deviations and the bound branch |
 
-A standalone change adds `## Intent`, `## Spec delta` and `## Architecture delta` before its `## Scope`. Its scope covers every ID in its own deltas, plus any `planned` elements from the living docs that it builds.
+A standalone change adds `## Intent`, `## Adopt or build`, `## Spec delta` and `## Architecture delta` before its `## Scope`, in the same format as a feature's. Its scope covers every ID in its own deltas, plus any `planned` elements from the living docs that it builds.
 
 ## Scope rules
 
@@ -56,7 +56,7 @@ These rules close the gap between a design and what gets built. `cruze validate`
 | `domain` | an `ENT` ID | the entity's own API, only for rules with real logic |
 | `smoke` | a `FLOW` ID | the real inbound adapter, end to end |
 
-Every delivered scenario has at least one `behaviour` row. The test file path is where the test will live. The subject ID appears in the test's name, or in a comment on the line directly above it when the language's names can't hold an ID. That is how `cruze trace` finds it.
+Every delivered scenario has at least one `behaviour` row, and every port that a built adapter `Implements` has a `contract` row. The test file path is where the test will live. The subject ID appears in the test's name, or in a comment on the line directly above it when the language's names can't hold an ID. That is how `cruze trace` finds it.
 
 ## Task lines
 

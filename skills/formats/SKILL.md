@@ -21,7 +21,7 @@ Every Cruze document is Markdown that people read and the `cruze` CLI parses. Wr
 | `.cruze/features/<id>/changes/<NN-slug>/change.md` | One change of a feature: scope, test plan, tasks | plan |
 | `.cruze/changes/<id>/change.md` | A standalone change, carrying its own deltas | architect (tweak scope) |
 | `.cruze/config.yaml` | Project configuration | `cruze init`, architect |
-| `.cruze/notes/<date>-<slug>.md` | A captured explore note, free-form | explore |
+| `.cruze/notes/<date>-<slug>.md` | A captured explore note, or research evidence behind an adopt-or-build decision, free-form | explore, research |
 
 Only the CLI writes `approvals.json`, `journal.jsonl` and anything under `.cruze/archive/`.
 
@@ -38,7 +38,7 @@ An ID names one element for its whole life. Other documents cite it, tests carry
 | --- | --- | --- | --- |
 | `GOAL` | A goal of the product | vision | none |
 | `CTX` | Bounded context | architecture | none |
-| `ENT` | Entity, aggregate or value object | architecture | context |
+| `ENT` | Domain concept: aggregate, entity, value object, domain service, policy or domain event | architecture | context |
 | `UC` | Use case (the application's driving API) | architecture | context |
 | `PORT` | Port, driven or driving | architecture | context |
 | `ADP` | Adapter | architecture | context |
@@ -71,10 +71,10 @@ The CLI owns some content so that routine bookkeeping never changes a design:
 
 Read the one that matches the document in front of you:
 
-- `reference/architecture.md` for `docs/architecture.md` and architecture deltas.
-- `reference/specs.md` for `docs/specs/`, requirements, scenarios and spec deltas.
-- `reference/work-items.md` for `feature.md`, `change.md`, test plans and task lines.
-- `reference/durable-docs.md` for vision, glossary, ADRs and the roadmap.
-- `reference/config.md` for `.cruze/config.yaml`.
+- [reference/architecture.md](reference/architecture.md) for `docs/architecture.md` and architecture deltas.
+- [reference/specs.md](reference/specs.md) for `docs/specs/`, requirements, scenarios and spec deltas.
+- [reference/work-items.md](reference/work-items.md) for `feature.md`, `change.md`, test plans and task lines.
+- [reference/durable-docs.md](reference/durable-docs.md) for vision, glossary, ADRs and the roadmap.
+- [reference/config.md](reference/config.md) for `.cruze/config.yaml`.
 
 Start new documents from the matching file in `templates/`. Replace every `<angle-bracket>` guide; the CLI fills `{{placeholders}}`.
