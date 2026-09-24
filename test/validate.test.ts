@@ -25,6 +25,7 @@ describe("validating a project", () => {
     { name: "a scope element no task proves", path: CHANGE_01_PATH, from: "- T8: `SerialConnector` in `src/access/adapters/serial_connector.rs`, proves ADP-access.serial-connector\n", to: "", rule: "unproved-scope" },
     { name: "a malformed task line", path: CHANGE_01_PATH, from: "- T1: `EscapeDetector` in", to: "- T1: EscapeDetector in", rule: "task-format" },
     { name: "a delivered scenario without a behaviour test", path: CHANGE_01_PATH, from: "| `tests/access_open_console.rs` | behaviour |\n| SCN-access.escape-not-completed", to: "| `tests/access_open_console.rs` | smoke |\n| SCN-access.escape-not-completed", rule: "missing-behaviour-test" },
+    { name: "a built adapter whose port has no contract test", path: CHANGE_01_PATH, from: "| `tests/contract_terminal.rs` | contract |", to: "| `tests/contract_terminal.rs` | smoke |", rule: "missing-contract-test" },
     { name: "a change scope that disagrees with the feature", path: CHANGE_01_PATH, from: "- Delivers: SCN-access.direct-serial, ", to: "- Delivers: ", rule: "scope-mismatch" },
     { name: "a leftover template guide", path: "docs/vision.md", from: "## Non-goals\n", to: "## Non-goals\n\n- <What the product deliberately doesn't do.>\n", rule: "template-leftover" },
     { name: "a roadmap blocking cycle", path: "docs/roadmap.md", from: "| walking-skeleton | change | GOAL-paths-in-config | |", to: "| walking-skeleton | change | GOAL-paths-in-config | open-console |", rule: "roadmap-cycle" },

@@ -1,6 +1,6 @@
 # Vision, glossary, ADR and roadmap formats
 
-Templates: `../templates/vision.md`, `../templates/glossary.md`, `../templates/adr.md` and `../templates/roadmap.md`.
+Templates: [../templates/vision.md](../templates/vision.md), [../templates/glossary.md](../templates/glossary.md), [../templates/adr.md](../templates/adr.md) and [../templates/roadmap.md](../templates/roadmap.md).
 
 ## docs/vision.md
 
@@ -39,7 +39,7 @@ _Avoid_: route, connection string
 
 ## docs/adr/<date>-<slug>.md
 
-Write one only when a decision is hard to reverse, would surprise a newcomer, and was a real trade-off. Everything else is a settled decision in a feature or change.
+Write one only when a decision is hard to reverse, would surprise a newcomer, and was a real trade-off. Everything else is a settled decision: in a feature or change, or at project scope in the architecture's `## Decisions`.
 
 ```markdown
 # Console paths are ordered hop chains

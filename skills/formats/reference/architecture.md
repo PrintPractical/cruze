@@ -2,7 +2,7 @@
 
 `docs/architecture.md` is the living model of how the system is built. Every step reads it, including build and review. It describes the designed system for the current and upcoming releases. Each element's managed `Status` says whether it is still `planned` or already `built`.
 
-Template: `../templates/architecture.md`.
+Template: [../templates/architecture.md](../templates/architecture.md).
 
 ## Sections
 
@@ -12,7 +12,7 @@ The document has these `##` sections, in this order. Each holds elements of one 
 | --- | --- | --- |
 | Overview | `VIEW` | One paragraph on the system, then a context diagram |
 | Bounded contexts | `CTX` | Each context's purpose and what it depends on |
-| Domain model | `ENT` | Entities, aggregates and value objects, with invariants and relationships |
+| Domain model | `ENT` | Entities, aggregates, value objects, domain services, policies and domain events, with invariants and relationships |
 | Use cases | `UC` | The application API: what callers can ask the system to do |
 | Ports | `PORT` | Capabilities the application needs (driven) or offers (driving) |
 | Adapters | `ADP` | Technology behind ports, and inbound adapters that drive use cases |
@@ -20,7 +20,7 @@ The document has these `##` sections, in this order. Each holds elements of one 
 | Modules | `MOD` | Where each element lives in the source tree |
 | Dependency rules | `RULE` | What may import what |
 | Cross-cutting concerns | `XC` | Errors, configuration, logging, concurrency, security |
-| Decisions | none | Links to ADRs, one line each |
+| Decisions | none | Links to ADRs, one line each, then project-level settled decisions as `D<n>: <decision> (<reason>)`, including overrides of Cruze's advice |
 
 ## Element facts
 
@@ -30,7 +30,7 @@ Facts are `- Key: value` items. Keys marked required must be present; the others
 | --- | --- | --- |
 | `VIEW` | a Mermaid block | |
 | `CTX` | `Purpose` | `Depends on` (context IDs, with what is used) |
-| `ENT` | `Kind` (`aggregate`, `entity` or `value`), `Module`, `File` | `Invariants`, `Relationships`, `States` (for state machines) |
+| `ENT` | `Kind` (`aggregate`, `entity`, `value`, `service`, `policy` or `event`), `Module`, `File` | `Invariants`, `Relationships`, `States` (for state machines) |
 | `UC` | `Input`, `Output`, `Errors`, `Uses`, `Module`, `File` | `Serves` (REQ IDs) |
 | `PORT` | `Direction` (`driven` or `driving`), `Operations`, `Module`, `File` | `Implemented by`, `Future` |
 | `ADP` | `Implements` (a driven port) or `Drives` (use cases), `Technology`, `Module`, `File` | `Adopts` (library and adopt-or-build reason) |

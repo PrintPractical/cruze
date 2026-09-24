@@ -6,7 +6,7 @@ It works with any agent that supports the [Agent Skills](https://agentskills.io)
 
 ## Status
 
-Early development. The CLI is complete for the V1 lifecycle, and the document formats ship as the `cruze-formats` skill. The skills that guide an agent through design and delivery arrive in later releases. Claude Code is the agent tested so far.
+Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, and the standards an agent designs and codes to ship as knowledge skills (below). The workflow skills that guide an agent through design and delivery arrive in later releases. Claude Code is the agent tested so far.
 
 ## Why
 
@@ -72,6 +72,20 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze journal add <event>` | Records a rethink, review round, disposition, override or bug; `cruze feedback export` bundles the journal for improving Cruze itself |
 
 Stepping back is editing: change an upstream document and every approval that cites a changed element shows as stale, with the element named. Re-approving is the rewind; there are no phases to reset.
+
+## Skills
+
+`cruze init` and `cruze install` put these into `.agents/skills/`. Agents load them when a situation calls for them, and the workflow skills will load them by path at the step that needs them.
+
+| Skill | What it holds |
+| --- | --- |
+| `cruze-formats` | The format of every Cruze document, with templates |
+| `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, and notes for Rust and C++ |
+| `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |
+| `cruze-grilling` | Interviewing the user in rounds until decisions settle, and challenging once before deferring |
+| `cruze-domain-language` | Building the glossary and using its words in documents, IDs and code |
+| `cruze-dependency-approval` | No new dependency without your explicit approval, and where approvals are recorded |
+| `cruze-research` | Adopting a mature library before building, and answering questions from primary sources at the right version |
 
 ## Development
 

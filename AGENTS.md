@@ -21,6 +21,7 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
   - `edits/`: the only code that writes managed content (status lines, progress, managed tables).
   - `land/`: merging deltas into living docs, and the bookkeeping of a land.
   - `check/`, `trace.ts`: layer rules, file budgets and scenario traceability.
+  - `skill.ts`, `skill_links.ts`: the format of bundled skills, and the pointers between their files.
 - `src/app/ports/`: capabilities the use cases need, named by capability (`ProjectFiles`, `Bundle`, `Prompter`, `Clock`, `Repository`).
 - `src/app/project_context.ts`: loads the project view and appends journal entries for the use cases.
 - `src/app/use_cases/`: one file per use case.
@@ -29,9 +30,11 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - `src/main.ts`: composition root and the `cruze` bin.
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
 - `skills/formats/`: the contract for every project document (IDs, elements, deltas, scope rules), with templates. Skills and the CLI both read it, so change a format there and nowhere else.
+- `skills/hexagonal-design/`, `behavioural-testing/`, `grilling/`, `domain-language/`, `dependency-approval/`, `research/`: knowledge skills, the standards that workflow skills load by installed path.
 - `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
 - `templates/`: files the CLI renders into projects, with `{{placeholders}}`.
-- `test/`: behaviour tests through the use cases, run against in-memory copies of `examples/console-access` (`test/support/harness.ts`), with fakes in `test/fakes/`; a lint of the shipped bundle; and a CLI smoke test.
+- `evals/`: checks of skills against real agent runs, starting with the load check (`evals/README.md`). Not shipped.
+- `test/`: behaviour tests through the use cases, run against in-memory copies of `examples/console-access` (`test/support/harness.ts`), with fakes in `test/fakes/`; a lint of the shipped bundle, including every pointer between skill files; tests of the eval tools; and a CLI smoke test.
 
 ## Conventions
 

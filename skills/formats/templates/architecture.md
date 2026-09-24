@@ -29,7 +29,7 @@ classDiagram
 ```
 
 ### ENT-<context>.<name>: <Entity title>
-- Kind: <aggregate | entity | value>
+- Kind: <aggregate | entity | value | service | policy | event>
 - Invariants:
   - <a rule that always holds>
 - Relationships:
@@ -97,3 +97,4 @@ sequenceDiagram
 ## Decisions
 
 - ADR-<stem>: <one-line summary>
+- D1: <a project-level decision below the ADR bar> (<reason>)

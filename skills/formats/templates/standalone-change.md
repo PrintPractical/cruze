@@ -10,6 +10,11 @@ roadmap: <roadmap item slug, when the change is on the roadmap>
 
 <Why this change, in the user's words, and what it deliberately leaves out.>
 
+## Adopt or build
+
+| Component | Decision | Choice | Reason |
+| --- | --- | --- | --- |
+
 ## Spec delta
 
 ### MODIFIED REQ-<capability>.<name>: <Requirement title>

@@ -76,6 +76,7 @@ title: Consoles over SSH hops
 | SCN-access.ssh-direct | UC-access.open-console with ADP-access.ssh-connector against a test SSH server | \`tests/access_ssh.rs\` | behaviour |
 | SCN-access.ssh-through-jump-host | the same, with two test servers | \`tests/access_ssh.rs\` | behaviour |
 | SCN-access.second-hop-refused | the same, with the second server refusing | \`tests/access_ssh.rs\` | behaviour |
+| PORT-access.hop-connector | ADP-access.ssh-connector and the fake, against a test SSH server | \`tests/contract_hop_connector.rs\` | contract |
 | FLOW-access.hop-failure | \`consolectl open\` against test servers | \`tests/cli_open_ssh.rs\` | smoke |
 
 ## Tasks
