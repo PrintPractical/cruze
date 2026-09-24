@@ -1,0 +1,17 @@
+# Cruze project configuration. Created by cruze {{cruze_version}}.
+version: 1
+project: {{project_name_quoted}}
+
+# Where work items are tracked. V1 supports markdown in the repository only.
+tracker: markdown
+
+# Limits enforced by `cruze check`. List a file under exceptions with a reason
+# to allow it past the size or type-count budget.
+check:
+  max_lines: 250
+  max_types: 5
+  exceptions: []
+
+# Layer rules: path globs and the layers each may import. Written by
+# project-scope architecture design from the module map.
+layers: []

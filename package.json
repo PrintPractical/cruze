@@ -1,0 +1,34 @@
+{
+  "name": "@printpractical/cruze",
+  "version": "0.1.0",
+  "description": "Spec-driven development for coding agents: one living model of the system, small deltas, convergent review.",
+  "license": "Apache-2.0",
+  "author": "Chris Buchter",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrintPractical/cruze.git"
+  },
+  "type": "module",
+  "bin": {
+    "cruze": "dist/main.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "check": "npm run typecheck && npm test && npm run build",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "^7.0.2"
+  }
+}
