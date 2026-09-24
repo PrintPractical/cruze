@@ -20,6 +20,8 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - `src/adapters/outbound/`: Node filesystem, the package bundle reader, the terminal prompter.
 - `src/main.ts`: composition root and the `cruze` bin.
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
+- `skills/formats/`: the contract for every project document (IDs, elements, deltas, scope rules), with templates. Skills and the CLI both read it, so change a format there and nowhere else.
+- `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
 - `templates/`: files the CLI renders into projects, with `{{placeholders}}`.
 - `test/`: behaviour tests through the use cases with in-memory fakes in `test/fakes/`, a lint of the shipped bundle, and a CLI smoke test.
 

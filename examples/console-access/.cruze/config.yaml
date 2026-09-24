@@ -1,0 +1,44 @@
+# Cruze project configuration, created by cruze 0.1.0.
+# The format is described in .agents/skills/cruze-formats/reference/config.md.
+version: 1
+project: "Console Access"
+
+# Where work items are tracked. V1 supports markdown in the repository only.
+tracker: markdown
+
+source: ["src/**/*.rs"]
+tests: ["src/**/*.rs", "tests/**/*.rs"]
+
+check:
+  max_lines: 250
+  max_types: 5
+  exceptions:
+    - path: src/cli/args.rs
+      reason: the clap derive struct lists every command and flag in one place
+
+# From the module map and dependency rules in docs/architecture.md.
+layers:
+  - name: inventory-domain
+    paths: ["src/inventory/domain/**"]
+    may_import: []
+  - name: inventory-app
+    paths: ["src/inventory/app/**"]
+    may_import: [inventory-domain]
+  - name: inventory-adapters
+    paths: ["src/inventory/adapters/**"]
+    may_import: [inventory-app, inventory-domain]
+  - name: access-domain
+    paths: ["src/access/domain/**"]
+    may_import: [inventory-domain]
+  - name: access-app
+    paths: ["src/access/app/**"]
+    may_import: [access-domain, inventory-app, inventory-domain]
+  - name: access-adapters
+    paths: ["src/access/adapters/**"]
+    may_import: [access-app, access-domain, inventory-domain]
+  - name: cli
+    paths: ["src/cli/**"]
+    may_import: [inventory-app, inventory-domain, access-app, access-domain]
+  - name: main
+    paths: ["src/main.rs", "src/lib.rs"]
+    may_import: [cli, inventory-adapters, inventory-app, inventory-domain, access-adapters, access-app, access-domain]
