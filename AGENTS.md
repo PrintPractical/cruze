@@ -13,17 +13,25 @@ Instructions for coding agents working on Cruze itself. Cruze is an npm package 
 
 The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` constructs adapters.
 
-- `src/domain/`: pure rules, such as project names, the skill format, the init scaffold and where agents look for skills. Imports nothing outside `domain/`.
-- `src/app/ports/`: capabilities the use cases need, named by capability (`ProjectFiles`, `Bundle`, `Prompter`).
+- `src/domain/`: pure rules that work on a snapshot of the project's files and return new text. Imports nothing outside `domain/` except Node's `crypto`/`path` and the `yaml` parser.
+  - `markdown.ts`, `elements.ts`, `ids.ts`, `hashing.ts`: parsing documents into elements and hashing their design content.
+  - `project/`: the living-docs model, work items and their parts, and the project view that loads them together.
+  - `validation/`: one file per group of rules from the cruze-formats skill.
+  - `approvals/`, `status/`: fingerprints, computed approval state, the build gate.
+  - `edits/`: the only code that writes managed content (status lines, progress, managed tables).
+  - `land/`: merging deltas into living docs, and the bookkeeping of a land.
+  - `check/`, `trace.ts`: layer rules, file budgets and scenario traceability.
+- `src/app/ports/`: capabilities the use cases need, named by capability (`ProjectFiles`, `Bundle`, `Prompter`, `Clock`, `Repository`).
+- `src/app/project_context.ts`: loads the project view and appends journal entries for the use cases.
 - `src/app/use_cases/`: one file per use case.
-- `src/adapters/inbound/cli/`: argument parsing, one handler per command in `commands/`, output.
+- `src/adapters/inbound/cli/`: argument parsing, the command table in `commands.ts`, handlers grouped in `commands/`, output.
 - `src/adapters/outbound/`: Node filesystem, the package bundle reader, the terminal prompter.
 - `src/main.ts`: composition root and the `cruze` bin.
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
 - `skills/formats/`: the contract for every project document (IDs, elements, deltas, scope rules), with templates. Skills and the CLI both read it, so change a format there and nowhere else.
 - `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
 - `templates/`: files the CLI renders into projects, with `{{placeholders}}`.
-- `test/`: behaviour tests through the use cases with in-memory fakes in `test/fakes/`, a lint of the shipped bundle, and a CLI smoke test.
+- `test/`: behaviour tests through the use cases, run against in-memory copies of `examples/console-access` (`test/support/harness.ts`), with fakes in `test/fakes/`; a lint of the shipped bundle; and a CLI smoke test.
 
 ## Conventions
 
@@ -36,6 +44,8 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - Commit messages follow Conventional Commits. Record user-visible changes under `[Unreleased]` in `CHANGELOG.md`.
 
 ## Known pitfalls
+
+- Anything the CLI writes inside a managed block or a `- Status:` line must stay out of every hash, or routine bookkeeping will make designs look edited. When adding a CLI write, add a test that approvals stay current across it.
 
 - Claude Code does not read `.agents/skills/`. It only finds Cruze skills through the links `cruze install` creates in `.claude/skills/`.
 - `npx <path-to-tarball>` fails. Use `npx --package=<tarball> cruze ...` to try a packed build.

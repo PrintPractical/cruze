@@ -1,8 +1,7 @@
 import { CruzeError } from "../../../domain/cruze_error.ts";
-import { type CliContext, type CommandResult, UsageError } from "./cli_context.ts";
-import { runInit } from "./commands/init.ts";
-import { runInstall } from "./commands/install.ts";
-import { USAGE, parseCommand } from "./parse_command.ts";
+import { type CliContext, UsageError } from "./cli_context.ts";
+import { COMMANDS, USAGE } from "./commands.ts";
+import { parseCommand } from "./parse_command.ts";
 
 export interface Terminal {
   stdout(text: string): void;
@@ -12,33 +11,29 @@ export interface Terminal {
 }
 
 /**
- * Runs one CLI invocation and returns the exit code. Agents get JSON on stdout;
- * people get a summary on stderr, and JSON only when they ask for it.
+ * Runs one CLI invocation and returns the exit code: 0 on success, 1 when a check fails or
+ * an expected error occurs, 2 for usage errors. Agents get JSON on stdout; people get a summary on stderr.
  */
 export async function runCli(argv: string[], context: CliContext, terminal: Terminal): Promise<number> {
-  let json = !terminal.stdoutIsTerminal;
+  let json = !terminal.stdoutIsTerminal || argv.includes("--json");
   try {
     const parsed = parseCommand(argv);
-    let result: CommandResult;
-    switch (parsed.command) {
-      case "help":
-        terminal.stderr(USAGE);
-        return 0;
-      case "version":
-        terminal.stdout(context.bundle.version);
-        return 0;
-      case "init":
-        json ||= parsed.json;
-        result = await runInit(context, parsed.options);
-        break;
-      case "install":
-        json ||= parsed.json;
-        result = await runInstall(context, parsed.options);
-        break;
+    json ||= parsed.options.json;
+    if (parsed.version) {
+      terminal.stdout(context.bundle.version);
+      return 0;
     }
+    const [name, ...args] = parsed.words;
+    if (parsed.help || name === undefined || name === "help") {
+      terminal.stderr(USAGE);
+      return 0;
+    }
+    const command = COMMANDS[name];
+    if (command === undefined) throw new UsageError(`Unknown command: ${name}`);
+    const result = await command.handler(context, args, parsed.options);
     terminal.stderr(result.human);
     if (json) terminal.stdout(JSON.stringify(result.json, null, 2));
-    return 0;
+    return result.failed === true ? 1 : 0;
   } catch (error) {
     if (error instanceof UsageError) {
       terminal.stderr(`${error.message}\n\n${USAGE}`);

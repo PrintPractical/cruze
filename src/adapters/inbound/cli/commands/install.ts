@@ -1,12 +1,8 @@
 import { installSkills, type InstallSkillsReport } from "../../../../app/use_cases/install_skills.ts";
-import type { CliContext, CommandResult } from "../cli_context.ts";
+import type { CliContext, CommandResult, Options } from "../cli_context.ts";
 
-export interface InstallOptions {
-  agents: string[];
-}
-
-export async function runInstall(context: CliContext, options: InstallOptions): Promise<CommandResult> {
-  const report = await installSkills({ files: context.files, bundle: context.bundle }, { agents: options.agents });
+export async function runInstall(context: CliContext, _args: string[], options: Options): Promise<CommandResult> {
+  const report = await installSkills({ files: context.files, bundle: context.bundle }, { agents: options.agent });
   return { json: report, human: describeSkillInstall(report).join("\n") };
 }
 

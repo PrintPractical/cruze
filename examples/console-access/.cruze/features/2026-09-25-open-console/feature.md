@@ -210,11 +210,6 @@ sequenceDiagram
   - `src/cli/open.rs`
   - `src/cli/output.rs`
 
-### MODIFIED MOD-access.domain: Access domain
-- Path: `src/access/domain/`
-- Layer: domain
-- Owns: ENT-access.console-session, ENT-access.escape-detector
-
 ## Changes
 
 | Change | Delivers | Builds | Depends on |

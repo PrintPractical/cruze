@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { Bundle, BundledSkill } from "../../src/app/ports/bundle.ts";
 import type { Prompter } from "../../src/app/ports/prompter.ts";
 
@@ -28,6 +29,10 @@ export class FakeBundle implements Bundle {
 
   async template(path: string): Promise<string> {
     return this.templates[path] ?? `template ${path} for {{project_name}}\n`;
+  }
+
+  async formatTemplate(name: string): Promise<string> {
+    return readFileSync(new URL(`../../skills/formats/templates/${name}`, import.meta.url), "utf8");
   }
 }
 

@@ -17,4 +17,6 @@ export interface Bundle {
   skills(): Promise<BundledSkill[]>;
   /** A template's text, by path relative to the templates directory. */
   template(path: string): Promise<string>;
+  /** A document template from the cruze-formats skill, such as `feature.md`. */
+  formatTemplate(name: string): Promise<string>;
 }

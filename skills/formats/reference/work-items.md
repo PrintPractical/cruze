@@ -19,7 +19,7 @@ Templates: `../templates/feature.md`, `../templates/change.md` and `../templates
 | `## Adopt or build` | Table of components that aren't domain logic, as Component, Decision (`adopt` or `build`), Choice and Reason |
 | `## Spec delta` | See `specs.md` |
 | `## Architecture delta` | See `architecture.md` |
-| `## Changes` | Table of the ordered changes, as Change, Delivers, Builds and Depends on |
+| `## Changes` | Table of the ordered changes, as Change, Delivers, Builds, Removes (optional) and Depends on |
 | `## Progress` | Managed: state of each change, landed commits and the deviation log |
 
 ## change.md
@@ -41,7 +41,10 @@ These rules close the gap between a design and what gets built. `cruze validate`
 
 - Every ID in a feature's deltas appears in the scope of exactly one of its changes. For a standalone change, that is its own scope. A `MODIFIED` or `REMOVED` requirement is covered by its ID or by one of its scenarios.
 - A scope may also name elements already in the living docs with status `planned`, such as a walking-skeleton change that builds elements the project architecture defined.
-- When a change lands, `land` merges the delta operations its scope covers. It sets delivered scenarios and built elements to `built`. Other scenarios of a merged requirement arrive as `planned`, to be delivered by a later change.
+- The first change of a feature to land merges the feature's whole delta, so the living docs never cite something a later change hasn't merged yet. What this change delivers or builds becomes `built`. Everything else arrives as `planned`, including a `MODIFIED` element whose new text isn't built yet. Each later change flips what it builds to `built`.
+- A `REMOVED` operation applies when the change whose scope lists it under `Removes` lands.
+- Under a `MODIFIED` requirement, a scenario must be in some change's scope when it is new or its text changed. An unchanged scenario the requirement keeps needs no change.
+- If someone else edits an element after this feature merged it, the next land refuses with a conflict instead of overwriting their edit. Resolve it with `rethink`.
 - The `Changes` table and each change's `Scope` agree. `plan` copies the row into the change and refines it; a disagreement is a validation error.
 
 ## Test plan
@@ -69,7 +72,7 @@ Every delivered scenario has at least one `behaviour` row. The test file path is
 
 ## Progress
 
-The managed block the CLI maintains:
+The managed block the CLI maintains. `cruze approve` binds a change to the current branch, `cruze task done` ticks a task with its commit, `cruze task deviation` records a deviation, and `cruze land` records the land:
 
 ```markdown
 <!-- cruze:managed -->

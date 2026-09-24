@@ -17,8 +17,6 @@ flowchart LR
 
 ### CTX-<name>: <Context title>
 - Purpose: <what this context is responsible for>
-- Owns:
-  - <ENT, UC and PORT IDs>
 - Depends on: <CTX ID and what it uses, or "nothing">
 
 ## Domain model
@@ -84,7 +82,6 @@ sequenceDiagram
 ### MOD-<context>.<name>: <Module title>
 - Path: `<directory or file>`
 - Layer: <domain | application | adapter | composition>
-- Owns: <element IDs>
 
 ## Dependency rules
 
