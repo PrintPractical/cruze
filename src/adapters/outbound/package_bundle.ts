@@ -38,6 +38,10 @@ export class PackageBundle implements Bundle {
   async template(path: string): Promise<string> {
     return readFile(join(this.root, "templates", path), "utf8");
   }
+
+  async formatTemplate(name: string): Promise<string> {
+    return readFile(join(this.root, "skills", "formats", "templates", name), "utf8");
+  }
 }
 
 async function readTree(dir: string): Promise<BundledFile[]> {

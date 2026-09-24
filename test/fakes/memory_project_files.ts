@@ -14,8 +14,29 @@ export class MemoryProjectFiles implements ProjectFiles {
     return this.files.has(path) || this.links.has(path) || this.paths().some((p) => p.startsWith(`${path}/`));
   }
 
+  async readText(path: string): Promise<string | undefined> {
+    return this.files.get(path);
+  }
+
   async writeText(path: string, text: string): Promise<void> {
     this.files.set(path, text);
+  }
+
+  async appendText(path: string, text: string): Promise<void> {
+    this.files.set(path, (this.files.get(path) ?? "") + text);
+  }
+
+  async listFiles(path: string): Promise<string[]> {
+    return [...this.files.keys()].filter((p) => path === "." || p.startsWith(`${path}/`)).sort();
+  }
+
+  async move(from: string, to: string): Promise<void> {
+    for (const [path, text] of [...this.files]) {
+      if (path === from || path.startsWith(`${from}/`)) {
+        this.files.delete(path);
+        this.files.set(to + path.slice(from.length), text);
+      }
+    }
   }
 
   async listEntries(path: string): Promise<string[]> {

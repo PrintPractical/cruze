@@ -1,18 +1,12 @@
 import { initProject } from "../../../../app/use_cases/init_project.ts";
-import type { CliContext, CommandResult } from "../cli_context.ts";
+import type { CliContext, CommandResult, Options } from "../cli_context.ts";
 import { describeSkillInstall } from "./install.ts";
 
-export interface InitOptions {
-  name?: string;
-  yes: boolean;
-  agents: string[];
-}
-
-export async function runInit(context: CliContext, options: InitOptions): Promise<CommandResult> {
+export async function runInit(context: CliContext, _args: string[], options: Options): Promise<CommandResult> {
   const prompter = options.yes || !context.interactive ? context.unattendedPrompter : context.interactivePrompter;
   const report = await initProject(
     { files: context.files, bundle: context.bundle, prompter },
-    { defaultName: context.directoryName, agents: options.agents, ...(options.name === undefined ? {} : { name: options.name }) },
+    { defaultName: context.directoryName, agents: options.agent, ...(options.name === undefined ? {} : { name: options.name }) },
   );
 
   const lines = [`Initialized ${report.project} with Cruze ${report.skills.version}.`];

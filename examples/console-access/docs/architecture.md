@@ -22,18 +22,10 @@ flowchart LR
 
 ### CTX-inventory: Inventory
 - Purpose: load, validate and look up the configured devices and their console paths
-- Owns:
-  - ENT-inventory.inventory, ENT-inventory.device, ENT-inventory.console-path, ENT-inventory.hop
-  - UC-inventory.list-devices, UC-inventory.find-device
-  - PORT-inventory.device-catalog
 - Depends on: nothing
 
 ### CTX-access: Access
 - Purpose: open console sessions over console paths, and run commands on them
-- Owns:
-  - ENT-access.console-session
-  - UC-access.open-console, UC-access.run-command
-  - PORT-access.hop-connector, PORT-access.console-link, PORT-access.terminal
 - Depends on: CTX-inventory, for UC-inventory.find-device and the console path types it returns
 
 ## Domain model
@@ -284,43 +276,36 @@ sequenceDiagram
 ### MOD-inventory.domain: Inventory domain
 - Path: `src/inventory/domain/`
 - Layer: domain
-- Owns: ENT-inventory.inventory, ENT-inventory.device, ENT-inventory.console-path, ENT-inventory.hop
 - Status: built
 
 ### MOD-inventory.app: Inventory application
 - Path: `src/inventory/app/`
 - Layer: application
-- Owns: UC-inventory.list-devices, UC-inventory.find-device, PORT-inventory.device-catalog
 - Status: built
 
 ### MOD-inventory.adapters: Inventory adapters
 - Path: `src/inventory/adapters/`
 - Layer: adapter
-- Owns: ADP-inventory.toml-catalog
 - Status: built
 
 ### MOD-access.domain: Access domain
 - Path: `src/access/domain/`
 - Layer: domain
-- Owns: ENT-access.console-session
 - Status: planned
 
 ### MOD-access.app: Access application
 - Path: `src/access/app/`
 - Layer: application
-- Owns: UC-access.open-console, UC-access.run-command, PORT-access.hop-connector, PORT-access.console-link, PORT-access.terminal
 - Status: planned
 
 ### MOD-access.adapters: Access adapters
 - Path: `src/access/adapters/`
 - Layer: adapter
-- Owns: ADP-access.serial-connector, ADP-access.ssh-connector, ADP-access.raw-terminal
 - Status: planned
 
 ### MOD-system.cli: Command line
 - Path: `src/cli/`
 - Layer: adapter
-- Owns: ADP-system.cli
 - Status: built
 
 ### MOD-system.main: Composition root
@@ -328,7 +313,6 @@ sequenceDiagram
   - `src/main.rs`
   - `src/lib.rs`
 - Layer: composition
-- Owns: the wiring; `main.rs` builds every adapter and use case, and `lib.rs` only declares modules
 - Status: built
 
 ## Dependency rules

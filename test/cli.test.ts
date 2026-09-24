@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, describe, it } from "node:test";
@@ -49,6 +49,20 @@ describe("the cruze command", () => {
   it("prints the package version", () => {
     const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
     assert.equal(cruze(emptyRepo(), "--version").stdout.trim(), pkg.version);
+  });
+
+  it("validates, approves and reports status on a copy of the worked example", () => {
+    const repo = emptyRepo();
+    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
+    const validated = cruze(repo, "validate");
+    assert.equal(validated.code, 0, validated.stderr);
+    assert.equal(JSON.parse(validated.stdout).valid, true);
+    assert.equal(cruze(repo, "approve", "vision").code, 0);
+    const status = JSON.parse(cruze(repo, "status").stdout);
+    assert.equal(status.documents[0].state, "approved");
+    const gate = cruze(repo, "status", "--gate", "build");
+    assert.equal(gate.code, 1);
+    assert.match(gate.stderr, /Build gate blocked/);
   });
 
   it("exits with 2 and shows usage for an unknown command", () => {

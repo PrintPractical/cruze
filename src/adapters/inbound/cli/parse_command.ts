@@ -1,28 +1,13 @@
 import { parseArgs } from "node:util";
-import type { InitOptions } from "./commands/init.ts";
-import type { InstallOptions } from "./commands/install.ts";
-import { UsageError } from "./cli_context.ts";
+import { UsageError, type Options } from "./cli_context.ts";
 
-export type ParsedCommand =
-  | { command: "help" }
-  | { command: "version" }
-  | { command: "init"; json: boolean; options: InitOptions }
-  | { command: "install"; json: boolean; options: InstallOptions };
-
-export const USAGE = `Usage: cruze <command> [options]
-
-Commands:
-  init       Set up this repository for Cruze and install the skills
-  install    Install or update the Cruze skills in this repository
-  help       Show this help
-
-Options:
-  --name <name>    Project name for init (asked for when omitted)
-  --yes, -y        Accept defaults without asking
-  --agent <name>   Also link skills for this agent (repeatable; known: claude)
-  --json           Print the JSON result even on a terminal
-  --version, -v    Print the Cruze version
-  --help, -h       Show this help`;
+export interface ParsedCommand {
+  /** The command and, for grouped commands, its subcommand, such as `new feature`. */
+  words: string[];
+  options: Options;
+  help: boolean;
+  version: boolean;
+}
 
 export function parseCommand(argv: string[]): ParsedCommand {
   let parsed;
@@ -37,29 +22,57 @@ export function parseCommand(argv: string[]): ParsedCommand {
         json: { type: "boolean", default: false },
         version: { type: "boolean", short: "v", default: false },
         help: { type: "boolean", short: "h", default: false },
+        title: { type: "string" },
+        feature: { type: "string" },
+        roadmap: { type: "string" },
+        change: { type: "string" },
+        commit: { type: "string" },
+        summary: { type: "string" },
+        goals: { type: "string" },
+        reason: { type: "string" },
+        set: { type: "string", multiple: true, default: [] },
+        item: { type: "string" },
+        event: { type: "string" },
+        out: { type: "string" },
+        "no-redact": { type: "boolean", default: false },
+        all: { type: "boolean", default: false },
+        file: { type: "string", multiple: true, default: [] },
+        ci: { type: "boolean", default: false },
+        gate: { type: "string" },
+        override: { type: "string" },
+        overlap: { type: "boolean", default: false },
       },
     });
   } catch (error) {
     throw new UsageError(error instanceof Error ? error.message : String(error));
   }
-
   const { values, positionals } = parsed;
-  if (values.version) return { command: "version" };
-  const [command, ...extra] = positionals;
-  if (values.help || command === undefined || command === "help") return { command: "help" };
-  if (extra.length > 0) throw new UsageError(`Unexpected argument: ${extra.join(" ")}`);
-
-  switch (command) {
-    case "init":
-      return {
-        command,
-        json: values.json,
-        options: { yes: values.yes, agents: values.agent, ...(values.name === undefined ? {} : { name: values.name }) },
-      };
-    case "install":
-      if (values.name !== undefined) throw new UsageError("--name only applies to init");
-      return { command, json: values.json, options: { agents: values.agent } };
-    default:
-      throw new UsageError(`Unknown command: ${command}`);
-  }
+  const optional = <K extends string>(key: K, value: string | undefined): Partial<Record<K, string>> =>
+    value === undefined ? {} : ({ [key]: value } as Record<K, string>);
+  const options: Options = {
+    yes: values.yes,
+    agent: values.agent,
+    json: values.json,
+    set: values.set,
+    redact: !values["no-redact"],
+    all: values.all,
+    file: values.file,
+    ci: values.ci,
+    overlap: values.overlap,
+    ...optional("name", values.name),
+    ...optional("title", values.title),
+    ...optional("feature", values.feature),
+    ...optional("roadmap", values.roadmap),
+    ...optional("change", values.change),
+    ...optional("commit", values.commit),
+    ...optional("summary", values.summary),
+    ...optional("goals", values.goals),
+    ...optional("reason", values.reason),
+    ...optional("item", values.item),
+    ...optional("event", values.event),
+    ...optional("out", values.out),
+    ...optional("gate", values.gate),
+    ...optional("override", values.override),
+  };
+  return { words: positionals, options, help: values.help, version: values.version };
 }

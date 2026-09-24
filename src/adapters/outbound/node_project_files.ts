@@ -1,5 +1,5 @@
-import { lstat, mkdir, readdir, rm, symlink, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { appendFile, lstat, mkdir, readFile, readdir, rename, rm, symlink, writeFile } from "node:fs/promises";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import type { ProjectFiles } from "../../app/ports/project_files.ts";
 
 /** Project files on the local disk, confined to one root directory. */
@@ -20,10 +20,44 @@ export class NodeProjectFiles implements ProjectFiles {
     }
   }
 
+  async readText(path: string): Promise<string | undefined> {
+    try {
+      return await readFile(this.resolve(path), "utf8");
+    } catch (error) {
+      if (isNotFound(error)) return undefined;
+      throw error;
+    }
+  }
+
   async writeText(path: string, text: string): Promise<void> {
     const target = this.resolve(path);
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, text, "utf8");
+  }
+
+  async appendText(path: string, text: string): Promise<void> {
+    const target = this.resolve(path);
+    await mkdir(dirname(target), { recursive: true });
+    await appendFile(target, text, "utf8");
+  }
+
+  async listFiles(path: string): Promise<string[]> {
+    try {
+      const entries = await readdir(this.resolve(path), { withFileTypes: true, recursive: true });
+      return entries
+        .filter((entry) => entry.isFile())
+        .map((entry) => relative(this.root, join(entry.parentPath, entry.name)).split(sep).join("/"))
+        .sort();
+    } catch (error) {
+      if (isNotFound(error)) return [];
+      throw error;
+    }
+  }
+
+  async move(from: string, to: string): Promise<void> {
+    const target = this.resolve(to);
+    await mkdir(dirname(target), { recursive: true });
+    await rename(this.resolve(from), target);
   }
 
   async listEntries(path: string): Promise<string[]> {

@@ -65,7 +65,7 @@ The CLI owns some content so that routine bookkeeping never changes a design:
 
 - A block between `<!-- cruze:managed -->` and `<!-- /cruze:managed -->` is written only by the CLI.
 - A `- Status: planned` or `- Status: built` item in an element body is written only by the CLI. Elements that have code (`ENT`, `UC`, `PORT`, `ADP`, `FLOW`, `MOD`) and scenarios (`SCN`) carry one.
-- Both are excluded from every hash. Read them freely; change them only through `cruze` commands.
+- Both are excluded from every hash. Read them freely; change them only through `cruze` commands: `cruze approve` adds missing statuses to the architecture and binds a change to its branch, `cruze task` records progress, `cruze features` edits the feature map, and `cruze land` merges work and marks it built.
 
 ## Reference files
 

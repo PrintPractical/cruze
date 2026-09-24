@@ -2,6 +2,7 @@
 // Composition root: the only place that constructs adapters.
 import { basename } from "node:path";
 import { runCli } from "./adapters/inbound/cli/run_cli.ts";
+import { GitRepository } from "./adapters/outbound/git_repository.ts";
 import { NodeProjectFiles } from "./adapters/outbound/node_project_files.ts";
 import { PackageBundle } from "./adapters/outbound/package_bundle.ts";
 import { DefaultAnswerPrompter, TerminalPrompter } from "./adapters/outbound/terminal_prompter.ts";
@@ -12,6 +13,8 @@ const exitCode = await runCli(
   {
     files: new NodeProjectFiles(cwd),
     bundle: await PackageBundle.locate(),
+    clock: { now: () => new Date() },
+    repository: new GitRepository(cwd),
     interactivePrompter: new TerminalPrompter(),
     unattendedPrompter: new DefaultAnswerPrompter(),
     interactive: process.stdin.isTTY === true,
