@@ -77,4 +77,4 @@ Read the one that matches the document in front of you:
 - [reference/durable-docs.md](reference/durable-docs.md) for vision, glossary, ADRs and the roadmap.
 - [reference/config.md](reference/config.md) for `.cruze/config.yaml`.
 
-Start new documents from the matching file in `templates/`. Replace every `<angle-bracket>` guide; the CLI fills `{{placeholders}}`.
+Create documents with `cruze new`: `cruze new vision`, `glossary`, `architecture` or `roadmap` for the project documents, and `cruze new feature`, `change`, `adr` or `note <slug> --title <title>` for the rest. It starts each one from the matching file in `templates/` and fills the `{{placeholders}}`. Replace every `<angle-bracket>` guide.

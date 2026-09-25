@@ -13,12 +13,12 @@ Cruze skills are read by agents, not people. Write them for the agent that reads
 
 ## Two kinds of skill
 
-- **Workflow skills** are the commands a person runs: `explore`, `envision`, `architect`, `plan`, `build`, `verify`, `land`, `triage`, `rethink`, `next`. The description is one plain sentence saying what the command does. Each one ends by naming the next step, taken from `cruze status`.
+- **Workflow skills** are the commands a person runs: `explore`, `envision`, `architect`, `plan`, `build`, `verify`, `land`, `triage`, `rethink`, `next`. The description is one plain sentence saying what the command does. Each one ends by naming the next step. The `next` skill works it out from `cruze status` when the path isn't fixed.
 - **Knowledge skills** hold standards: `hexagonal-design`, `behavioural-testing`, `grilling`, `domain-language`, `dependency-approval` and `research`. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by installed path, at the step that needs them, so nothing depends on a trigger firing. A knowledge skill opens with the procedure an agent follows when it applies the standard, then the rules, and puts material only some runs need (a language, runtime concerns, worked examples) in sibling files.
 
 ## Agent neutrality
 
-Skills run under Claude Code, Codex, OpenCode and others. Name the action, never an agent's tool: write "read `docs/architecture.md`", "run `cruze check --file <path>`" or "ask the user", not the name of a specific agent's read, shell or question tool. When a step needs a fresh-context reviewer, point to the role file in `roles/` and to `cruze review`, which starts one under any agent.
+Skills run under Claude Code, Codex, OpenCode and others. Name the action, never an agent's tool: write "read `docs/architecture.md`", "run `cruze check --file <path>`" or "ask the user", not the name of a specific agent's read, shell or question tool. When a step needs a fresh-context reviewer or researcher, point to `.agents/skills/cruze-roles/SKILL.md`, which says how to run a role under any agent, and name the role.
 
 ## Structure
 

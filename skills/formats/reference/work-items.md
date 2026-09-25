@@ -35,12 +35,16 @@ Templates: [../templates/feature.md](../templates/feature.md), [../templates/cha
 
 A standalone change adds `## Intent`, `## Adopt or build`, `## Spec delta` and `## Architecture delta` before its `## Scope`, in the same format as a feature's. Its scope covers every ID in its own deltas, plus any `planned` elements from the living docs that it builds.
 
+A feature is designed in two steps. Feature-scope `envision` writes the intent, settled decisions and spec delta, and leaves `## Architecture delta` as `None.` and the Changes table empty. `architect` writes the architecture delta and the changes. Until the Changes table has a row, `cruze validate` reports the feature as `not-designed` (a warning), skips the coverage rules, and `cruze approve` refuses it.
+
+`architect` writes a standalone change's design sections and its scope, and leaves the test plan table empty and the tasks section blank. Until `plan` fills them, `cruze validate` reports the change as `not-planned` (a warning), skips the task and test plan rules, and `cruze approve` refuses it.
+
 ## Scope rules
 
 These rules close the gap between a design and what gets built. `cruze validate` checks them.
 
 - Every ID in a feature's deltas appears in the scope of exactly one of its changes. For a standalone change, that is its own scope. A `MODIFIED` or `REMOVED` requirement is covered by its ID or by one of its scenarios.
-- A scope may also name elements already in the living docs with status `planned`, such as a walking-skeleton change that builds elements the project architecture defined.
+- A scope may also name elements already in the living docs with status `planned`, such as a walking-skeleton change that builds elements the project architecture defined. An element with no status yet counts as planned: it appears only while the architecture has never been approved, so project-scope architect can write the walking skeleton before that first approval.
 - The first change of a feature to land merges the feature's whole delta, so the living docs never cite something a later change hasn't merged yet. What this change delivers or builds becomes `built`. Everything else arrives as `planned`, including a `MODIFIED` element whose new text isn't built yet. Each later change flips what it builds to `built`.
 - A `REMOVED` operation applies when the change whose scope lists it under `Removes` lands.
 - Under a `MODIFIED` requirement, a scenario must be in some change's scope when it is new or its text changed. An unchanged scenario the requirement keeps needs no change.

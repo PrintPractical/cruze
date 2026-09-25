@@ -1,4 +1,4 @@
-import { addFutureFeature, completeTask, dropFutureFeature, recordDeviation } from "../../../../app/use_cases/record_progress.ts";
+import { addFutureFeature, completeTask, dropFutureFeature, pruneRoadmap, recordDeviation } from "../../../../app/use_cases/record_progress.ts";
 import { UsageError, requireArgs, requireOption, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
 export async function runTask(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
@@ -28,4 +28,11 @@ export async function runFeatures(context: CliContext, args: string[], options: 
     return { json: report, human: `Dropped ${report.feature} from the future list.` };
   }
   throw new UsageError(`cruze features takes add or drop, not "${args[0]}"`);
+}
+
+export async function runRoadmap(context: CliContext, args: string[]): Promise<CommandResult> {
+  requireArgs(args, ["prune"]);
+  if (args[0] !== "prune") throw new UsageError(`cruze roadmap takes prune, not "${args[0]}"`);
+  const report = await pruneRoadmap(context);
+  return { json: report, human: report.removed.length === 0 ? "No landed items to clear." : `Cleared ${report.removed.join(", ")} from the roadmap status.` };
 }

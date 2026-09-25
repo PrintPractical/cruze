@@ -1,4 +1,4 @@
-import { statusOf } from "../elements.ts";
+import { isUnbuilt } from "../elements.ts";
 import { findIds, kindOf } from "../ids.ts";
 import { elementHash } from "../hashing.ts";
 import { findSection, type MarkdownDoc } from "../markdown.ts";
@@ -10,7 +10,7 @@ import { changesOf, featureOf, type WorkItem } from "../project/work_items.ts";
 import { deltaProblems } from "./delta_rules.ts";
 import { malformedIdHeadings, lineOf } from "./living_rules.ts";
 import { changePlanProblems } from "./plan_rules.ts";
-import { error, type Problem } from "./problem.ts";
+import { error, warning, type Problem } from "./problem.ts";
 
 const REQUIRED_SECTIONS: Record<WorkItem["kind"], string[]> = {
   feature: ["Intent", "Spec delta", "Architecture delta", "Changes"],
@@ -58,6 +58,7 @@ function itemProblems(view: ProjectView, item: WorkItem): Problem[] {
 /** A feature's Changes table covers its deltas, and each change folder agrees with its row. */
 function featureScopeProblems(view: ProjectView, feature: WorkItem, delta: Delta): Problem[] {
   const rows = readChangesTable(feature.doc);
+  if (rows.length === 0) return [warning(feature.path, undefined, "not-designed", "the feature has no changes yet; architect designs and splits it")];
   const problems: Problem[] = [];
   const landedChanges = new Set(
     [...readProgress(feature.doc).changes].filter(([, state]) => state === "landed").map(([change]) => change),
@@ -72,7 +73,7 @@ function featureScopeProblems(view: ProjectView, feature: WorkItem, delta: Delta
     }
     for (const id of landedChanges.has(row.change) ? [] : [...row.delivers, ...row.builds]) {
       const living = view.living.elements.get(id);
-      const planned = living !== undefined && statusOf(living.doc, living.element) === "planned";
+      const planned = living !== undefined && isUnbuilt(living.doc, living.element);
       if (!delta.ids.has(id) && !planned) problems.push(error(feature.path, row.line, "scope-not-planned", `${id} must come from this feature's deltas or be planned in the living docs`));
     }
   }

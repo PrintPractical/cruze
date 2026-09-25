@@ -15,7 +15,7 @@ export function livingProblems(view: ProjectView): Problem[] {
   }
   for (const [path, doc] of view.living.docs) {
     problems.push(...malformedIdHeadings(path, doc));
-    if (path === PATHS.architecture) problems.push(...architectureProblems(path, doc));
+    if (path === PATHS.architecture) problems.push(...architectureProblems(path, doc, everApproved(view, path)));
     else if (path.startsWith(`${PATHS.specsDir}/`)) problems.push(...specProblems(path, doc));
     else if (path.startsWith(`${PATHS.adrDir}/`)) problems.push(...adrProblems(path, doc));
   }
@@ -38,7 +38,12 @@ export function malformedIdHeadings(path: string, doc: MarkdownDoc): Problem[] {
   });
 }
 
-function architectureProblems(path: string, doc: MarkdownDoc): Problem[] {
+/** Statuses are stamped by the first approval, so their absence before it is expected. */
+function everApproved(view: ProjectView, path: string): boolean {
+  return [...view.approvals.values()].some((file) => file.approvals.some((record) => record.artifact === path));
+}
+
+function architectureProblems(path: string, doc: MarkdownDoc, approved: boolean): Problem[] {
   const problems: Problem[] = [];
   for (const element of headingElements(doc)) {
     const section = [...doc.headings].reverse().find((h) => h.level === 2 && h.line < element.start);
@@ -47,7 +52,7 @@ function architectureProblems(path: string, doc: MarkdownDoc): Problem[] {
     } else if (element.kind !== "VIEW" && section?.text !== sectionForKind(element.kind)) {
       problems.push(error(path, element.start, "misplaced-element", `${element.id} belongs under "## ${sectionForKind(element.kind)}"`));
     }
-    problems.push(...elementProblems(path, doc, element), ...statusProblems(path, doc, element));
+    problems.push(...elementProblems(path, doc, element), ...(approved ? statusProblems(path, doc, element) : []));
   }
   return problems;
 }

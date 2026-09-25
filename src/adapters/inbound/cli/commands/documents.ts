@@ -1,4 +1,5 @@
 import { approveArtifact } from "../../../../app/use_cases/approve_artifact.ts";
+import { PROJECT_DOC_KINDS, createNote, createProjectDoc, type ProjectDocKind } from "../../../../app/use_cases/new_project_doc.ts";
 import { createWorkItem, type NewKind } from "../../../../app/use_cases/new_work_item.ts";
 import { validate } from "../../../../app/use_cases/validate_project.ts";
 import type { Problem } from "../../../../domain/validation/problem.ts";
@@ -20,9 +21,20 @@ export async function runApprove(context: CliContext, args: string[]): Promise<C
 }
 
 export async function runNew(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
-  requireArgs(args, ["feature|change|adr", "slug"]);
+  requireArgs(args, ["kind"]);
+  if (PROJECT_DOC_KINDS.includes(args[0] as ProjectDocKind)) {
+    const report = await createProjectDoc(context, args[0] as ProjectDocKind);
+    return { json: report, human: `Created ${report.path}` };
+  }
+  requireArgs(args, ["kind", "slug"]);
+  if (args[0] === "note") {
+    const report = await createNote(context, args[1] ?? "", requireOption(options.title, "--title"));
+    return { json: report, human: `Created ${report.path}` };
+  }
   const kind = args[0] as NewKind;
-  if (!["feature", "change", "adr"].includes(kind)) throw new UsageError(`cruze new takes feature, change or adr, not "${args[0]}"`);
+  if (!["feature", "change", "adr"].includes(kind)) {
+    throw new UsageError(`cruze new takes ${PROJECT_DOC_KINDS.join(", ")}, feature, change, adr or note, not "${args[0]}"`);
+  }
   const report = await createWorkItem(context, {
     kind,
     slug: args[1] ?? "",

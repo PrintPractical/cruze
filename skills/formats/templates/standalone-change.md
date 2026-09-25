@@ -33,11 +33,9 @@ None.
 
 | Subject | Seam | Test file | Kind |
 | --- | --- | --- | --- |
-| <SCN ID> | <UC ID> with fake <PORT IDs> | `<path>` | behaviour |
 
 ## Tasks
 
-- T1: `<owner>` in `<path>`, proves <IDs>
 
 ## Settled decisions
 

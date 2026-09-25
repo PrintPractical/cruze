@@ -6,7 +6,7 @@ It works with any agent that supports the [Agent Skills](https://agentskills.io)
 
 ## Status
 
-Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, and the standards an agent designs and codes to ship as knowledge skills (below). The workflow skills that guide an agent through design and delivery arrive in later releases. Claude Code is the agent tested so far.
+Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the design half of the workflow (explore, envision, architect, roadmap) ships as workflow skills. The delivery half (plan, build, verify, land) arrives in a later release. Claude Code is the agent tested so far.
 
 ## Why
 
@@ -63,9 +63,10 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state |
 | `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current |
 | `cruze status --overlap` | Lists changes on other branches that touch the same elements as this branch's change |
-| `cruze new <feature\|change\|adr>` | Creates work from its template, with a dated ID that is never reused |
+| `cruze new <kind>` | Creates a project document (`vision`, `glossary`, `architecture`, `roadmap`) or work (`feature`, `change`, `adr`, `note`) from its template, with a dated ID that is never reused |
 | `cruze task done <T#>` | Ticks a task with its commit; `cruze task deviation` records a small departure from the plan |
 | `cruze features <add\|drop>` | Edits the future list of the feature map |
+| `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
 | `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |
 | `cruze land` | Merges a finished change into the living docs, re-stamps the approvals the merge would make stale, and archives finished work |
@@ -79,6 +80,11 @@ Stepping back is editing: change an upstream document and every approval that ci
 
 | Skill | What it holds |
 | --- | --- |
+| `cruze-explore` | Optional thinking partner before any step: options and trade-offs, captured as a note only when you ask |
+| `cruze-envision` | The what: the project's vision, goals and feature map, or one feature's intent and requirements with scenarios |
+| `cruze-architect` | The how: the architecture, a feature's architecture delta and its changes, or a tweak; ends with a design review and a walkthrough for your approval |
+| `cruze-roadmap` | Orders the release into phases with blocking edges and goal coverage, and closes a release |
+| `cruze-roles` | The fresh-context design reviewer and researcher, and how a review runs to a disposition for every finding |
 | `cruze-formats` | The format of every Cruze document, with templates |
 | `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, and notes for Rust and C++ |
 | `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |

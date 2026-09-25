@@ -11,6 +11,15 @@ describe("validating a project", () => {
     assert.equal(report.valid, true);
   });
 
+  it("expects no statuses in an architecture that has never been approved, and asks for them once it has", async () => {
+    const h = await exampleProject();
+    const unstamped = (h.files.files.get("docs/architecture.md") ?? "").replace(/^- Status: (planned|built)\n/gm, "");
+    h.files.files.set("docs/architecture.md", unstamped);
+    assert.deepEqual((await validate(h.deps)).problems.filter((p) => p.rule === "missing-status"), []);
+    h.files.files.set(".cruze/approvals.json", JSON.stringify({ version: 1, approvals: [{ artifact: "docs/architecture.md", hash: "sha256:0", upstream: {}, approvedAt: "2026-09-24T00:00:00Z", by: "a" }], merged: {} }));
+    assert.ok((await validate(h.deps)).problems.some((p) => p.rule === "missing-status"));
+  });
+
   // Each case breaks one rule of the cruze-formats skill and names the rule that must catch it.
   const cases: Array<{ name: string; path: string; from: string; to: string; rule: string }> = [
     { name: "a cited ID that no document defines", path: "docs/architecture.md", from: "- Uses: PORT-inventory.device-catalog\n", to: "- Uses: PORT-inventory.device-katalog\n", rule: "unknown-id" },
