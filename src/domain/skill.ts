@@ -79,3 +79,28 @@ function unquote(value: string): string {
   const quoted = /^"(.*)"$/.exec(value) ?? /^'(.*)'$/.exec(value);
   return quoted?.[1] ?? value;
 }
+
+/**
+ * Agent-specific tool names a skill must not use, because skills run under any agent. Plain
+ * verbs such as "Read" or "Edit" are fine; these patterns catch tool-shaped uses only.
+ */
+const AGENT_TOOL_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
+  { pattern: /\b(TodoWrite|WebFetch|WebSearch|AskUserQuestion|NotebookEdit|MultiEdit|ExitPlanMode|SlashCommand|subagent_type)\b/, label: "a Claude Code tool name" },
+  { pattern: /`(Read|Write|Edit|Bash|Grep|Glob|Task|Agent|Skill|LS)`/, label: "a tool name in backticks" },
+  { pattern: /\b(Read|Write|Edit|Bash|Grep|Glob|Task|Agent|Skill)\s+tool\b/, label: "a named tool" },
+  { pattern: /\b(Bash|Read|Write|Edit|WebFetch)\([^)]*\)/, label: "a tool permission pattern" },
+];
+
+/**
+ * Lines of a skill file that name an agent-specific tool. Fenced code blocks are skipped: they
+ * hold data such as a config example, which may be written for one agent.
+ */
+export function agentToolProblems(where: string, text: string): string[] {
+  let inFence = false;
+  return text.split("\n").flatMap((line, i) => {
+    if (/^\s*(```|~~~)/.test(line)) inFence = !inFence;
+    if (inFence) return [];
+    const hit = AGENT_TOOL_PATTERNS.find(({ pattern }) => pattern.test(line));
+    return hit === undefined ? [] : [`${where}:${i + 1}: names ${hit.label}; describe the action instead`];
+  });
+}

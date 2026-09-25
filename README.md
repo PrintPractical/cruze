@@ -6,7 +6,7 @@ It works with any agent that supports the [Agent Skills](https://agentskills.io)
 
 ## Status
 
-Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the whole workflow, from explore to land, ships as workflow skills. Claude Code is the agent tested so far.
+Version 0.0.1 is the first preview. Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the whole workflow, from explore to land, ships as workflow skills. Claude Code is the agent tested so far.
 
 ## Why
 
@@ -22,13 +22,41 @@ Cruze answers each of these with a specific mechanism. A living `docs/architectu
 
 ## Quick start
 
-Requires Node.js 22.18 or later. In the root of a repository:
+Requires Node.js 22.18 or later, and git.
+
+### 1. Install the CLI
+
+The skills run `cruze` commands, so the agent needs `cruze` on its path. Install it globally, from npm or straight from GitHub.
+
+From npm:
 
 ```sh
-npx @printpractical/cruze init
+npm install -g @printpractical/cruze
 ```
 
-This asks for the project name, then creates:
+From GitHub, without npm, pinned to a release tag (or `#main` for the latest):
+
+```sh
+npm install -g github:PrintPractical/cruze#v0.0.1
+```
+
+npm clones the repository and builds the CLI as it installs; that needs git, and access to the repository. `cruze --version` confirms which version you have.
+
+### 2. Set up a repository
+
+In the root of the repository:
+
+```sh
+cruze init
+```
+
+When you installed from GitHub, tell `init` so, so the CI it writes runs the same source instead of the npm package:
+
+```sh
+cruze init --package github:PrintPractical/cruze#v0.0.1
+```
+
+`init` asks for the project name, then creates:
 
 | Path | Purpose |
 | --- | --- |
@@ -37,16 +65,19 @@ This asks for the project name, then creates:
 | `AGENTS.md` | Agent instructions; Cruze keeps its managed sections current |
 | `CLAUDE.md` | One line that imports `AGENTS.md`, for Claude Code |
 | `.cruze/config.yaml` | Project configuration |
-| `.github/workflows/ci.yml` | A CI stub that later changes make real |
+| `.github/workflows/ci.yml` | CI that runs `cruze validate`, `check` and `trace`; the walking-skeleton change adds the language's build and test steps |
+| `.gitattributes` | Merges Cruze's journals line by line, so parallel branches don't conflict on them |
 | `.agents/skills/cruze-*` | The Cruze skills, linked into `.claude/skills/` for Claude Code |
 
 Existing files are never overwritten, so it is safe to run in an existing repository.
 
-After upgrading the package, update the skills:
+To upgrade, install the new version globally the same way, then update the skills in each repository:
 
 ```sh
-npx @printpractical/cruze install
+cruze install
 ```
+
+Also update the version in `.github/workflows/ci.yml`.
 
 `install` replaces the Cruze skills (those named `cruze-*`) and leaves your own skills alone. Pass `--agent claude` to link skills for Claude Code in a repository without `CLAUDE.md` or `.claude/`.
 
@@ -102,6 +133,16 @@ Stepping back is editing: change an upstream document and every approval that ci
 | `cruze-domain-language` | Building the glossary and using its words in documents, IDs and code |
 | `cruze-dependency-approval` | No new dependency without your explicit approval, and where approvals are recorded |
 | `cruze-research` | Adopting a mature library before building, and answering questions from primary sources at the right version |
+
+## Reporting back
+
+Cruze improves from what goes wrong in real projects. Every rethink, review finding, bug and override is recorded in the project's journal. To send them back:
+
+```sh
+cruze feedback export --out cruze-feedback.json
+```
+
+The export replaces the project name, and the name of whoever approved or recorded each entry, with placeholders. Read it before sharing: summaries can still mention your domain or people. Attach it to an issue at https://github.com/PrintPractical/cruze/issues. Maintainers turn it into changes with the `cruze-retro` skill in this repository.
 
 ## Development
 

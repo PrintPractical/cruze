@@ -11,6 +11,11 @@ export interface InitProjectRequest {
   /** Offered as the default answer when asking for the name. */
   defaultName: string;
   agents: string[];
+  /**
+   * How CI runs this version of Cruze through npx, such as `github:PrintPractical/cruze#v0.0.1`
+   * for a git install. Defaults to the published npm package at this version.
+   */
+  package?: string;
 }
 
 export interface InitProjectReport {
@@ -35,6 +40,7 @@ export async function initProject(
     project_name: project,
     project_name_quoted: JSON.stringify(project),
     cruze_version: bundle.version,
+    cruze_package: request.package ?? `@printpractical/cruze@${bundle.version}`,
   };
 
   const created: string[] = [];

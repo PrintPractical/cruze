@@ -1,6 +1,6 @@
 {
   "name": "@printpractical/cruze",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Spec-driven development for coding agents: one living model of the system, small deltas, convergent review.",
   "license": "Apache-2.0",
   "author": "Chris Buchter",
@@ -25,7 +25,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "node --test \"test/**/*.test.ts\"",
     "check": "npm run typecheck && npm test && npm run build",
-    "prepack": "npm run build"
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.20.4",

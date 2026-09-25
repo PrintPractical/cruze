@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, describe, it } from "node:test";
@@ -70,5 +70,23 @@ describe("the cruze command", () => {
     assert.equal(code, 2);
     assert.match(stderr, /Unknown command: frobnicate/);
     assert.match(stderr, /Usage: cruze/);
+  });
+
+  it("checks one file of a 10,000-line repository in under a second, for the per-task check", () => {
+    const repo = emptyRepo();
+    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
+    const dirs = ["src/inventory/domain", "src/inventory/app", "src/inventory/adapters", "src/access/domain", "src/access/app", "src/access/adapters", "src/cli"];
+    for (let i = 0; i < 100; i++) {
+      const lines = ["use crate::inventory::domain::device::Device;", "use std::collections::HashMap;"];
+      while (lines.length < 100) lines.push(`fn f${lines.length}() -> u32 { ${lines.length} }`);
+      const dir = join(repo, dirs[i % dirs.length] ?? "src");
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, `generated_${i}.rs`), `${lines.join("\n")}\n`);
+    }
+    const started = performance.now();
+    const { code, stderr } = cruze(repo, "check", "src/inventory/domain/generated_0.rs", "--json");
+    const elapsed = performance.now() - started;
+    assert.equal(code, 0, stderr);
+    assert.ok(elapsed < 1000, `cruze check --file took ${Math.round(elapsed)} ms`);
   });
 });

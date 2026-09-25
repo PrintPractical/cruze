@@ -6,7 +6,12 @@ export async function runInit(context: CliContext, _args: string[], options: Opt
   const prompter = options.yes || !context.interactive ? context.unattendedPrompter : context.interactivePrompter;
   const report = await initProject(
     { files: context.files, bundle: context.bundle, prompter },
-    { defaultName: context.directoryName, agents: options.agent, ...(options.name === undefined ? {} : { name: options.name }) },
+    {
+      defaultName: context.directoryName,
+      agents: options.agent,
+      ...(options.name === undefined ? {} : { name: options.name }),
+      ...(options.package === undefined ? {} : { package: options.package }),
+    },
   );
 
   const lines = [`Initialized ${report.project} with Cruze ${report.skills.version}.`];
