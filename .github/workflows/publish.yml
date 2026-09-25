@@ -1,19 +1,45 @@
-name: Publish
+name: Release
 
-# Publishes to npm when a version tag is pushed, using npm trusted publishing
-# (OIDC), so no npm token is stored in the repository. See RELEASING.md.
+# On a version tag: check the build, attach the packed package to a GitHub Release so it
+# installs without npm, and publish to npm when the repository variable NPM_PUBLISH is "true".
+# npm publishing uses trusted publishing (OIDC), so no token is stored. See RELEASING.md.
 on:
   push:
     tags: ["v*"]
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
-  publish:
+  github-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Check the tag matches the package version
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - name: Pack
+        run: npm pack
+      - name: Create the GitHub Release with the package attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" printpractical-cruze-*.tgz \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Install: npm install -g https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/printpractical-cruze-${GITHUB_REF_NAME#v}.tgz. See CHANGELOG.md for what changed."
+
+  npm:
+    needs: github-release
+    if: vars.NPM_PUBLISH == 'true'
     runs-on: ubuntu-latest
     environment: npm
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -22,9 +48,6 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: npm
       - run: npm ci
-      - run: npm run check
-      - name: Check the tag matches the package version
-        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
       - name: Publish, unless this version is already on npm
         run: |
           version="$(node -p 'require("./package.json").version')"

@@ -29,15 +29,15 @@ describe("initializing a project", () => {
   });
 
   it("runs the published package in CI by default, or the source Cruze was installed from", async () => {
-    const template = { "init/ci.yml": "run: npx --yes {{cruze_package}} validate\n" };
+    const template = { "init/ci.yml": "run: npx --yes --package={{cruze_package}} cruze validate\n" };
     const published = setup();
     const bundle = new FakeBundle({ templates: template });
     await initProject({ ...published.deps, bundle }, { name: "A", defaultName: "dir", agents: [] });
-    assert.equal(published.files.files.get(".github/workflows/ci.yml"), "run: npx --yes @printpractical/cruze@9.9.9 validate\n");
+    assert.equal(published.files.files.get(".github/workflows/ci.yml"), "run: npx --yes --package=@printpractical/cruze@9.9.9 cruze validate\n");
 
     const fromGit = setup();
     await initProject({ ...fromGit.deps, bundle }, { name: "A", defaultName: "dir", agents: [], package: "github:PrintPractical/cruze#v0.0.1" });
-    assert.equal(fromGit.files.files.get(".github/workflows/ci.yml"), "run: npx --yes github:PrintPractical/cruze#v0.0.1 validate\n");
+    assert.equal(fromGit.files.files.get(".github/workflows/ci.yml"), "run: npx --yes --package=github:PrintPractical/cruze#v0.0.1 cruze validate\n");
   });
 
   it("leaves existing files untouched and reports them as skipped", async () => {

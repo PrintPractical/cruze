@@ -17,5 +17,5 @@ This installation is an early preview. It has:
 When the user asks what Cruze can do:
 
 1. Read `.cruze/config.yaml` and report the project name and Cruze version.
-2. Run `cruze --version`, and say whether it differs from the version in `.cruze/config.yaml`. When `cruze` isn't found, tell the user to install it globally with `npm install -g @printpractical/cruze`, or `npm install -g github:PrintPractical/cruze#<tag>` from GitHub; every Cruze skill needs it.
+2. Run `cruze --version`, and say whether it differs from the version in `.cruze/config.yaml`. When `cruze` isn't found, tell the user to install it globally as https://github.com/PrintPractical/cruze#quick-start describes; every Cruze skill needs it.
 3. Run `cruze next` and explain the step it names, in the context of the whole workflow.

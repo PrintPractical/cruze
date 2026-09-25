@@ -16,8 +16,8 @@ jobs:
       # The walking-skeleton change adds the language's format, lint, build and
       # test steps here, from `commands:` in .cruze/config.yaml.
       - name: Documents match the Cruze formats
-        run: npx --yes {{cruze_package}} validate
+        run: npx --yes --package={{cruze_package}} cruze validate
       - name: Layer rules and file budgets
-        run: npx --yes {{cruze_package}} check --ci
+        run: npx --yes --package={{cruze_package}} cruze check --ci
       - name: Every built scenario has a test
-        run: npx --yes {{cruze_package}} trace --all
+        run: npx --yes --package={{cruze_package}} cruze trace --all
