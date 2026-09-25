@@ -51,6 +51,7 @@ export interface Options {
   replan: string[];
   rebase: string[];
   round?: string;
+  package?: string;
   base?: string;
   blockers?: string;
 }

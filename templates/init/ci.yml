@@ -10,7 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      # The walking-skeleton change replaces this step with format, lint, build,
-      # test, `cruze check` and `cruze trace`.
-      - name: Placeholder
-        run: echo "CI stub created by cruze init. The walking-skeleton change makes it real."
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # The walking-skeleton change adds the language's format, lint, build and
+      # test steps here, from `commands:` in .cruze/config.yaml.
+      - name: Documents match the Cruze formats
+        run: npx --yes {{cruze_package}} validate
+      - name: Layer rules and file budgets
+        run: npx --yes {{cruze_package}} check --ci
+      - name: Every built scenario has a test
+        run: npx --yes {{cruze_package}} trace --all

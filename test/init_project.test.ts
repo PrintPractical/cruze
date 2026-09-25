@@ -28,6 +28,18 @@ describe("initializing a project", () => {
     assert.deepEqual(report.skills.linked, [{ agent: "claude", dir: ".claude/skills" }]);
   });
 
+  it("runs the published package in CI by default, or the source Cruze was installed from", async () => {
+    const template = { "init/ci.yml": "run: npx --yes {{cruze_package}} validate\n" };
+    const published = setup();
+    const bundle = new FakeBundle({ templates: template });
+    await initProject({ ...published.deps, bundle }, { name: "A", defaultName: "dir", agents: [] });
+    assert.equal(published.files.files.get(".github/workflows/ci.yml"), "run: npx --yes @printpractical/cruze@9.9.9 validate\n");
+
+    const fromGit = setup();
+    await initProject({ ...fromGit.deps, bundle }, { name: "A", defaultName: "dir", agents: [], package: "github:PrintPractical/cruze#v0.0.1" });
+    assert.equal(fromGit.files.files.get(".github/workflows/ci.yml"), "run: npx --yes github:PrintPractical/cruze#v0.0.1 validate\n");
+  });
+
   it("leaves existing files untouched and reports them as skipped", async () => {
     const { files, deps } = setup({ "README.md": "# Legacy router\n", "AGENTS.md": "house rules\n" });
     const report = await initProject(deps, { name: "Router", defaultName: "dir", agents: [] });

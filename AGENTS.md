@@ -4,7 +4,7 @@ Instructions for coding agents working on Cruze itself. Cruze is an npm package 
 
 ## Commands
 
-- `npm ci`: install dev dependencies. There are no runtime dependencies.
+- `npm ci`: install dependencies. The only runtime dependency is `yaml`.
 - `npm run check`: typecheck, test and build. Run it before every commit.
 - `npm test`: run `node --test` over `test/**/*.test.ts`. Node runs the TypeScript directly.
 - `node src/main.ts <command>`: run the CLI from source.
@@ -35,7 +35,8 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - `skills/roles/`: prompts for fresh-context roles (design reviewer, code reviewer, verifier, researcher), and the review procedure every workflow skill shares. `cruze review` runs them when the agent has no helper.
 - `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
 - `templates/`: files the CLI renders into projects, with `{{placeholders}}`.
-- `evals/`: checks of skills against real agent runs, starting with the load check (`evals/README.md`). Not shipped.
+- `evals/`: checks of skills against real agent runs: the load check (`evals/README.md`), and eval cases from retros (`evals/cases/`). Not shipped.
+- `.agents/skills/cruze-retro/`: the maintainer skill that turns `cruze feedback export` bundles into proposed changes. It lives in this repository only, linked into `.claude/skills/`, and is not shipped.
 - `test/`: behaviour tests through the use cases, run against in-memory copies of `examples/console-access` (`test/support/harness.ts`), with fakes in `test/fakes/`; a lint of the shipped bundle, including every pointer between skill files; tests of the eval tools; and a CLI smoke test.
 
 ## Conventions

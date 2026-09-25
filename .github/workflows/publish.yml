@@ -25,4 +25,11 @@ jobs:
       - run: npm run check
       - name: Check the tag matches the package version
         run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
-      - run: npm publish --access public --provenance
+      - name: Publish, unless this version is already on npm
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          if npm view "@printpractical/cruze@$version" version >/dev/null 2>&1; then
+            echo "@printpractical/cruze@$version is already published; nothing to do."
+          else
+            npm publish --access public --provenance
+          fi

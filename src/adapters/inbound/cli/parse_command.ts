@@ -42,6 +42,7 @@ export function parseCommand(argv: string[]): ParsedCommand {
         override: { type: "string" },
         overlap: { type: "boolean", default: false },
         round: { type: "string" },
+        package: { type: "string" },
         replan: { type: "string", multiple: true, default: [] },
         rebase: { type: "string", multiple: true, default: [] },
         base: { type: "string" },
@@ -81,6 +82,7 @@ export function parseCommand(argv: string[]): ParsedCommand {
     ...optional("gate", values.gate),
     ...optional("override", values.override),
     ...optional("round", values.round),
+    ...optional("package", values.package),
     ...optional("base", values.base),
     ...optional("blockers", values.blockers),
   };

@@ -45,7 +45,7 @@ Say what is missing and why, then send the change to `rethink` at feature level.
 The walking-skeleton change also makes CI and the project's tooling real. Its plan adds:
 
 - `commands:` in `.cruze/config.yaml`: the format, lint, build, test and run commands, as the language's standard tooling runs them.
-- A task that writes CI (`.github/workflows/ci.yml`), running format, lint, build and test, then `npx --yes @printpractical/cruze@<version> check --ci` and `trace --all`. The task proves the flow its smoke test runs.
+- A task that adds the language's format, lint, build and test steps to CI (`.github/workflows/ci.yml`), before the Cruze steps `cruze init` put there. The task proves the flow its smoke test runs.
 
 ## Next step
 

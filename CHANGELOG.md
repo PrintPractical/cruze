@@ -7,41 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-09-24
+
+The first preview release. It covers the whole greenfield workflow, from an idea to a landed change, and has been tested with Claude Code.
+
 ### Added
 
-- `cruze init` sets up a repository with a README, changelog, `AGENTS.md`, `CLAUDE.md`, `.cruze/config.yaml` and a CI stub, without overwriting existing files, then installs the skills.
-- `cruze install` installs or updates the Cruze skills in `.agents/skills/` and links them into `.claude/skills/` for Claude Code.
-- The `cruze-about` skill, which describes Cruze in an initialized repository.
-- The `cruze-formats` skill, which defines the format of every Cruze document. It covers IDs and elements, the architecture, specs with requirements and scenarios, spec and architecture deltas, features and changes with their scope rules, test plans and task lines, and the configuration file. It ships a template for each document.
-- `.cruze/config.yaml` gains `source` and `tests` globs, and `check.exceptions` entries now carry a reason.
-- `cruze validate` checks every document against the formats. A change must plan a behaviour test for every scenario it delivers and a contract test for every port that an adapter it builds implements.
-- `cruze approve` and `cruze status` handle approvals. An approval is bound to content hashes: the document's design hash plus a hash of each upstream element it cites. Status is computed from content, so editing an upstream document is how you step back.
-- `cruze status --gate build` checks that this branch's change, its feature and the architecture are approved and current, with a journaled override. `--overlap` finds work on other branches that touches the same elements.
-- `cruze new` creates features, changes and ADRs from their templates, with dated IDs that are never reused.
-- `cruze task`, `cruze features` and `cruze journal` record progress, the feature map and events. `cruze feedback export` produces a redacted bundle for the framework feedback loop.
-- `cruze trace` links scenarios to tests. `cruze check` enforces layer rules and file budgets for TypeScript/JavaScript, Python, Rust, Go, C/C++ and Java/Kotlin.
-- `cruze land` merges a finished change into the living docs. It refuses conflicting edits, verifies the merge, re-stamps the approvals the merge would otherwise make stale, and archives finished work.
-- Knowledge skills hold the standards an agent designs and codes to: `cruze-hexagonal-design` (ports and adapters, ownership, dependency direction, many small modules, contracts, runtime ownership, Rust and C++ notes), `cruze-behavioural-testing`, `cruze-grilling`, `cruze-domain-language`, `cruze-dependency-approval` and `cruze-research`.
-- The design half of the workflow: `cruze-explore`, `cruze-envision` (project and feature scope), `cruze-architect` (project, feature and tweak scope, with the design walkthrough) and `cruze-roadmap`. `cruze-roles` holds the fresh-context design reviewer and researcher, and the two-round review procedure.
-- `cruze new` creates the project documents (`vision`, `glossary`, `architecture`, `roadmap`) and dated notes. `cruze roadmap prune` clears landed items from the roadmap's status when a release closes.
-- Commands that take a feature or change also accept its slug without the date, such as `open-console/local-serial`, when it names one active item.
-- The delivery half of the workflow: `cruze-plan`, `cruze-build`, `cruze-verify`, `cruze-land`, `cruze-triage`, `cruze-rethink` and `cruze-next`, with the code-reviewer and verifier roles and a plan-review rubric for the design reviewer.
-- `cruze next` names the step to run next on the current branch, and why.
-- `cruze review <role>` runs a role in a fresh agent context through the command configured under `review:` (Claude Code's print mode by default).
-- `cruze land` requires the change's verification to have been accepted (`--override` journals an exception), and fills the Commands and Layout sections of `AGENTS.md` from `commands:` in the config and the built modules.
-- `cruze approve --replan` sets built elements a rethink changed back to planned, and `--rebase` lets a feature accept living text it must now build on after a land conflict.
-- `cruze task reopen` unticks a task a rethink changed, and `cruze abandon` archives work that stops for good.
-- Recorded journal events carry the Cruze version.
-- `cruze approve` refuses a feature or standalone change when an element its delta changes was edited in the living docs since its last approval (`rebase-required`), so a later land can't silently overwrite a rethink. `--rebase` accepts the living text once the delta keeps it.
-- `cruze init` writes a `.gitattributes` that merges journals by keeping every line, so parallel branches don't conflict on them.
-- A feature with no changes yet is `not-designed`, and a change with no test plan or tasks is `not-planned`. `cruze validate` warns about both and skips the rules that need those parts, and `cruze approve` refuses them.
+- **Setup.**
+  - `cruze init` sets up a repository with a README, changelog, `AGENTS.md`, `CLAUDE.md`, `.cruze/config.yaml`, a CI workflow that runs `cruze validate`, `check` and `trace`, and a `.gitattributes` that merges Cruze's journals line by line. It never overwrites existing files.
+  - `cruze install` installs or updates the skills in `.agents/skills/` and links them into `.claude/skills/` for Claude Code.
+  - Cruze installs from GitHub without npm, with `npm install -g github:PrintPractical/cruze#v0.0.1`. `cruze init --package <spec>` makes the CI it writes run that same source.
+- **Workflow skills,** the commands a person runs:
+  - `explore` (optional), `envision` (project or feature scope) and `architect` (project, feature or tweak scope, ending with a design review and a walkthrough).
+  - `roadmap`, `plan`, `build` (test-first, one checked commit per task), `verify` (a fresh-context verifier that runs the real system, a two-lane code review and a manual test script) and `land`.
+  - `triage` for bugs, `rethink` to step back from any point, and `next`.
+- **Knowledge skills** holding the standards an agent designs and codes to: `hexagonal-design` (with Rust and C++ notes), `behavioural-testing`, `grilling`, `domain-language`, `dependency-approval` and `research`.
+- **Formats.** `formats` defines every Cruze document, with templates: vision, glossary, architecture, ADRs, specs with requirements and scenarios, features and changes with their deltas, scope, test plans and tasks, the roadmap, and the config.
+- **Roles.** `roles` holds the fresh-context design reviewer, code reviewer, verifier and researcher, and the two-round review procedure in which every finding gets a recorded disposition.
+- **The CLI owns every deterministic step:**
+  - `cruze validate` checks every document against the formats.
+  - `cruze approve` binds an approval to content hashes, and `cruze status` computes each document's state from them, so editing an upstream document is how you step back.
+  - `cruze status --gate build` and `--overlap`, and `cruze next`, which names the step to run next and why.
+  - `cruze new` creates documents and work from templates, with dated IDs that are never reused.
+  - `cruze task`, `cruze features`, `cruze roadmap prune`, `cruze abandon` and `cruze journal` record progress and events.
+  - `cruze trace` links scenarios to tests. `cruze check` enforces layer rules and file budgets for TypeScript/JavaScript, Python, Rust, Go, C/C++ and Java/Kotlin.
+  - `cruze land` merges a verified change into the living docs, refuses to overwrite edits it would lose, re-stamps the approvals the merge would make stale, keeps `AGENTS.md` current, and archives finished work.
+  - `cruze review` runs a review role in a fresh agent context.
+  - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-### Changed
-
-- Dated IDs and records use the local date instead of the UTC date.
-- A later change may rebuild an element a landed change built, after a rethink, without counting as covering it twice.
-- Template-leftover checks skip CLI-managed blocks, so a recorded deviation may quote text such as `<COMMAND>`.
-- `ENT` elements may also be domain services, policies and domain events (`Kind: service`, `policy` or `event`).
-- The architecture's `## Decisions` section also holds project-level settled decisions, and a standalone change has an `## Adopt or build` section like a feature's.
-- The `.cruze/notes/` folder also holds research evidence behind adopt-or-build decisions.
-- Contexts and modules in the architecture no longer list their members (`Owns`). An element's scope and its `Module` fact are the single source of that membership, so adding an element to a module no longer makes other work citing the module stale.
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/PrintPractical/cruze/releases/tag/v0.0.1

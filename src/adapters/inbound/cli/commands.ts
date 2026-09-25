@@ -9,7 +9,7 @@ import { runReviewCommand } from "./commands/review.ts";
 import { runNext, runStatus } from "./commands/status.ts";
 
 export const COMMANDS: Record<string, { handler: Handler; usage: string }> = {
-  init: { handler: runInit, usage: "init [--name <name>] [--yes] [--agent <agent>]   set up this repository and install the skills" },
+  init: { handler: runInit, usage: "init [--name <name>] [--yes] [--agent <agent>] [--package <npm spec>]   set up this repository and install the skills" },
   install: { handler: runInstall, usage: "install [--agent <agent>]                         install or update the Cruze skills" },
   validate: { handler: runValidate, usage: "validate                                          check every document against the formats" },
   status: { handler: runStatus, usage: "status [--gate build [--override <reason>]] [--overlap [--change <ref>]]" },
