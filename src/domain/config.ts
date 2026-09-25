@@ -13,7 +13,14 @@ export interface CruzeConfig {
     exceptions: Array<{ path: string; reason: string }>;
   };
   layers: Layer[];
+  /** Named project commands, such as `test: cargo test`, shown in AGENTS.md. */
+  commands: Record<string, string>;
+  /** How `cruze review` starts an agent in a fresh context: the program and its arguments. */
+  review: { command: string[] };
 }
+
+/** Claude Code in print mode, allowed to read the project, its history and run `cruze`, but not to edit. */
+export const DEFAULT_REVIEW_COMMAND = ["claude", "-p", "--allowedTools", "Read Grep Glob Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(cruze:*)"];
 
 export interface Layer {
   name: string;
@@ -69,6 +76,20 @@ export function parseConfig(text: string): ConfigResult {
     }
   }
 
+  const commands: Record<string, string> = {};
+  const rawCommands = root["commands"];
+  if (rawCommands !== undefined && rawCommands !== null) {
+    const record = asRecord(rawCommands);
+    if (record === null) problems.push("commands must be a mapping of names to commands");
+    for (const [name, command] of Object.entries(record ?? {})) {
+      if (typeof command === "string" && command.trim() !== "") commands[name] = command;
+      else problems.push(`commands.${name} must be a command string`);
+    }
+  }
+  const review = asRecord(root["review"]) ?? {};
+  const reviewCommand = review["command"] === undefined ? DEFAULT_REVIEW_COMMAND : stringList(review["command"], "review.command", problems);
+  if (reviewCommand.length === 0) problems.push("review.command needs at least the program to run");
+
   const config: CruzeConfig = {
     version: 1,
     project: typeof root["project"] === "string" ? root["project"] : "",
@@ -77,6 +98,8 @@ export function parseConfig(text: string): ConfigResult {
     tests,
     check: { maxLines: maxLines ?? 250, maxTypes: maxTypes ?? 5, exceptions },
     layers,
+    commands,
+    review: { command: reviewCommand.length === 0 ? DEFAULT_REVIEW_COMMAND : reviewCommand },
   };
   return { config, problems };
 }

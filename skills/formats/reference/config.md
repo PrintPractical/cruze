@@ -17,6 +17,15 @@ check:
     - path: src/cli/args.rs
       reason: the clap derive struct lists every flag in one place
 
+commands:
+  format: cargo fmt --check
+  lint: cargo clippy -- -D warnings
+  test: cargo test
+  run: cargo run -- list
+
+review:
+  command: ["claude", "-p", "--allowedTools", "Read Grep Glob Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(cruze:*) Bash(cargo:*)"]
+
 layers:
   - name: inventory-domain
     paths: ["src/inventory/domain/**"]
@@ -37,6 +46,8 @@ layers:
 | `check.max_types` | Budget of top-level types per source file. |
 | `check.exceptions` | Files allowed past a budget, each with a `path` and a `reason`. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
+| `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. |
+| `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. The default runs Claude Code in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. |
 
 Rules for layers:
 

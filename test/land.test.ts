@@ -73,13 +73,22 @@ describe("landing a change", () => {
     assert.deepEqual(h.files.files, before);
   });
 
-  it("refuses to overwrite an element someone else changed after this feature merged it", async () => {
+  it("won't let a feature overwrite an element someone else changed after it merged it", async () => {
     const h = await landFirstChange();
     edit(h.files, "docs/architecture.md", "any other byte releases `0x1d`", "any other byte releases `0x1d` at once");
-    for (const ref of ["architecture", FEATURE]) await approveArtifact(h.deps, ref);
+    await approveArtifact(h.deps, "architecture");
+    await assert.rejects(approveArtifact(h.deps, FEATURE), (e: unknown) => e instanceof CruzeError && e.code === "rebase-required" && /--rebase ENT-access\.escape-detector/.test(e.message));
     h.files.files.set(`.cruze/features/${FEATURE}/changes/02-ssh-hops/change.md`, CHANGE_02_TEXT);
-    await buildChange(h, CHANGE_02, "open-console-ssh");
-    await assert.rejects(landChange(h.deps, CHANGE_02), (e: unknown) => e instanceof CruzeError && e.code === "merge-conflict" && /ENT-access\.escape-detector/.test(e.message));
+    h.repository.branch = "open-console-ssh";
+    await assert.rejects(landChange(h.deps, CHANGE_02), (e: unknown) => e instanceof CruzeError && e.code === "not-ready");
+  });
+
+  it("won't let a feature's first land overwrite a rethink of an element its delta modifies", async () => {
+    const h = await exampleProject();
+    await approveDesign(h.deps);
+    edit(h.files, "docs/architecture.md", "links are closed in the reverse order they were opened", "links are closed in the reverse order they were opened, within one second each");
+    await approveArtifact(h.deps, "architecture");
+    await assert.rejects(approveArtifact(h.deps, FEATURE), (e: unknown) => e instanceof CruzeError && e.code === "rebase-required" && /ENT-access\.console-session/.test(e.message));
   });
 
   // my_toolkit dead-ended once work was archive-ready.

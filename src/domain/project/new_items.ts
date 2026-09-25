@@ -9,11 +9,6 @@ export function requireSlug(slug: string): void {
   if (!SLUG.test(slug)) throw new CruzeError("invalid-slug", `"${slug}" must be lowercase words joined by single hyphens`);
 }
 
-/** `YYYY-MM-DD` in UTC. */
-export function isoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
 /**
  * A new feature or standalone change ID: the date plus the slug, with `-2`, `-3`… added
  * on a clash with any live or archived work. IDs are never reused.

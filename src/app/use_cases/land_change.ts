@@ -2,19 +2,22 @@ import { evaluateApproval } from "../../domain/approvals/evaluate.ts";
 import { fingerprint } from "../../domain/approvals/fingerprint.ts";
 import { serializeApprovals, withApproval, type ApprovalsFile } from "../../domain/approvals/records.ts";
 import { CruzeError } from "../../domain/cruze_error.ts";
+import { renderAgentsFile } from "../../domain/edits/agents_file.ts";
 import { applyBookkeeping } from "../../domain/land/bookkeeping.ts";
 import { planMerge } from "../../domain/land/merge_plan.ts";
 import { parseMarkdown } from "../../domain/markdown.ts";
 import { resolveChange } from "../../domain/project/artifact_ref.ts";
 import { PATHS } from "../../domain/project/layout.ts";
-import { isoDate } from "../../domain/project/new_items.ts";
 import { readTasks } from "../../domain/project/plan_parts.ts";
 import { readProgress } from "../../domain/project/progress.ts";
 import { approvalFolder, approvalsPath, type ProjectView } from "../../domain/project/project_view.ts";
 import { changesOf, featureOf, type WorkItem } from "../../domain/project/work_items.ts";
+import { isVerified } from "../../domain/status/verification.ts";
 import { activeChange } from "../../domain/status/work_status.ts";
 import { validateProject } from "../../domain/validation/validate_project.ts";
 import { appendJournal, loadView, withFiles, type ProjectDeps } from "../project_context.ts";
+
+const AGENTS_FILE = "AGENTS.md";
 
 export interface LandReport {
   change: string;
@@ -31,20 +34,24 @@ export interface LandReport {
  * merge would otherwise make stale, records the land, and archives the work once it is finished.
  * Nothing is written unless the merged docs still validate.
  */
-export async function landChange(deps: ProjectDeps, ref?: string): Promise<LandReport> {
+export async function landChange(deps: ProjectDeps, ref?: string, options: { override?: string } = {}): Promise<LandReport> {
   const view = await loadView(deps.files);
   const change = ref !== undefined ? resolveChange(view, ref) : activeChange(view, await deps.repository.currentBranch());
   if (change === undefined) throw new CruzeError("no-active-change", "no change is bound to this branch; name one to land");
   const source = change.kind === "change" ? featureOf(view.items, change) : change;
   if (source === undefined) throw new CruzeError("orphan-change", `${change.ref} has no feature.md`);
   requireReady(view, change, source);
+  const verified = isVerified(view.journal, change);
+  if (!verified && (options.override ?? "").trim() === "") {
+    throw new CruzeError("not-verified", `${change.ref} has no accepted verification; run verify, or land with --override <reason>`);
+  }
 
   const restamp = [PATHS.architecture, source.path, ...(source === change ? [] : changesOf(view.items, source).map((c) => c.path))]
     .filter((path, i, all) => all.indexOf(path) === i && view.snapshot.has(path) && evaluateApproval(view, path).state === "approved");
 
   const plan = planMerge(view, change, source);
   const commit = await deps.repository.headCommit();
-  const landed = `${isoDate(deps.clock.now())}${commit === null ? "" : ` (${commit})`}`;
+  const landed = `${deps.clock.today()}${commit === null ? "" : ` (${commit})`}`;
   const books = applyBookkeeping(view, change, source, landed, plan.files);
   const merged = withFiles(view, plan.files);
   requireStillValid(view, merged);
@@ -66,8 +73,14 @@ export async function landChange(deps: ProjectDeps, ref?: string): Promise<LandR
     const record = approvals.get(approvalFolder(merged, path))?.approvals.find((r) => r.artifact === path);
     await appendJournal(deps, approvalFolder(merged, path), "approve", { artifact: path, hash: record?.hash, basis: `land ${change.ref}` });
   }
+  if (!verified) await appendJournal(deps, source.folder, "override", { gate: "land", reason: options.override, item: change.ref });
   await appendJournal(deps, source.folder, "land", { change: change.ref, merged: plan.mergedIds, built: plan.built, removed: plan.removed, release: books.release, commit });
   if (books.archive !== undefined) await deps.files.move(books.archive.from, books.archive.to);
+  const agents = await deps.files.readText(AGENTS_FILE);
+  if (agents !== undefined) {
+    const rendered = renderAgentsFile(agents, merged);
+    if (rendered !== agents) await deps.files.writeText(AGENTS_FILE, rendered);
+  }
 
   const report: LandReport = { change: change.ref, merged: plan.mergedIds, built: plan.built, removed: plan.removed, restamped: restamp, finished: books.finished };
   if (books.archive !== undefined) report.archivedTo = books.archive.to;

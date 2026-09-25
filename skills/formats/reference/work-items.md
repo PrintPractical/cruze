@@ -70,13 +70,13 @@ Every delivered scenario has at least one `behaviour` row, and every port that a
 ```
 
 - Grammar: `- T<n>: <owner> in <path>[, <path>], proves <ID>[, <ID>]`. Owner and paths are in backticks.
-- One owner per task, and every path names a file the architecture assigns to that owner.
+- One owner per task, and every path names a file the architecture assigns to that owner. Test support that no element owns, such as a shared fake, names its test file instead.
 - Every scenario the change delivers is proved by at least one task, and so is every `Builds` element. The exception is a `MOD`, which is proved by any task with a path inside the module's `Path`.
 - Tasks are design, not progress. Their checkboxes live in `## Progress`.
 
 ## Progress
 
-The managed block the CLI maintains. `cruze approve` binds a change to the current branch, `cruze task done` ticks a task with its commit, `cruze task deviation` records a deviation, and `cruze land` records the land:
+The managed block the CLI maintains. `cruze approve` binds a change to the current branch, `cruze task done` ticks a task with its commit, `cruze task reopen` unticks one a rethink changed, `cruze task deviation` records a deviation, and `cruze land` records the date and the last commit of the change's work:
 
 ```markdown
 <!-- cruze:managed -->
@@ -94,3 +94,7 @@ A deviation line records a task-level choice the agent made on its own. Anything
 
 - `manual-test.md`, written by `verify`: numbered steps a person runs against the real system, one section per delivered scenario, each with its expected result.
 - `approvals.json` and `journal.jsonl`, written only by the CLI.
+
+## Verification
+
+A change lands only after the user accepts it at `verify`, which records `cruze journal add verification --set result=accepted --set summary=<text> --item <ref>`. A later approval of the change keeps that acceptance only when the change's own design is unchanged. `cruze land --override <reason>` lands without it, and journals the reason.

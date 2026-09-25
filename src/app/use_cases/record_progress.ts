@@ -29,6 +29,16 @@ export async function completeTask(deps: ProjectDeps, task: string, options: { c
   return { change: change.ref, task, done: ticks.filter((m) => m[1] === "x").length, total: ticks.length };
 }
 
+/** Reopens a done task whose design a rethink changed, so build does it again. */
+export async function reopenTask(deps: ProjectDeps, task: string, reason: string, options: { change?: string }): Promise<{ change: string; task: string }> {
+  const change = await changeFor(deps, options.change);
+  requireTask(change, task);
+  if (reason.trim() === "") throw new CruzeError("missing-reason", "say why the task reopens");
+  await deps.files.writeText(change.path, updateProgress(change.doc.lines.join("\n"), (progress) => progress.tasks.set(task, null)));
+  await appendJournal(deps, change.folder, "reopen", { change: change.ref, task, reason: reason.trim() });
+  return { change: change.ref, task };
+}
+
 /** Records a task-level choice the agent made on its own. Anything larger is a rethink. */
 export async function recordDeviation(deps: ProjectDeps, task: string, text: string, options: { change?: string }): Promise<{ change: string; task: string }> {
   const change = await changeFor(deps, options.change);

@@ -22,7 +22,7 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
   - `land/`: merging deltas into living docs, and the bookkeeping of a land.
   - `check/`, `trace.ts`: layer rules, file budgets and scenario traceability.
   - `skill.ts`, `skill_links.ts`: the format of bundled skills, and the pointers between their files.
-- `src/app/ports/`: capabilities the use cases need, named by capability (`ProjectFiles`, `Bundle`, `Prompter`, `Clock`, `Repository`).
+- `src/app/ports/`: capabilities the use cases need, named by capability (`ProjectFiles`, `Bundle`, `Prompter`, `Clock`, `Repository`, `AgentRunner`).
 - `src/app/project_context.ts`: loads the project view and appends journal entries for the use cases.
 - `src/app/use_cases/`: one file per use case.
 - `src/adapters/inbound/cli/`: argument parsing, the command table in `commands.ts`, handlers grouped in `commands/`, output.
@@ -31,8 +31,8 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
 - `skills/formats/`: the contract for every project document (IDs, elements, deltas, scope rules), with templates. Skills and the CLI both read it, so change a format there and nowhere else.
 - `skills/hexagonal-design/`, `behavioural-testing/`, `grilling/`, `domain-language/`, `dependency-approval/`, `research/`: knowledge skills, the standards that workflow skills load by installed path.
-- `skills/explore/`, `envision/`, `architect/`, `roadmap/`: workflow skills, the commands a person runs. Each ends by naming the next step.
-- `skills/roles/`: prompts for fresh-context roles (design reviewer, researcher), and the review procedure every workflow skill shares.
+- `skills/explore/`, `envision/`, `architect/`, `roadmap/`, `plan/`, `build/`, `verify/`, `land/`, `triage/`, `rethink/`, `next/`: workflow skills, the commands a person runs. Each ends by naming the next step.
+- `skills/roles/`: prompts for fresh-context roles (design reviewer, code reviewer, verifier, researcher), and the review procedure every workflow skill shares. `cruze review` runs them when the agent has no helper.
 - `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
 - `templates/`: files the CLI renders into projects, with `{{placeholders}}`.
 - `evals/`: checks of skills against real agent runs, starting with the load check (`evals/README.md`). Not shipped.

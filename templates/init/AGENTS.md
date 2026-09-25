@@ -25,6 +25,4 @@ Not defined yet. `cruze land` fills this in from the module map in `docs/archite
 
 ## Known pitfalls
 
-<!-- cruze:managed -->
-None recorded yet.
-<!-- /cruze:managed -->
+None recorded yet. `land` adds a line here when the same review finding or defect happens twice.

@@ -77,7 +77,7 @@ function featureScopeProblems(view: ProjectView, feature: WorkItem, delta: Delta
       if (!delta.ids.has(id) && !planned) problems.push(error(feature.path, row.line, "scope-not-planned", `${id} must come from this feature's deltas or be planned in the living docs`));
     }
   }
-  problems.push(...coverageProblems(view, feature.path, delta, feature.doc, rows.map((row) => ({ name: row.change, ids: [...row.delivers, ...row.builds, ...row.removes] }))));
+  problems.push(...coverageProblems(view, feature.path, delta, feature.doc, rows.map((row) => ({ name: row.change, ids: [...row.delivers, ...row.builds, ...row.removes], landed: landedChanges.has(row.change) }))));
 
   for (const change of changesOf(view.items, feature)) {
     const row = rows.find((r) => r.change === change.folderName);
@@ -103,15 +103,22 @@ function coverageProblems(
   path: string,
   delta: Delta,
   deltaDoc: MarkdownDoc,
-  groups: Array<{ name: string; ids: string[] }>,
+  groups: Array<{ name: string; ids: string[]; landed?: boolean }>,
 ): Problem[] {
   const coveredBy = new Map<string, string[]>();
-  for (const group of groups) for (const id of group.ids) coveredBy.set(id, [...(coveredBy.get(id) ?? []), group.name]);
+  const pendingBy = new Map<string, string[]>();
+  for (const group of groups) {
+    for (const id of group.ids) {
+      coveredBy.set(id, [...(coveredBy.get(id) ?? []), group.name]);
+      if (group.landed !== true) pendingBy.set(id, [...(pendingBy.get(id) ?? []), group.name]);
+    }
+  }
   const problems: Problem[] = [];
+  // A change that already landed may be followed by one that rebuilds the same element after a rethink.
   const once = (id: string, line: number, required: boolean): void => {
-    const by = coveredBy.get(id) ?? [];
-    if (required && by.length === 0) problems.push(error(path, line, "uncovered", `${id} is not in any change's scope`));
-    if (by.length > 1) problems.push(error(path, line, "covered-twice", `${id} is in the scope of ${by.join(" and ")}; it must land exactly once`));
+    const pending = pendingBy.get(id) ?? [];
+    if (required && (coveredBy.get(id) ?? []).length === 0) problems.push(error(path, line, "uncovered", `${id} is not in any change's scope`));
+    if (pending.length > 1) problems.push(error(path, line, "covered-twice", `${id} is in the scope of ${pending.join(" and ")}; it must land exactly once`));
   };
   for (const { element, scenarios } of delta.entries) {
     if (kindOf(element.id) !== "REQ") {

@@ -1,4 +1,4 @@
-import { checkBuildGate, findOverlaps, showStatus } from "../../../../app/use_cases/project_status.ts";
+import { checkBuildGate, findOverlaps, showStatus, suggestNext } from "../../../../app/use_cases/project_status.ts";
 import type { ApprovalStatus } from "../../../../domain/approvals/evaluate.ts";
 import { UsageError, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
@@ -35,4 +35,11 @@ export async function runStatus(context: CliContext, _args: string[], options: O
 function describe(label: string, status: ApprovalStatus): string {
   const detail = status.changed.length > 0 ? ` (${status.changed.join(", ")})` : status.unjournaled === true ? " (no journal entry)" : "";
   return `${label}: ${status.state}${detail}`;
+}
+
+export async function runNext(context: CliContext): Promise<CommandResult> {
+  const report = await suggestNext(context);
+  const describe = (s: { step: string; target?: string; reason: string }): string => `${s.step}${s.target === undefined ? "" : ` ${s.target}`}: ${s.reason}`;
+  const lines = [`Next: ${describe(report.next)}`, ...report.also.map((s) => `Also: ${describe(s)}`)];
+  return { json: report, human: lines.join("\n") };
 }

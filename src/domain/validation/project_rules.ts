@@ -2,8 +2,8 @@ import { factsOf } from "../elements.ts";
 import { matchesAny } from "../glob.ts";
 import { findIds } from "../ids.ts";
 import { parseMarkdown, type MarkdownDoc } from "../markdown.ts";
-import { tablesIn } from "../markdown_tables.ts";
 import { PATHS } from "../project/layout.ts";
+import { readRoadmapItems } from "../project/roadmap.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { error, warning, type Problem } from "./problem.ts";
 
@@ -12,7 +12,10 @@ import { error, warning, type Problem } from "./problem.ts";
 const GUIDE = /(?<!`)<(?!!--|\/|https?:|br\b)[A-Za-z][^<>\n]*>(?!`)/;
 const PLACEHOLDER = /\{\{[a-z_]+\}\}/;
 
-/** Unfilled `<guides>` and `{{placeholders}}` outside code, in living docs and active work. */
+/**
+ * Unfilled `<guides>` and `{{placeholders}}` outside code, in living docs and active work.
+ * Managed blocks are skipped: the CLI writes them, and they may quote text such as `<COMMAND>`.
+ */
 export function templateLeftovers(view: ProjectView): Problem[] {
   const paths = [...view.living.docs.keys(), PATHS.roadmap, PATHS.glossary, ...view.items.filter((i) => !i.archived).map((i) => i.path)];
   return paths.flatMap((path) => {
@@ -20,7 +23,7 @@ export function templateLeftovers(view: ProjectView): Problem[] {
     if (text === undefined) return [];
     const doc = parseMarkdown(text);
     return doc.lines.flatMap((line, i) => {
-      if (doc.inFence[i]) return [];
+      if (doc.inFence[i] || doc.inManaged[i]) return [];
       const withoutCode = line.replace(/`[^`]*`/g, "");
       if (GUIDE.test(withoutCode) || PLACEHOLDER.test(withoutCode)) {
         return [error(path, i, "template-leftover", "replace the template guide or placeholder on this line")];
@@ -36,17 +39,10 @@ export function roadmapProblems(view: ProjectView): Problem[] {
   const doc = parseMarkdown(text);
   const problems: Problem[] = [];
   const items = new Map<string, { blockedBy: string[]; line: number }>();
-  const phases = doc.headings.filter((h) => h.level === 3 && /^Phase \d+: /.test(h.text));
-  for (const phase of phases) {
-    const end = doc.headings.find((h) => h.line > phase.line && h.level <= 3)?.line ?? doc.lines.length;
-    for (const table of tablesIn(doc.lines, doc.inFence, phase.line + 1, end)) {
-      for (const { cells, line } of table.rows) {
-        const [item = "", kind = "", , blocked = ""] = cells;
-        if (items.has(item)) problems.push(error(PATHS.roadmap, line, "roadmap-item", `item ${item} appears twice`));
-        if (!["feature", "change"].includes(kind)) problems.push(error(PATHS.roadmap, line, "roadmap-item", `item ${item} kind must be feature or change`));
-        items.set(item, { blockedBy: blocked.split(",").map((s) => s.trim()).filter((s) => s !== ""), line });
-      }
-    }
+  for (const { slug: item, kind, blockedBy, line } of readRoadmapItems(text)) {
+    if (items.has(item)) problems.push(error(PATHS.roadmap, line, "roadmap-item", `item ${item} appears twice`));
+    if (!["feature", "change"].includes(kind)) problems.push(error(PATHS.roadmap, line, "roadmap-item", `item ${item} kind must be feature or change`));
+    items.set(item, { blockedBy, line });
   }
   for (const [item, { blockedBy, line }] of items) {
     for (const blocker of blockedBy.filter((b) => !items.has(b))) problems.push(error(PATHS.roadmap, line, "roadmap-blocker", `${item} is blocked by unknown item ${blocker}`));

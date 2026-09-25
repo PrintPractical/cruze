@@ -2,7 +2,7 @@ import { CruzeError } from "../../domain/cruze_error.ts";
 import { upsertRow } from "../../domain/edits/managed_tables.ts";
 import { resolveArtifact } from "../../domain/project/artifact_ref.ts";
 import { PATHS } from "../../domain/project/layout.ts";
-import { allocateId, changeRow, fillTemplate, isoDate, requireSlug } from "../../domain/project/new_items.ts";
+import { allocateId, changeRow, fillTemplate, requireSlug } from "../../domain/project/new_items.ts";
 import { renderTemplate } from "../../domain/scaffold.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
 
@@ -27,7 +27,7 @@ export interface NewReport {
 /** Creates a feature, change or ADR from its template, with a fresh ID. */
 export async function createWorkItem(deps: ProjectDeps, request: NewRequest): Promise<NewReport> {
   const view = await loadView(deps.files);
-  const date = isoDate(deps.clock.now());
+  const date = deps.clock.today();
   const values = { id: "", title: request.title, date, project_name: "" };
   if (request.title.trim() === "") throw new CruzeError("missing-title", "a title is required");
 
