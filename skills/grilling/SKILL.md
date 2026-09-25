@@ -15,7 +15,7 @@ Interview the user until you both understand the design the same way. Decisions 
 4. Ask the frontier as one round, in the format below. Every question carries your recommended answer and the reason for it.
 5. Wait for the answers. Record each settled decision as described under Recording, then recompute the frontier.
 6. Repeat until the frontier is empty: every branch visited, and nothing silently assumed.
-7. List the settled decisions in a short summary and ask the user to confirm it. Done when the user confirms. Decisions and glossary terms are recorded as they settle; the design sections themselves (specs, architecture, plans) are written only after the confirmation.
+7. Write the sections the step produces from the settled decisions, then summarize them and ask the user to confirm that they match their understanding. Done when the user confirms. Decisions and glossary terms are recorded as they settle, and nothing is approved before the confirmation.
 
 ## A round
 

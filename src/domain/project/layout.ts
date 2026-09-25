@@ -14,6 +14,7 @@ export const PATHS = {
   featuresDir: ".cruze/features",
   changesDir: ".cruze/changes",
   archiveDir: ".cruze/archive",
+  notesDir: ".cruze/notes",
   projectApprovals: ".cruze/approvals.json",
   projectJournal: ".cruze/journal.jsonl",
 } as const;

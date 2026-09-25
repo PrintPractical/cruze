@@ -1,17 +1,17 @@
-import { factsOf, statusOf } from "../elements.ts";
+import { factsOf, isUnbuilt } from "../elements.ts";
 import { findIds, kindOf } from "../ids.ts";
 import type { MarkdownDoc } from "../markdown.ts";
 import type { Delta } from "../project/deltas.ts";
-import { readScope, readTasks, readTestPlan, type Scope } from "../project/plan_parts.ts";
+import { isPlanned, readScope, readTasks, readTestPlan, type Scope } from "../project/plan_parts.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { error, warning, type Problem } from "./problem.ts";
 
 const TEST_KINDS = ["behaviour", "contract", "domain", "smoke"];
 
 /**
- * Rules for one buildable change: its scope names only things that can be built,
- * every scope ID is proved by a task, every delivered scenario has a behaviour test, and
- * every port a built adapter implements has a contract test.
+ * Rules for one buildable change: its scope names only things that can be built. Once it is
+ * planned, every scope ID is proved by a task, every delivered scenario has a behaviour test,
+ * and every port a built adapter implements has a contract test.
  */
 export function changePlanProblems(
   view: ProjectView,
@@ -23,6 +23,7 @@ export function changePlanProblems(
   const scope = readScope(doc);
   if (scope === null) return [error(path, undefined, "missing-section", 'the change needs a "## Scope" section')];
   const problems: Problem[] = [...scopeTargetProblems(view, path, scope, delta.delta)];
+  if (!isPlanned(doc)) return [...problems, warning(path, undefined, "not-planned", "the change has no test plan or tasks yet; plan fills them")];
   const { tasks, malformed } = readTasks(doc);
   for (const line of malformed) {
     problems.push(error(path, line, "task-format", "task lines read: - T<n>: `<owner>` in `<path>`[, `<path>`], proves <ID>[, <ID>]"));
@@ -78,7 +79,7 @@ function scopeTargetProblems(view: ProjectView, path: string, scope: Scope, delt
     if (delta.ids.has(id)) continue;
     const living = view.living.elements.get(id);
     if (living === undefined) problems.push(error(path, scope.line, "unknown-id", `${id} is in scope but defined nowhere`));
-    else if (statusOf(living.doc, living.element) !== "planned") {
+    else if (!isUnbuilt(living.doc, living.element)) {
       problems.push(error(path, scope.line, "scope-not-planned", `${id} is already built; change it through a MODIFIED operation in the delta`));
     }
   }

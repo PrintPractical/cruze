@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { exportFeedback, listEvents, recordEvent } from "../src/app/use_cases/journal_events.ts";
+import { createNote, createProjectDoc } from "../src/app/use_cases/new_project_doc.ts";
 import { createWorkItem } from "../src/app/use_cases/new_work_item.ts";
-import { addFutureFeature, completeTask, dropFutureFeature, recordDeviation } from "../src/app/use_cases/record_progress.ts";
+import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
+import { addFutureFeature, completeTask, dropFutureFeature, pruneRoadmap, recordDeviation } from "../src/app/use_cases/record_progress.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
 import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, FEATURE, exampleProject } from "./support/harness.ts";
@@ -38,6 +40,130 @@ describe("creating work", () => {
   it("refuses a change that isn't in the feature's Changes table", async () => {
     const h = await exampleProject();
     await assert.rejects(createWorkItem(h.deps, { kind: "change", slug: "telnet", title: "Telnet", feature: FEATURE }), rejectsWith("change-not-listed"));
+  });
+
+  it("creates the project's living documents from their templates, named for the project, and never overwrites one", async () => {
+    const h = await exampleProject();
+    h.files.files.delete("docs/glossary.md");
+    const report = await createProjectDoc(h.deps, "glossary");
+    assert.equal(report.path, "docs/glossary.md");
+    assert.match(h.files.files.get("docs/glossary.md") ?? "", /^# Glossary\n\nThe shared language of Console Access\./);
+    await assert.rejects(createProjectDoc(h.deps, "vision"), rejectsWith("exists"));
+  });
+
+  it("dates a note and never overwrites an earlier one with the same slug", async () => {
+    const h = await exampleProject();
+    const first = await createNote(h.deps, "ssh-libraries", "SSH libraries");
+    const second = await createNote(h.deps, "ssh-libraries", "SSH libraries, again");
+    assert.deepEqual([first.path, second.path], [".cruze/notes/2026-09-26-ssh-libraries.md", ".cruze/notes/2026-09-26-ssh-libraries-2.md"]);
+    assert.match(h.files.files.get(second.path) ?? "", /^# SSH libraries, again\n/);
+  });
+
+  it("treats a designed standalone change as not planned yet: a warning, and no approval until plan fills it", async () => {
+    const h = await exampleProject();
+    for (const ref of ["vision", "architecture", "roadmap"]) await approveArtifact(h.deps, ref);
+    const report = await createWorkItem(h.deps, { kind: "change", slug: "list-json", title: "List as JSON" });
+    h.files.files.set(report.path, `---
+id: ${report.ref}
+title: List as JSON
+---
+
+# Change: List as JSON
+
+## Intent
+
+Let scripts read the device list.
+
+## Adopt or build
+
+| Component | Decision | Choice | Reason |
+| --- | --- | --- | --- |
+
+## Spec delta
+
+### ADDED REQ-inventory.list-json: List devices as JSON
+The CLI SHALL print the device list as a JSON array when the user passes \`--json\`.
+
+#### SCN-inventory.list-json: Devices as a JSON array
+- GIVEN the configuration defines \`lab-router\`
+- WHEN the user runs \`consolectl list --json\`
+- THEN the output is a JSON array with one object whose \`name\` is \`lab-router\`
+
+## Architecture delta
+
+None.
+
+## Scope
+
+- Delivers: SCN-inventory.list-json
+- Builds:
+
+## Test plan
+
+| Subject | Seam | Test file | Kind |
+| --- | --- | --- | --- |
+
+## Tasks
+
+## Settled decisions
+
+<!-- cruze:managed -->
+## Progress
+<!-- /cruze:managed -->
+`);
+    const problems = (await validate(h.deps)).problems.filter((p) => p.path === report.path);
+    assert.deepEqual(problems.map((p) => [p.severity, p.rule]), [["warning", "not-planned"]]);
+    await assert.rejects(approveArtifact(h.deps, report.ref), rejectsWith("not-planned"));
+  });
+
+  it("treats a feature with no changes yet as not designed: a warning, and no approval until architect splits it", async () => {
+    const h = await exampleProject();
+    for (const ref of ["vision", "architecture", "roadmap"]) await approveArtifact(h.deps, ref);
+    const report = await createWorkItem(h.deps, { kind: "feature", slug: "list-json", title: "List as JSON" });
+    h.files.files.set(report.path, `---
+id: ${report.ref}
+title: List as JSON
+---
+
+# Feature: List as JSON
+
+## Intent
+
+Let scripts read the device list.
+
+## Settled decisions
+
+## Adopt or build
+
+| Component | Decision | Choice | Reason |
+| --- | --- | --- | --- |
+
+## Spec delta
+
+### ADDED REQ-inventory.list-json: List devices as JSON
+The CLI SHALL print the device list as a JSON array when the user passes \`--json\`.
+
+#### SCN-inventory.list-json: Devices as a JSON array
+- GIVEN the configuration defines \`lab-router\`
+- WHEN the user runs \`consolectl list --json\`
+- THEN the output is a JSON array with one object whose \`name\` is \`lab-router\`
+
+## Architecture delta
+
+None.
+
+## Changes
+
+| Change | Delivers | Builds | Depends on |
+| --- | --- | --- | --- |
+
+<!-- cruze:managed -->
+## Progress
+<!-- /cruze:managed -->
+`);
+    const problems = (await validate(h.deps)).problems.filter((p) => p.path === report.path);
+    assert.deepEqual(problems.map((p) => [p.severity, p.rule]), [["warning", "not-designed"]]);
+    await assert.rejects(approveArtifact(h.deps, report.ref), rejectsWith("not-designed"));
   });
 
   it("leaves template guides for the author, which validation flags until they are filled", async () => {
@@ -76,6 +202,24 @@ describe("recording progress", () => {
     assert.match(h.files.files.get("docs/vision.md") ?? "", /\| telnet \| Consoles over telnet \| GOAL-one-command \|/);
     await dropFutureFeature(h.deps, "telnet", "every lab device supports SSH");
     assert.doesNotMatch(h.files.files.get("docs/vision.md") ?? "", /telnet/);
+    assert.deepEqual((await validate(h.deps)).problems, []);
+  });
+});
+
+describe("naming and closing work", () => {
+  it("finds an active item by its slug, without the date or change number", async () => {
+    const h = await exampleProject();
+    h.repository.branch = BRANCH_01;
+    const report = await completeTask(h.deps, "T1", { change: "open-console/local-serial" });
+    assert.equal(report.change, CHANGE_01);
+  });
+
+  it("clears landed items from the roadmap status when a release closes, and keeps the rest", async () => {
+    const h = await exampleProject();
+    assert.deepEqual(await pruneRoadmap(h.deps), { removed: ["walking-skeleton"] });
+    const roadmap = h.files.files.get("docs/roadmap.md") ?? "";
+    assert.doesNotMatch(roadmap, /\| walking-skeleton \| 2026-09-24-walking-skeleton \| landed \|/);
+    assert.match(roadmap, /\| open-console \| 2026-09-25-open-console \| building \|/);
     assert.deepEqual((await validate(h.deps)).problems, []);
   });
 });

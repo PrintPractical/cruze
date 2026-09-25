@@ -1,5 +1,5 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
-import { removeRow, upsertRow } from "../../domain/edits/managed_tables.ts";
+import { readRows, removeRow, upsertRow } from "../../domain/edits/managed_tables.ts";
 import { updateProgress } from "../../domain/edits/progress_block.ts";
 import { resolveChange } from "../../domain/project/artifact_ref.ts";
 import { PATHS } from "../../domain/project/layout.ts";
@@ -56,6 +56,20 @@ export async function dropFutureFeature(deps: ProjectDeps, slug: string, reason:
   await deps.files.writeText(PATHS.vision, text);
   await appendJournal(deps, ".cruze", "feature-map", { action: "drop", feature: slug, reason });
   return { feature: slug };
+}
+
+/** Clears the landed rows from the roadmap's Status table, when a release closes. */
+export async function pruneRoadmap(deps: ProjectDeps): Promise<{ removed: string[] }> {
+  const roadmap = await deps.files.readText(PATHS.roadmap);
+  if (roadmap === undefined) throw new CruzeError("not-found", `${PATHS.roadmap} does not exist yet`);
+  const landed = readRows(roadmap, "Status").filter((row) => row[2] === "landed").map((row) => row[0] ?? "");
+  let text = roadmap;
+  for (const item of landed) text = removeRow(text, "Status", item).text;
+  if (landed.length > 0) {
+    await deps.files.writeText(PATHS.roadmap, text);
+    await appendJournal(deps, ".cruze", "roadmap-prune", { items: landed });
+  }
+  return { removed: landed };
 }
 
 async function changeFor(deps: ProjectDeps, ref: string | undefined): Promise<WorkItem> {

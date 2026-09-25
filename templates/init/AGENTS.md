@@ -9,13 +9,13 @@ This project uses [Cruze](https://github.com/PrintPractical/cruze) for spec-driv
 ## Commands
 
 <!-- cruze:managed -->
-No build or test commands yet. The walking-skeleton change adds them.
+No build or test commands yet. `cruze land` fills this in when the walking-skeleton change lands.
 <!-- /cruze:managed -->
 
 ## Layout
 
 <!-- cruze:managed -->
-Not defined yet. Project-scope architecture design writes the module map.
+Not defined yet. `cruze land` fills this in from the module map in `docs/architecture.md`.
 <!-- /cruze:managed -->
 
 ## Conventions

@@ -7,6 +7,7 @@ import { stampMissingStatuses } from "../../domain/edits/status_lines.ts";
 import { parseMarkdown } from "../../domain/markdown.ts";
 import { resolveArtifact } from "../../domain/project/artifact_ref.ts";
 import { PATHS } from "../../domain/project/layout.ts";
+import { isPlanned, readChangesTable } from "../../domain/project/plan_parts.ts";
 import { readProgress } from "../../domain/project/progress.ts";
 import { approvalFolder, approvalsPath, type ProjectView } from "../../domain/project/project_view.ts";
 import { featureOf } from "../../domain/project/work_items.ts";
@@ -32,6 +33,12 @@ export async function approveArtifact(deps: ProjectDeps, ref: string): Promise<A
   const { path, item } = resolveArtifact(view, ref);
   if (!isApprovable(view, path)) throw new CruzeError("not-approvable", `${path} is not something you approve; it changes through approved work`);
   requireUpstreamApproved(view, path);
+  if (item?.kind === "feature" && readChangesTable(item.doc).length === 0) {
+    throw new CruzeError("not-designed", `${path} has no changes yet; architect designs and splits it before approval`);
+  }
+  if (item !== undefined && item.kind !== "feature" && !isPlanned(item.doc)) {
+    throw new CruzeError("not-planned", `${path} has no test plan or tasks yet; plan it before approving`);
+  }
 
   const edits = new Map<string, string>();
   let text = view.snapshot.get(path) ?? "";

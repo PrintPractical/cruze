@@ -1,4 +1,4 @@
-import { ID_PATTERN, kindOf, type Kind } from "./ids.ts";
+import { ID_PATTERN, STATUS_KINDS, kindOf, type Kind } from "./ids.ts";
 import { sectionEnd, type MarkdownDoc } from "./markdown.ts";
 
 export type DeltaOp = "ADDED" | "MODIFIED" | "REMOVED";
@@ -83,6 +83,15 @@ export function isStatusLine(line: string): boolean {
 }
 
 /** The element's own managed status: the first status line before any nested heading. */
+/**
+ * Whether an element is still to be built: marked `planned`, or a kind that carries a status
+ * but not stamped yet, because the document holding it has never been approved.
+ */
+export function isUnbuilt(doc: MarkdownDoc, element: Element): boolean {
+  const status = statusOf(doc, element);
+  return status === "planned" || (status === undefined && STATUS_KINDS.includes(element.kind));
+}
+
 export function statusOf(doc: MarkdownDoc, element: Element): Status | undefined {
   for (let i = element.start + 1; i < element.end; i++) {
     if (/^#{1,6} /.test(doc.lines[i] ?? "") && !doc.inFence[i]) return undefined;

@@ -71,6 +71,15 @@ export function readTasks(doc: MarkdownDoc): { tasks: Task[]; malformed: number[
   return { tasks, malformed };
 }
 
+/**
+ * Whether a change has been planned. A standalone change is designed first, with an
+ * empty test plan and no tasks; plan fills both.
+ */
+export function isPlanned(doc: MarkdownDoc): boolean {
+  const { tasks, malformed } = readTasks(doc);
+  return readTestPlan(doc).length > 0 || tasks.length > 0 || malformed.length > 0;
+}
+
 export function readTestPlan(doc: MarkdownDoc): TestPlanRow[] {
   const section = findSection(doc, "Test plan");
   if (section === null) return [];

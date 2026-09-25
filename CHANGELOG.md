@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `cruze trace` links scenarios to tests. `cruze check` enforces layer rules and file budgets for TypeScript/JavaScript, Python, Rust, Go, C/C++ and Java/Kotlin.
 - `cruze land` merges a finished change into the living docs. It refuses conflicting edits, verifies the merge, re-stamps the approvals the merge would otherwise make stale, and archives finished work.
 - Knowledge skills hold the standards an agent designs and codes to: `cruze-hexagonal-design` (ports and adapters, ownership, dependency direction, many small modules, contracts, runtime ownership, Rust and C++ notes), `cruze-behavioural-testing`, `cruze-grilling`, `cruze-domain-language`, `cruze-dependency-approval` and `cruze-research`.
+- The design half of the workflow: `cruze-explore`, `cruze-envision` (project and feature scope), `cruze-architect` (project, feature and tweak scope, with the design walkthrough) and `cruze-roadmap`. `cruze-roles` holds the fresh-context design reviewer and researcher, and the two-round review procedure.
+- `cruze new` creates the project documents (`vision`, `glossary`, `architecture`, `roadmap`) and dated notes. `cruze roadmap prune` clears landed items from the roadmap's status when a release closes.
+- Commands that take a feature or change also accept its slug without the date, such as `open-console/local-serial`, when it names one active item.
+- A feature with no changes yet is `not-designed`, and a change with no test plan or tasks is `not-planned`. `cruze validate` warns about both and skips the rules that need those parts, and `cruze approve` refuses them.
 
 ### Changed
 
