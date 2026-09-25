@@ -19,4 +19,4 @@ The result is a feature folder whose `feature.md` holds the intent, the settled 
 8. **Leave the design to architect.** Set `## Architecture delta` to `None.` and leave the Changes table with its header row only. Remove the remaining template guides.
 9. **Confirm.** Summarize the intent and each requirement with its scenarios, in plain words, and ask the user to confirm them. Apply any corrections.
 
-Done when the user has confirmed, and `cruze validate` reports no errors for the feature, only its `not-designed` warning.
+Done when the user has confirmed, `cruze validate` reports no errors for the feature, only its `not-designed` warning, and the feature is committed.

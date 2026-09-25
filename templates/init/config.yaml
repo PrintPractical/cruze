@@ -20,3 +20,14 @@ check:
 
 # Layer rules, written by project-scope architecture design from the module map.
 layers: []
+
+# The project's commands, by name, such as `test: cargo test`. The
+# walking-skeleton change fills them in; `cruze land` copies them into AGENTS.md.
+commands: {}
+
+# How `cruze review` starts an agent in a fresh context to run a role, with the
+# prompt on standard input. The default lets Claude Code read the project and run
+# git and cruze. The verifier runs the system, so add the project's build and run
+# commands, such as "Bash(cargo:*)". For Codex, use ["codex", "exec", "-"].
+review:
+  command: ["claude", "-p", "--allowedTools", "Read Grep Glob Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(cruze:*)"]

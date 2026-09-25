@@ -14,6 +14,7 @@ export const RECORDED_EVENTS: Record<string, string[]> = {
   review: ["review", "round", "blockers", "concerns"],
   override: ["gate", "reason"],
   bug: ["summary", "cause"],
+  verification: ["result", "summary"],
 };
 
 export const FIELD_VALUES: Record<string, string[]> = {
@@ -21,6 +22,7 @@ export const FIELD_VALUES: Record<string, string[]> = {
   kind: ["defect", "discovery"],
   disposition: ["fixed", "waived", "deferred", "rejected"],
   review: ["design", "plan", "code"],
+  result: ["accepted", "sent-back"],
 };
 
 export function journalPath(folder: string): string {

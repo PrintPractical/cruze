@@ -5,7 +5,7 @@ import { CruzeError } from "../src/domain/cruze_error.ts";
 import { FakeBundle, ScriptedPrompter } from "./fakes/fake_bundle.ts";
 import { MemoryProjectFiles } from "./fakes/memory_project_files.ts";
 
-const STARTING_FILES = ["README.md", "CHANGELOG.md", "AGENTS.md", "CLAUDE.md", ".cruze/config.yaml", ".github/workflows/ci.yml"];
+const STARTING_FILES = ["README.md", "CHANGELOG.md", "AGENTS.md", "CLAUDE.md", ".cruze/config.yaml", ".github/workflows/ci.yml", ".gitattributes"];
 
 function setup(initial: Record<string, string> = {}, reply?: string) {
   const files = new MemoryProjectFiles(initial);

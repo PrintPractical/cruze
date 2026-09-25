@@ -1,6 +1,7 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { readProgress } from "../../domain/project/progress.ts";
 import { buildProjectView } from "../../domain/project/project_view.ts";
+import { nextSteps, type NextReport } from "../../domain/status/next_step.ts";
 import { activeChange, buildGateReasons, projectStatus, touchedIds, type ProjectStatus } from "../../domain/status/work_status.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
 
@@ -11,6 +12,12 @@ export interface StatusReport extends ProjectStatus {
 export async function showStatus(deps: ProjectDeps): Promise<StatusReport> {
   const branch = await deps.repository.currentBranch();
   return { branch, ...projectStatus(await loadView(deps.files), branch) };
+}
+
+/** The step to run next on this branch, and other work that could proceed. */
+export async function suggestNext(deps: ProjectDeps): Promise<NextReport & { branch: string | null }> {
+  const branch = await deps.repository.currentBranch();
+  return { branch, ...nextSteps(await loadView(deps.files), branch) };
 }
 
 export interface GateReport {

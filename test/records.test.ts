@@ -196,6 +196,12 @@ describe("recording progress", () => {
     await assert.rejects(completeTask(h.deps, "T99", { change: CHANGE_01 }), rejectsWith("unknown-task"));
   });
 
+  it("keeps a deviation that quotes angle brackets from reading as a template leftover", async () => {
+    const h = await exampleProject();
+    await recordDeviation(h.deps, "T2", "a bare consolectl now prints 'consolectl: missing <COMMAND>'", { change: CHANGE_01 });
+    assert.deepEqual((await validate(h.deps)).problems.filter((p) => p.rule === "template-leftover"), []);
+  });
+
   it("adds and drops future features on the feature map", async () => {
     const h = await exampleProject();
     await addFutureFeature(h.deps, "telnet", "Consoles over telnet", ["GOAL-one-command"]);

@@ -41,6 +41,11 @@ export function parseCommand(argv: string[]): ParsedCommand {
         gate: { type: "string" },
         override: { type: "string" },
         overlap: { type: "boolean", default: false },
+        round: { type: "string" },
+        replan: { type: "string", multiple: true, default: [] },
+        rebase: { type: "string", multiple: true, default: [] },
+        base: { type: "string" },
+        blockers: { type: "string" },
       },
     });
   } catch (error) {
@@ -59,6 +64,8 @@ export function parseCommand(argv: string[]): ParsedCommand {
     file: values.file,
     ci: values.ci,
     overlap: values.overlap,
+    replan: values.replan,
+    rebase: values.rebase,
     ...optional("name", values.name),
     ...optional("title", values.title),
     ...optional("feature", values.feature),
@@ -73,6 +80,9 @@ export function parseCommand(argv: string[]): ParsedCommand {
     ...optional("out", values.out),
     ...optional("gate", values.gate),
     ...optional("override", values.override),
+    ...optional("round", values.round),
+    ...optional("base", values.base),
+    ...optional("blockers", values.blockers),
   };
   return { words: positionals, options, help: values.help, version: values.version };
 }

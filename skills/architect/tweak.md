@@ -15,4 +15,8 @@ A tweak changes existing behaviour without changing the architecture. The result
    - Leave the test plan and tasks to `plan`.
 6. **Confirm.** Summarize the new behaviour and ask the user to confirm it.
 
-Done when the user has confirmed, and `cruze validate` reports only the change's `not-planned` warning.
+## A prefactor
+
+A prefactor comes from an architecture-level rethink: the architecture already says what the code must become, and one or more built elements went back to `planned`. It changes structure, not behaviour. Create it as in step 3, then write its intent, set `## Spec delta` and `## Architecture delta` to `None.`, and list the replanned elements under `Builds`. The existing behaviour tests are its safety net: they must pass unchanged.
+
+Done when the user has confirmed, `cruze validate` reports only the change's `not-planned` warning, and the change is committed.

@@ -6,7 +6,7 @@ It works with any agent that supports the [Agent Skills](https://agentskills.io)
 
 ## Status
 
-Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the design half of the workflow (explore, envision, architect, roadmap) ships as workflow skills. The delivery half (plan, build, verify, land) arrives in a later release. Claude Code is the agent tested so far.
+Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the whole workflow, from explore to land, ships as workflow skills. Claude Code is the agent tested so far.
 
 ## Why
 
@@ -59,18 +59,21 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | Command | What it does |
 | --- | --- |
 | `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config |
-| `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites |
+| `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on |
+| `cruze next` | Names the step to run next on this branch, and why, from computed status |
 | `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state |
 | `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current |
 | `cruze status --overlap` | Lists changes on other branches that touch the same elements as this branch's change |
 | `cruze new <kind>` | Creates a project document (`vision`, `glossary`, `architecture`, `roadmap`) or work (`feature`, `change`, `adr`, `note`) from its template, with a dated ID that is never reused |
-| `cruze task done <T#>` | Ticks a task with its commit; `cruze task deviation` records a small departure from the plan |
+| `cruze task done <T#>` | Ticks a task with its commit; `cruze task reopen` unticks one a rethink changed, and `cruze task deviation` records a small departure from the plan |
 | `cruze features <add\|drop>` | Edits the future list of the feature map |
 | `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
 | `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |
-| `cruze land` | Merges a finished change into the living docs, re-stamps the approvals the merge would make stale, and archives finished work |
-| `cruze journal add <event>` | Records a rethink, review round, disposition, override or bug; `cruze feedback export` bundles the journal for improving Cruze itself |
+| `cruze review <role>` | Runs a review role (design reviewer, code reviewer, verifier or researcher) in a fresh agent context, through the command in `.cruze/config.yaml` |
+| `cruze land` | Merges a verified change into the living docs, re-stamps the approvals the merge would make stale, fills the Commands and Layout sections of `AGENTS.md`, and archives finished work |
+| `cruze abandon <ref>` | Archives a feature or standalone change that stops for good, with its reason, and puts a feature back on the future list |
+| `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override or bug; `cruze feedback export` bundles the journal for improving Cruze itself |
 
 Stepping back is editing: change an upstream document and every approval that cites a changed element shows as stale, with the element named. Re-approving is the rewind; there are no phases to reset.
 
@@ -84,7 +87,14 @@ Stepping back is editing: change an upstream document and every approval that ci
 | `cruze-envision` | The what: the project's vision, goals and feature map, or one feature's intent and requirements with scenarios |
 | `cruze-architect` | The how: the architecture, a feature's architecture delta and its changes, or a tweak; ends with a design review and a walkthrough for your approval |
 | `cruze-roadmap` | Orders the release into phases with blocking edges and goal coverage, and closes a release |
-| `cruze-roles` | The fresh-context design reviewer and researcher, and how a review runs to a disposition for every finding |
+| `cruze-plan` | Turns a change into a test plan and ordered tasks with file targets, reviewed in a fresh context |
+| `cruze-build` | Builds the change task by task, each test-first, checked and committed, and stops to rethink when the design is wrong |
+| `cruze-verify` | Runs the checks, a fresh-context verifier that uses the real system, a two-lane code review and a manual test script, then asks you to accept |
+| `cruze-land` | Merges the change into the living docs and updates the changelog, README and `AGENTS.md`; also lands bug fixes |
+| `cruze-triage` | Reproduces a bug, finds its root cause against the living docs, and fixes it test-first or routes it to architect or rethink |
+| `cruze-rethink` | Steps back to the level a discovery touches, keeps completed work, re-approves what went stale and records why |
+| `cruze-next` | Says which step to run next and why |
+| `cruze-roles` | The fresh-context design reviewer, code reviewer, verifier and researcher, and how a review runs to a disposition for every finding |
 | `cruze-formats` | The format of every Cruze document, with templates |
 | `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, and notes for Rust and C++ |
 | `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |

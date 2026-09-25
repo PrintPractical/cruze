@@ -11,12 +11,14 @@ export async function runValidate(context: CliContext): Promise<CommandResult> {
   return { json: report, human: [...report.problems.map(formatProblem), summary].join("\n"), failed: !report.valid };
 }
 
-export async function runApprove(context: CliContext, args: string[]): Promise<CommandResult> {
+export async function runApprove(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
   requireArgs(args, ["document"]);
-  const report = await approveArtifact(context, args[0] ?? "");
+  const report = await approveArtifact(context, args[0] ?? "", { replan: options.replan, rebase: options.rebase });
   const lines = [`Approved ${report.artifact} (${report.hash.slice(0, 19)}), pinned to ${report.upstream.length} upstream element(s).`];
   if (report.stamped.length > 0) lines.push(`Marked ${report.stamped.length} element(s) planned.`);
   if (report.bound !== undefined) lines.push(`Bound the change to branch ${report.bound}.`);
+  if (report.replanned.length > 0) lines.push(`Set back to planned: ${report.replanned.join(", ")}.`);
+  if (report.rebased.length > 0) lines.push(`Accepted the current living text of: ${report.rebased.join(", ")}.`);
   return { json: report, human: lines.join("\n") };
 }
 

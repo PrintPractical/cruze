@@ -25,10 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The design half of the workflow: `cruze-explore`, `cruze-envision` (project and feature scope), `cruze-architect` (project, feature and tweak scope, with the design walkthrough) and `cruze-roadmap`. `cruze-roles` holds the fresh-context design reviewer and researcher, and the two-round review procedure.
 - `cruze new` creates the project documents (`vision`, `glossary`, `architecture`, `roadmap`) and dated notes. `cruze roadmap prune` clears landed items from the roadmap's status when a release closes.
 - Commands that take a feature or change also accept its slug without the date, such as `open-console/local-serial`, when it names one active item.
+- The delivery half of the workflow: `cruze-plan`, `cruze-build`, `cruze-verify`, `cruze-land`, `cruze-triage`, `cruze-rethink` and `cruze-next`, with the code-reviewer and verifier roles and a plan-review rubric for the design reviewer.
+- `cruze next` names the step to run next on the current branch, and why.
+- `cruze review <role>` runs a role in a fresh agent context through the command configured under `review:` (Claude Code's print mode by default).
+- `cruze land` requires the change's verification to have been accepted (`--override` journals an exception), and fills the Commands and Layout sections of `AGENTS.md` from `commands:` in the config and the built modules.
+- `cruze approve --replan` sets built elements a rethink changed back to planned, and `--rebase` lets a feature accept living text it must now build on after a land conflict.
+- `cruze task reopen` unticks a task a rethink changed, and `cruze abandon` archives work that stops for good.
+- Recorded journal events carry the Cruze version.
+- `cruze approve` refuses a feature or standalone change when an element its delta changes was edited in the living docs since its last approval (`rebase-required`), so a later land can't silently overwrite a rethink. `--rebase` accepts the living text once the delta keeps it.
+- `cruze init` writes a `.gitattributes` that merges journals by keeping every line, so parallel branches don't conflict on them.
 - A feature with no changes yet is `not-designed`, and a change with no test plan or tasks is `not-planned`. `cruze validate` warns about both and skips the rules that need those parts, and `cruze approve` refuses them.
 
 ### Changed
 
+- Dated IDs and records use the local date instead of the UTC date.
+- A later change may rebuild an element a landed change built, after a rethink, without counting as covering it twice.
+- Template-leftover checks skip CLI-managed blocks, so a recorded deviation may quote text such as `<COMMAND>`.
 - `ENT` elements may also be domain services, policies and domain events (`Kind: service`, `policy` or `event`).
 - The architecture's `## Decisions` section also holds project-level settled decisions, and a standalone change has an `## Adopt or build` section like a feature's.
 - The `.cruze/notes/` folder also holds research evidence behind adopt-or-build decisions.

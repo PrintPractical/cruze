@@ -53,7 +53,10 @@ export function projectStatus(view: ProjectView, branch: string | null): Project
 
 export function activeChange(view: ProjectView, branch: string | null): WorkItem | undefined {
   if (branch === null) return undefined;
-  return view.items.find((item) => !item.archived && item.kind !== "feature" && readProgress(item.doc).branch === branch);
+  return view.items.find((item) => {
+    const progress = readProgress(item.doc);
+    return !item.archived && item.kind !== "feature" && progress.landed === undefined && progress.branch === branch;
+  });
 }
 
 function changeStatus(view: ProjectView, change: WorkItem): ChangeStatus {

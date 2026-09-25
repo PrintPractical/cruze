@@ -43,4 +43,8 @@ export class SteppingClock implements Clock {
     this.current += 1000;
     return date;
   }
+
+  today(): string {
+    return new Date(this.current).toISOString().slice(0, 10);
+  }
 }

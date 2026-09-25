@@ -26,7 +26,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 5. **Design.** Follow the scope's procedure: [project.md](project.md), [feature.md](feature.md) or [tweak.md](tweak.md). Tweak scope ends there and hands off to `plan`.
 6. **Review the design.** Run the design review in `.agents/skills/cruze-roles/SKILL.md`, with the design reviewer role. Done when every finding has a journaled disposition and no blocker is open without the user's decision.
 7. **Walk the user through it.** Follow [walkthrough.md](walkthrough.md). Apply what the user changes, run `cruze validate` again, and repeat the parts of the walkthrough those changes affect.
-8. **Record the approval.** Only after the user says they approve, run the scope's `cruze approve` command and quote its result. At project scope, the roadmap follows as its own approval, described in [project.md](project.md).
+8. **Record the approval.** Only after the user says they approve, run the scope's `cruze approve` command and quote its result, then commit. At project scope, the roadmap follows as its own approval, described in [project.md](project.md).
 
 ## Rules
 

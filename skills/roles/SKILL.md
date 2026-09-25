@@ -1,6 +1,6 @@
 ---
 name: cruze-roles
-description: Prompts for Cruze's fresh-context roles (the design reviewer and the researcher), how to run one, and how to take a review through its two rounds to a disposition for every finding. Use when a Cruze workflow step says to run a role, a review or research in a fresh context.
+description: Prompts for Cruze's fresh-context roles (the design reviewer, code reviewer, verifier and researcher), how to run one, and how to take a review through its two rounds to a disposition for every finding. Use when a Cruze workflow step says to run a role, a review or research in a fresh context.
 ---
 
 # Roles
@@ -9,14 +9,16 @@ A role is a prompt with fixed inputs and a report as its only output. It runs in
 
 | Role | File | Used by |
 | --- | --- | --- |
-| Design reviewer | [design-reviewer.md](design-reviewer.md) | architect, at project and feature scope |
+| Design reviewer | [design-reviewer.md](design-reviewer.md) | architect, at project and feature scope; plan, for the plan review |
+| Code reviewer | [code-reviewer.md](code-reviewer.md) | verify, for the code review |
+| Verifier | [verifier.md](verifier.md) | verify, to run the system |
 | Researcher | [researcher.md](researcher.md) | architect, for adopt-or-build decisions |
 
 ## Running a role
 
 1. Read the role file and gather exactly the inputs it lists. Done when you have every input path, plus any command output the role asks for.
 2. Start a fresh context: a helper agent with no conversation history, where the agent can start one. Give it the role file's full text and the inputs the role lists, including draft documents it names, and nothing else. Your own opinions, the conversation and your reasons for the design stay out.
-3. If the agent can't start a fresh context, the design reviewer must still run in one: tell the user, and have them run it in a new session with the role file and the inputs. The researcher may run in your own context, since its evidence is checkable; say that you did.
+3. If the agent can't start a helper, run `cruze review <role> --item <ref>`, where the role is `design-reviewer`, `code-reviewer`, `verifier` or `researcher`. Add `--base <commit>` for the code under review. It starts the agent configured under `review:` in `.cruze/config.yaml` in a fresh context and prints the role's report. If that can't run either, the reviewers and the verifier must still run fresh: tell the user, and have them run the role in a new session. The researcher may run in your own context, since its evidence is checkable; say that you did.
 4. Take the report as it comes back. Check its evidence against the files before you act on any finding.
 
 ## Running a review
@@ -40,7 +42,7 @@ A review has at most two rounds. Only blockers can force the second one.
 
 Run round 2 only when a round-1 blocker was fixed.
 
-1. Run the reviewer again with its usual inputs, plus the round-1 blockers and the diff of their fixes. It checks only whether those blockers are fixed, and raises nothing new.
+1. Run the reviewer again with its usual inputs, plus the round-1 blockers and the diff of their fixes. It may be the round-1 reviewer resumed, since that context never saw the conversation that produced the work (with `cruze review`: `--round 2 --blockers <file> --base <round-1 commit>`). It checks only whether those blockers are fixed, and raises nothing new.
 2. Record the round with `round=2`.
 3. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
 

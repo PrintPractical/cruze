@@ -14,6 +14,7 @@ export const INIT_SCAFFOLD: readonly ScaffoldEntry[] = [
   { path: "CLAUDE.md", template: "init/CLAUDE.md" },
   { path: ".cruze/config.yaml", template: "init/config.yaml" },
   { path: ".github/workflows/ci.yml", template: "init/ci.yml" },
+  { path: ".gitattributes", template: "init/gitattributes" },
 ];
 
 /** Replaces every `{{key}}` with its value; an unknown key is a template bug. */

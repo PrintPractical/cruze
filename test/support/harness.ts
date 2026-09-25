@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { PackageBundle } from "../../src/adapters/outbound/package_bundle.ts";
 import type { ProjectDeps } from "../../src/app/project_context.ts";
 import { approveArtifact } from "../../src/app/use_cases/approve_artifact.ts";
+import { recordEvent } from "../../src/app/use_cases/journal_events.ts";
 import { completeTask } from "../../src/app/use_cases/record_progress.ts";
 import { FakeRepository, SteppingClock } from "../fakes/fake_repository.ts";
 import { MemoryProjectFiles } from "../fakes/memory_project_files.ts";
@@ -37,12 +38,13 @@ export async function approveDesign(deps: ProjectDeps): Promise<void> {
   for (const ref of ["vision", "architecture", "roadmap", FEATURE]) await approveArtifact(deps, ref);
 }
 
-/** Approves a change on its branch, as plan would, and completes every task. */
+/** Approves a change on its branch, as plan would, completes every task, and records its verification as accepted. */
 export async function buildChange(h: Harness, ref: string, branch: string): Promise<void> {
   h.repository.branch = branch;
   await approveArtifact(h.deps, ref);
   const text = h.files.files.get(pathOf(ref)) ?? "";
   for (const task of text.matchAll(/^- (T\d+): /gm)) await completeTask(h.deps, task[1] ?? "", { change: ref });
+  await recordEvent(h.deps, "verification", { result: "accepted", summary: "every scenario passed" }, ref);
 }
 
 export function pathOf(ref: string): string {

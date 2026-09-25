@@ -1,4 +1,5 @@
 import type { ProjectDeps } from "../../../app/project_context.ts";
+import type { AgentRunner } from "../../../app/ports/agent_runner.ts";
 import type { Prompter } from "../../../app/ports/prompter.ts";
 
 /** Everything a command handler needs, assembled by the composition root. */
@@ -8,6 +9,8 @@ export interface CliContext extends ProjectDeps {
   /** Accepts every default. */
   unattendedPrompter: Prompter;
   interactive: boolean;
+  /** Starts an agent in a fresh context for `cruze review`. */
+  runner: AgentRunner;
   /** Name of the working directory, the default project name. */
   directoryName: string;
 }
@@ -45,6 +48,11 @@ export interface Options {
   gate?: string;
   override?: string;
   overlap: boolean;
+  replan: string[];
+  rebase: string[];
+  round?: string;
+  base?: string;
+  blockers?: string;
 }
 
 export type Handler = (context: CliContext, args: string[], options: Options) => Promise<CommandResult>;

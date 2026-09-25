@@ -18,8 +18,8 @@ export async function runTrace(context: CliContext, _args: string[], options: Op
   return { json: report, human: lines.join("\n"), failed: !report.passed };
 }
 
-export async function runLand(context: CliContext, args: string[]): Promise<CommandResult> {
-  const report = await landChange(context, args[0]);
+export async function runLand(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
+  const report = await landChange(context, args[0], options.override === undefined ? {} : { override: options.override });
   const lines = [`Landed ${report.change}.`];
   if (report.merged.length > 0) lines.push(`Merged into the living docs: ${report.merged.join(", ")}`);
   if (report.built.length > 0) lines.push(`Now built: ${report.built.join(", ")}`);

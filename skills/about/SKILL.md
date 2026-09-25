@@ -12,10 +12,10 @@ This installation is an early preview. It has:
 - The `cruze` CLI: `cruze init` sets up a repository, `cruze install` updates the skills after an upgrade, and `cruze help` lists the commands that validate, approve, check, trace and land work.
 - `cruze-formats`, the format of every Cruze document.
 - Knowledge skills holding the standards to design and code to: `cruze-hexagonal-design`, `cruze-behavioural-testing`, `cruze-grilling`, `cruze-domain-language`, `cruze-dependency-approval` and `cruze-research`.
-- The design workflow: `explore` (optional), `envision` for the what, `architect` for the how, and `roadmap` for the order of work.
+- The workflow: `explore` (optional), `envision` for the what, `architect` for the how, `roadmap` for the order of work, then `plan`, `build`, `verify` and `land` for each change. `triage` handles bugs, `rethink` steps back from anywhere, and `next` says what to do now.
 
 When the user asks what Cruze can do:
 
 1. Read `.cruze/config.yaml` and report the project name and Cruze version.
 2. Run `cruze --version` if the `cruze` command is available, and say whether it differs from the configured version.
-3. Explain the design workflow: `envision` then `architect` at project scope for a new project, then `envision "<feature>"` and `architect "<feature>"` for each feature. The delivery skills (plan, build, verify, land) arrive in a later release.
+3. Run `cruze next` and explain the step it names, in the context of the whole workflow.

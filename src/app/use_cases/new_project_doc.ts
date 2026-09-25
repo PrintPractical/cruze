@@ -1,6 +1,6 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { PATHS } from "../../domain/project/layout.ts";
-import { isoDate, requireSlug } from "../../domain/project/new_items.ts";
+import { requireSlug } from "../../domain/project/new_items.ts";
 import { renderTemplate } from "../../domain/scaffold.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
 
@@ -20,7 +20,7 @@ export async function createProjectDoc(deps: ProjectDeps, kind: ProjectDocKind):
   if (view.snapshot.has(path)) throw new CruzeError("exists", `${path} already exists`);
   const project = view.config?.config?.project ?? "";
   if (project === "") throw new CruzeError("no-config", `${PATHS.config} is missing or has no project name; run cruze init first`);
-  const values = { project_name: project, id: "", title: "", date: isoDate(deps.clock.now()) };
+  const values = { project_name: project, id: "", title: "", date: deps.clock.today() };
   await deps.files.writeText(path, renderTemplate(await deps.bundle.formatTemplate(`${kind}.md`), values));
   await appendJournal(deps, ".cruze", "new", { kind, ref: path });
   return { kind, path };
@@ -31,7 +31,7 @@ export async function createNote(deps: ProjectDeps, slug: string, title: string)
   requireSlug(slug);
   if (title.trim() === "") throw new CruzeError("missing-title", "a title is required");
   const view = await loadView(deps.files);
-  const date = isoDate(deps.clock.now());
+  const date = deps.clock.today();
   const base = `${PATHS.notesDir}/${date}-${slug}`;
   let path = `${base}.md`;
   for (let n = 2; view.snapshot.has(path); n++) path = `${base}-${n}.md`;

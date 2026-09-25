@@ -14,7 +14,7 @@ export async function recordEvent(deps: ProjectDeps, event: string, fields: Reco
     folder = resolved.folder;
     fields = { ...fields, item: resolved.ref };
   }
-  return appendJournal(deps, folder, event, fields);
+  return appendJournal(deps, folder, event, { ...fields, cruze: deps.bundle.version });
 }
 
 export async function listEvents(deps: ProjectDeps, event?: string): Promise<JournalEntry[]> {
