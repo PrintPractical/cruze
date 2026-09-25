@@ -10,10 +10,13 @@
   },
   "type": "module",
   "bin": {
-    "cruze": "dist/main.js"
+    "cruze": "bin/cruze.mjs"
   },
   "files": [
+    "bin",
     "dist",
+    "scripts",
+    "src",
     "skills",
     "templates"
   ],
@@ -21,11 +24,11 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node --no-warnings scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "test": "node --test \"test/**/*.test.ts\"",
     "check": "npm run typecheck && npm test && npm run build",
-    "prepare": "npm run build"
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.20.4",

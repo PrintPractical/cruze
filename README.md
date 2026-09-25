@@ -26,21 +26,25 @@ Requires Node.js 22.18 or later, and git.
 
 ### 1. Install the CLI
 
-The skills run `cruze` commands, so the agent needs `cruze` on its path. Install it globally, from npm or straight from GitHub.
+The skills run `cruze` commands, so the agent needs `cruze` on its path. Install it globally, in one of three ways. `cruze --version` confirms which version you have.
 
-From npm:
+From a GitHub Release, without npm. Each release attaches the packed package:
+
+```sh
+npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.1/printpractical-cruze-0.0.1.tgz
+```
+
+From npm, once a version is published there:
 
 ```sh
 npm install -g @printpractical/cruze
 ```
 
-From GitHub, without npm, pinned to a release tag (or `#main` for the latest):
+From the git repository, at a tag or `#main`. This needs git and access to the repository. npm 11 needs `--install-links` for a global git install, and the first `cruze` command builds the CLI, which takes a moment:
 
 ```sh
-npm install -g github:PrintPractical/cruze#v0.0.1
+npm install -g --install-links github:PrintPractical/cruze#v0.0.1
 ```
-
-npm clones the repository and builds the CLI as it installs; that needs git, and access to the repository. `cruze --version` confirms which version you have.
 
 ### 2. Set up a repository
 
@@ -50,10 +54,10 @@ In the root of the repository:
 cruze init
 ```
 
-When you installed from GitHub, tell `init` so, so the CI it writes runs the same source instead of the npm package:
+When you didn't install from npm, tell `init` where Cruze came from, so the CI it writes runs the same source instead of the npm package:
 
 ```sh
-cruze init --package github:PrintPractical/cruze#v0.0.1
+cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.1/printpractical-cruze-0.0.1.tgz
 ```
 
 `init` asks for the project name, then creates:

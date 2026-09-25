@@ -16,7 +16,7 @@ The first preview release. It covers the whole greenfield workflow, from an idea
 - **Setup.**
   - `cruze init` sets up a repository with a README, changelog, `AGENTS.md`, `CLAUDE.md`, `.cruze/config.yaml`, a CI workflow that runs `cruze validate`, `check` and `trace`, and a `.gitattributes` that merges Cruze's journals line by line. It never overwrites existing files.
   - `cruze install` installs or updates the skills in `.agents/skills/` and links them into `.claude/skills/` for Claude Code.
-  - Cruze installs from GitHub without npm, with `npm install -g github:PrintPractical/cruze#v0.0.1`. `cruze init --package <spec>` makes the CI it writes run that same source.
+  - Cruze installs without npm, from the package attached to each GitHub Release, or from the git repository. `cruze init --package <spec>` makes the CI it writes run that same source.
 - **Workflow skills,** the commands a person runs:
   - `explore` (optional), `envision` (project or feature scope) and `architect` (project, feature or tweak scope, ending with a design review and a walkthrough).
   - `roadmap`, `plan`, `build` (test-first, one checked commit per task), `verify` (a fresh-context verifier that runs the real system, a two-lane code review and a manual test script) and `land`.

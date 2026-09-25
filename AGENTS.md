@@ -27,7 +27,7 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - `src/app/use_cases/`: one file per use case.
 - `src/adapters/inbound/cli/`: argument parsing, the command table in `commands.ts`, handlers grouped in `commands/`, output.
 - `src/adapters/outbound/`: Node filesystem, the package bundle reader, the terminal prompter.
-- `src/main.ts`: composition root and the `cruze` bin.
+- `src/main.ts`: composition root. `bin/cruze.mjs` is the `cruze` bin: it runs `dist/main.js`, building it first when missing.
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
 - `skills/formats/`: the contract for every project document (IDs, elements, deltas, scope rules), with templates. Skills and the CLI both read it, so change a format there and nowhere else.
 - `skills/hexagonal-design/`, `behavioural-testing/`, `grilling/`, `domain-language/`, `dependency-approval/`, `research/`: knowledge skills, the standards that workflow skills load by installed path.
@@ -55,3 +55,4 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 
 - Claude Code does not read `.agents/skills/`. It only finds Cruze skills through the links `cruze install` creates in `.claude/skills/`.
 - `npx <path-to-tarball>` fails. Use `npx --package=<tarball> cruze ...` to try a packed build.
+- The build is `scripts/build.mjs`: Node's type stripper over `src/`, with no dependencies. Don't add install scripts (`prepare`, `postinstall`). npm skips them for global installs, and a git install relies on `bin/cruze.mjs` building `dist/` on first run instead.
