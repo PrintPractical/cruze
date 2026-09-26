@@ -1,5 +1,9 @@
 # Cruze
 
+<p align="center">
+  <img src="docs/assets/cruze-logo.jpg" alt="Cruze" width="720">
+</p>
+
 Cruze is a spec-driven development framework for coding agents. It keeps one living model of your system (vision, glossary, architecture and behaviour specs) and delivers work as small changes against that model. Each change is merged back into the model when it lands, so the architecture an agent reads on the tenth change is as current as it was on the first.
 
 It works with any agent that supports the [Agent Skills](https://agentskills.io) format. It ships as one npm package: a `cruze` CLI that owns every deterministic step (IDs, approvals, checks, merges) and a set of skills that guide the agent through design and delivery.
