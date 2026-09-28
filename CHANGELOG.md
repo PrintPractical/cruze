@@ -23,6 +23,7 @@ Changes from the first retro, on a real project's feedback bundle and a review o
 - The design reviewer treats two elements that contradict each other as a blocker, and checks every use case, adapter and guarantee against the elements it must agree with. It also checks that each change builds whole elements and names every dependency, that adopted libraries name the features the design uses, and that nothing is designed that no requirement asks for.
 - Research verifies each claim the design relies on, such as a library's features or a CI command, by running it before the design review. An unverified claim is a blocker.
 - The code reviewer marks a finding that needs a design change, and treats it and an adapter that can't honour its port as blockers. Such a finding goes to `rethink` instead of being deferred or waived. Code built only for a later change is a Scope finding.
+- The hexagonal-design error rules ask for an error type only where a caller handles its cases differently. A use case returns or wraps the domain error instead of copying it, similar failures share one type, and a function returns only the failures its callers can meet. The Rust notes no longer ask for an error enum per domain, use case and adapter.
 - `plan` lists every file a changed signature or default breaks, splits files before a task takes them past their budgets, gives each new item to the task of its first user when the linter rejects unused code, and splits test files by behaviour, not size.
 
 ### Fixed

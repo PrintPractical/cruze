@@ -21,7 +21,9 @@ These add to the hexagonal design rules for Rust projects. The module map decide
 
 ## Errors
 
-- Define structured error enums with `thiserror` for the domain, each use case and each adapter, and convert between them at the boundaries.
+- Define error enums with `thiserror` where the hexagonal-design error rules call for a type, not one per layer by default. A use case whose only failure is a domain error returns that error. One that adds failures wraps it in a single `#[from]` variant.
+- Put what differs between similar failures in fields, such as `TooLarge { subject: Subject, size: usize, limit: usize }`, rather than `BatchTooLarge`, `MutationTooLarge` and `SetTooLarge`.
+- A match arm that can only be `unreachable!`, or an `expect` on an error the caller has ruled out, means the callee returns too wide a type: narrow it.
 - `anyhow` belongs only in the composition root and binaries, where no caller inspects the error. Never return it from a port or a domain function.
 - No `unwrap`, `expect` or `panic!` for conditions that can happen in production. Tests may use them.
 
