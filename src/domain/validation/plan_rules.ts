@@ -1,8 +1,10 @@
+import { insideModuleMap } from "../check/check_source.ts";
 import { factsOf, isUnbuilt } from "../elements.ts";
+import { matchesAny } from "../glob.ts";
 import { findIds, kindOf } from "../ids.ts";
 import type { MarkdownDoc } from "../markdown.ts";
 import type { Delta } from "../project/deltas.ts";
-import { isPlanned, readScope, readTasks, readTestPlan, type Scope } from "../project/plan_parts.ts";
+import { isPlanned, readScope, readTasks, readTestPlan, type Scope, type Task } from "../project/plan_parts.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { error, warning, type Problem } from "./problem.ts";
 
@@ -37,6 +39,7 @@ export function changePlanProblems(
       problems.push(error(path, task.line, "unknown-id", `${task.number} proves ${id}, which is not defined`));
     }
   }
+  problems.push(...outsideModuleMap(view, path, tasks, delta));
   for (const id of [...scope.delivers, ...scope.builds]) {
     if (kindOf(id) === "MOD") {
       const modulePaths = modulePathsOf(view, delta.doc, delta.delta, id);
@@ -102,4 +105,18 @@ function factsOfScoped(view: ProjectView, doc: MarkdownDoc, delta: Delta, id: st
 
 function modulePathsOf(view: ProjectView, doc: MarkdownDoc, delta: Delta, id: string): string[] {
   return (factsOfScoped(view, doc, delta, id).get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? "")).filter((p) => p !== "");
+}
+
+/** Task paths that `cruze check` would report as outside every module, caught while the plan can still fix the module map. */
+function outsideModuleMap(view: ProjectView, path: string, tasks: Task[], delta: { delta: Delta; doc: MarkdownDoc }): Problem[] {
+  const source = view.config?.config?.source ?? [];
+  const removed = new Set(delta.delta.entries.filter((e) => e.element.op === "REMOVED").map((e) => e.element.id));
+  const modules = new Set([...view.living.elements.keys(), ...delta.delta.entries.map((e) => e.element.id)].filter((id) => kindOf(id) === "MOD" && !removed.has(id)));
+  const modulePaths = [...modules].flatMap((id) => modulePathsOf(view, delta.doc, delta.delta, id));
+  if (modulePaths.length === 0) return [];
+  return tasks.flatMap((task) =>
+    task.paths
+      .filter((file) => matchesAny(file, source) && !insideModuleMap(file, modulePaths))
+      .map((file) => warning(path, task.line, "outside-module-map", `${task.number} writes ${file}, which no module's Path covers; add it to a module's Path or move the file`)),
+  );
 }

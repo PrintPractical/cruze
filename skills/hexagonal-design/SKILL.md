@@ -94,7 +94,12 @@ Layers are dependency boundaries, not runtime hops. A port can be a plain functi
 ## Representations and errors
 
 - Keep transport, application, domain and persistence representations separate when their meaning differs. Map them explicitly at the boundary, with one owner per mapping. Don't copy a type only to have one per layer.
-- Domain errors describe domain failures, application errors describe use-case failures, and adapter errors describe infrastructure failures. Translate at each boundary and never expose an SDK's error type through a port. Expected failures are values the caller handles, not crashes.
+- Expected failures are values the caller handles, not crashes. An error type exists where a caller handles its cases differently, and nowhere else.
+  - Domain errors describe domain failures and live with the concept that raises them.
+  - A use case returns the domain error unchanged when nothing else can fail. When it adds failures of its own, such as a port's, its error wraps the domain error in one case and never copies its variants.
+  - Adapter errors describe infrastructure failures. The adapter translates them at the port, so an SDK's error type never crosses it.
+  - Similar failures share one type, with what differs as a field: one `too large` failure naming what was too large, not one type per operation.
+  - A function returns only the failures its callers can meet. When every caller has already ruled a case out, narrow the return type rather than handling the case as unreachable.
 
 ## Warning signs
 
@@ -107,6 +112,7 @@ Reconsider ownership when a design or a diff shows any of these:
 - Application code constructs an adapter.
 - Logic that already exists is implemented again, or a change keeps a private copy of shared behaviour.
 - An interface mirrors its only implementation, or a chain of components only forwards calls.
+- An error type copies another's cases, or two error types differ only in their names.
 - Commodity infrastructure is being hand-written although a mature library does it. Follow `.agents/skills/cruze-research/SKILL.md`.
 
 These are review signals, not automatic failures. When one could be checked mechanically, propose a `cruze check` rule or a linter setting instead of repeating the finding.

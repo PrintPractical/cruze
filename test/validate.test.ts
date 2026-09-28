@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CHANGE_01_PATH, FEATURE_PATH, edit, exampleProject } from "./support/harness.ts";
 
@@ -18,6 +19,38 @@ describe("validating a project", () => {
     assert.deepEqual((await validate(h.deps)).problems.filter((p) => p.rule === "missing-status"), []);
     h.files.files.set(".cruze/approvals.json", JSON.stringify({ version: 1, approvals: [{ artifact: "docs/architecture.md", hash: "sha256:0", upstream: {}, approvedAt: "2026-09-24T00:00:00Z", by: "a" }], merged: {} }));
     assert.ok((await validate(h.deps)).problems.some((p) => p.rule === "missing-status"));
+  });
+
+  // mw-configuration-service: a module's Path missed the crate entry files, and only CI's check found it at build.
+  it("warns when a task writes a source file no module's Path covers", async () => {
+    const h = await exampleProject();
+    edit(h.files, CHANGE_01_PATH, "- T11: `main` in `src/main.rs`,", "- T11: `main` in `src/main.rs`, `src/bin/serial_probe.rs`, `tests/probe.rs`,");
+    const problems = (await validate(h.deps)).problems.filter((p) => p.rule === "outside-module-map");
+    assert.deepEqual(problems.map((p) => [p.path, p.severity, p.message]), [[CHANGE_01_PATH, "warning", "T11 writes src/bin/serial_probe.rs, which no module's Path covers; add it to a module's Path or move the file"]]);
+  });
+
+  // mw-configuration-service: the README had a title and sections, but never said what the project is.
+  it("warns, once the vision is approved, when the README has nothing under its title", async () => {
+    const h = await exampleProject();
+    const readmeWarnings = async (): Promise<string[]> => (await validate(h.deps)).problems.filter((p) => p.rule === "readme-overview").map((p) => `${p.path} ${p.severity}`);
+    h.files.files.set("README.md", "# Console Access\n\n![logo](logo.svg)\n\n## Architecture\n\nA hexagon.\n");
+    assert.deepEqual(await readmeWarnings(), []);
+    await approveArtifact(h.deps, "vision");
+    assert.deepEqual(await readmeWarnings(), ["README.md warning"]);
+    h.files.files.set("README.md", "# Console Access\n\n![logo](logo.svg)\n\n`consolectl` opens device consoles over serial and SSH hops.\n\n## Architecture\n");
+    assert.deepEqual(await readmeWarnings(), []);
+  });
+
+  // mw-configuration-service: two features of 9 changes each; their design reviews let contradictions through to plan.
+  it("warns when a feature has more changes than one design review can hold", async () => {
+    const h = await exampleProject();
+    const text = h.files.files.get(FEATURE_PATH) ?? "";
+    const row = "| 02-ssh-hops | SCN-access.ssh-direct, SCN-access.ssh-through-jump-host, SCN-access.second-hop-refused | ADP-access.ssh-connector, FLOW-access.hop-failure | 01-local-serial |\n";
+    const more = [3, 4, 5, 6, 7].map((n) => `| 0${n}-more-${n} | | | 01-local-serial |\n`).join("");
+    h.files.files.set(FEATURE_PATH, text.replace(row, row + more));
+    const sizes = (await validate(h.deps)).problems.filter((p) => p.rule === "feature-size");
+    assert.deepEqual(sizes.map((p) => [p.path, p.severity]), [[FEATURE_PATH, "warning"]]);
+    assert.match(sizes[0]?.message ?? "", /7 changes, over 6/);
   });
 
   // Each case breaks one rule of the cruze-formats skill and names the rule that must catch it.

@@ -56,6 +56,9 @@ function itemProblems(view: ProjectView, item: WorkItem): Problem[] {
 }
 
 /** A feature's Changes table covers its deltas, and each change folder agrees with its row. */
+/** More changes than this, and one design review can't hold the whole feature: contradictions slip through to plan. */
+const MAX_CHANGES = 6;
+
 function featureScopeProblems(view: ProjectView, feature: WorkItem, delta: Delta): Problem[] {
   const rows = readChangesTable(feature.doc);
   if (rows.length === 0) return [warning(feature.path, undefined, "not-designed", "the feature has no changes yet; architect designs and splits it")];
@@ -64,6 +67,10 @@ function featureScopeProblems(view: ProjectView, feature: WorkItem, delta: Delta
     [...readProgress(feature.doc).changes].filter(([, state]) => state === "landed").map(([change]) => change),
   );
   const names = rows.map((row) => row.change);
+  const extra = rows[MAX_CHANGES];
+  if (extra !== undefined) {
+    problems.push(warning(feature.path, extra.line, "feature-size", `the feature has ${rows.length} changes, over ${MAX_CHANGES}; split it into features a single design review can hold`));
+  }
   for (const row of rows) {
     if (!/^\d\d-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.change)) problems.push(error(feature.path, row.line, "change-name", `change "${row.change}" must be named NN-slug`));
     if (names.indexOf(row.change) !== names.lastIndexOf(row.change)) problems.push(error(feature.path, row.line, "change-name", `change ${row.change} is listed twice`));

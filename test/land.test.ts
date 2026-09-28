@@ -7,7 +7,7 @@ import { showStatus } from "../src/app/use_cases/project_status.ts";
 import { completeTask } from "../src/app/use_cases/record_progress.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { BRANCH_01, CHANGE_01, CHANGE_02, CHANGE_02_TEXT, FEATURE, approveDesign, buildChange, edit, exampleProject, type Harness } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, CHANGE_02, CHANGE_02_TEXT, FEATURE, FEATURE_PATH, approveDesign, buildChange, edit, exampleProject, type Harness } from "./support/harness.ts";
 
 const statusOf = (h: Harness, path: string, id: string): string | undefined => {
   const text = h.files.files.get(path) ?? "";
@@ -73,6 +73,22 @@ describe("landing a change", () => {
     assert.deepEqual(h.files.files, before);
   });
 
+  // mw-configuration-service: landing a removal left the feature citing a retired scenario.
+  it("refuses a land that would leave the feature citing an ID it removes, and writes nothing", async () => {
+    const h = await exampleProject();
+    edit(h.files, FEATURE_PATH, "\n## Architecture delta", "\n### REMOVED REQ-inventory.valid-paths: Reject invalid console paths\n- Reason: the catalog now rejects them\n- Migration: none needed\n\n## Architecture delta");
+    edit(h.files, FEATURE_PATH, "| Change | Delivers | Builds | Depends on |\n| --- | --- | --- | --- |", "| Change | Delivers | Builds | Removes | Depends on |\n| --- | --- | --- | --- | --- |");
+    edit(h.files, FEATURE_PATH, "MOD-access.adapters | |", "MOD-access.adapters | REQ-inventory.valid-paths | |");
+    edit(h.files, FEATURE_PATH, "FLOW-access.hop-failure | 01-local-serial |", "FLOW-access.hop-failure | | 01-local-serial |");
+    edit(h.files, FEATURE_PATH, "- D4: ", "- D5: Paths are checked as SCN-inventory.serial-not-last says\n- D4: ");
+    edit(h.files, CHANGE_01_PATH, "MOD-access.adapters\n", "MOD-access.adapters\n- Removes: REQ-inventory.valid-paths\n");
+    await approveDesign(h.deps);
+    await buildChange(h, CHANGE_01, BRANCH_01);
+    const before = new Map(h.files.files);
+    await assert.rejects(landChange(h.deps, CHANGE_01), (e: unknown) => e instanceof CruzeError && e.code === "merge-invalid" && /feature\.md:\d+ SCN-inventory\.serial-not-last is cited/.test(e.message));
+    assert.deepEqual(h.files.files, before);
+  });
+
   it("won't let a feature overwrite an element someone else changed after it merged it", async () => {
     const h = await landFirstChange();
     edit(h.files, "docs/architecture.md", "any other byte releases `0x1d`", "any other byte releases `0x1d` at once");
@@ -95,7 +111,7 @@ describe("landing a change", () => {
   it("rethinks the architecture after a land, with the rest of the feature showing exactly what went stale", async () => {
     const h = await landFirstChange();
     edit(h.files, "docs/architecture.md", "- Adopts: `russh`, which runs over any async stream", "- Adopts: `russh` 0.50 or later, which runs over any async stream");
-    await recordEvent(h.deps, "rethink", { level: "architecture", kind: "discovery", summary: "pin russh for jump-host support", wrong: "ADP-access.ssh-connector", caught_by: "build" });
+    await recordEvent(h.deps, "rethink", { level: "architecture", kind: "discovery", summary: "pin russh for jump-host support", wrong: "ADP-access.ssh-connector", found_by: "build" });
     const stale = await showStatus(h.deps);
     assert.equal(stale.features[0]?.approval.state, "upstream-changed");
     assert.deepEqual(stale.features[0]?.approval.changed, ["ADP-access.ssh-connector"]);

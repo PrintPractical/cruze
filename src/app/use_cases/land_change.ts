@@ -54,7 +54,9 @@ export async function landChange(deps: ProjectDeps, ref?: string, options: { ove
   const landed = `${deps.clock.today()}${commit === null ? "" : ` (${commit})`}`;
   const books = applyBookkeeping(view, change, source, landed, plan.files);
   const merged = withFiles(view, plan.files);
-  requireStillValid(view, merged);
+  const recorded = { ...(merged.approvals.get(source.folder) ?? { version: 1, approvals: [], merged: {} }), merged: plan.merged };
+  const checked = withFiles(merged, new Map([[approvalsPath(source.folder), serializeApprovals(recorded)]]));
+  requireStillValid(view, checked, [source.path, ...changesOf(view.items, source).map((c) => c.path)]);
 
   const approvals = new Map<string, ApprovalsFile>();
   const by = (await deps.repository.userName()) ?? "unknown";
@@ -102,12 +104,13 @@ function requireReady(view: ProjectView, change: WorkItem, source: WorkItem): vo
   if (reasons.length > 0) throw new CruzeError("not-ready", `${change.ref} cannot land yet:\n  ${reasons.join("\n  ")}`);
 }
 
-/** The merge may not introduce errors into the living docs. */
-function requireStillValid(before: ProjectView, after: ProjectView): void {
+/** The merge may not introduce errors into the living docs, or into the work it lands, such as a citation of an ID it removes. */
+function requireStillValid(before: ProjectView, after: ProjectView, work: string[]): void {
   const key = (p: { path: string; message: string }): string => `${p.path}|${p.message}`;
   const existing = new Set(validateProject(before).map(key));
-  const introduced = validateProject(after).filter((p) => p.severity === "error" && p.path.startsWith("docs/") && !existing.has(key(p)));
+  const watched = (path: string): boolean => path.startsWith("docs/") || work.includes(path);
+  const introduced = validateProject(after).filter((p) => p.severity === "error" && watched(p.path) && !existing.has(key(p)));
   if (introduced.length > 0) {
-    throw new CruzeError("merge-invalid", `landing would break the living docs; nothing was written:\n  ${introduced.map((p) => `${p.path}:${p.line ?? ""} ${p.message}`).join("\n  ")}`);
+    throw new CruzeError("merge-invalid", `landing would leave errors behind; nothing was written:\n  ${introduced.map((p) => `${p.path}:${p.line ?? ""} ${p.message}`).join("\n  ")}`);
   }
 }

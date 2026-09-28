@@ -7,7 +7,7 @@ import { readRoadmapItems } from "../project/roadmap.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { error, warning, type Problem } from "./problem.ts";
 
-/** Rules that span the project: leftover template guides, the roadmap and the config. */
+/** Rules that span the project: leftover template guides, the roadmap, the config and the README. */
 
 const GUIDE = /(?<!`)<(?!!--|\/|https?:|br\b)[A-Za-z][^<>\n]*>(?!`)/;
 const PLACEHOLDER = /\{\{[a-z_]+\}\}/;
@@ -96,4 +96,20 @@ export function configProblems(view: ProjectView): Problem[] {
 
 function modulePaths(doc: MarkdownDoc, element: Parameters<typeof factsOf>[1]): string[] {
   return (factsOf(doc, element).get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? ""));
+}
+
+/**
+ * Once the vision is approved, the README says what the project is under its title.
+ * Images, badges and HTML lines don't count as that overview.
+ */
+export function readmeProblems(view: ProjectView): Problem[] {
+  const text = view.snapshot.get(PATHS.readme);
+  const visionApproved = [...view.approvals.values()].some((file) => file.approvals.some((record) => record.artifact === PATHS.vision));
+  if (text === undefined || !visionApproved) return [];
+  const doc = parseMarkdown(text);
+  const title = doc.lines.findIndex((line) => /^# /.test(line));
+  const next = doc.lines.findIndex((line, i) => i > title && /^#{1,6} /.test(line));
+  const intro = doc.lines.slice(title + 1, next === -1 ? undefined : next);
+  const overview = intro.some((line, i) => !doc.inFence[title + 1 + i] && line.trim() !== "" && !/^\s*(!\[|\[!\[|<)/.test(line));
+  return overview ? [] : [warning(PATHS.readme, Math.max(title, 0), "readme-overview", "add a paragraph under the title saying what the project is, who it is for and why, from docs/vision.md")];
 }

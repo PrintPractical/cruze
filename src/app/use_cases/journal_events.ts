@@ -1,5 +1,5 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
-import { recordedEventProblems, type JournalEntry } from "../../domain/journal.ts";
+import { recordedEventProblems, recordedFields, type JournalEntry } from "../../domain/journal.ts";
 import { resolveArtifact } from "../../domain/project/artifact_ref.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
 
@@ -8,13 +8,14 @@ export async function recordEvent(deps: ProjectDeps, event: string, fields: Reco
   const problems = recordedEventProblems(event, fields);
   if (problems.length > 0) throw new CruzeError("invalid-event", problems.join("; "));
   let folder = ".cruze";
+  let recorded = recordedFields(fields);
   if (item !== undefined) {
     const resolved = resolveArtifact(await loadView(deps.files), item).item;
     if (resolved === undefined) throw new CruzeError("not-found", `"${item}" is not a feature or change`);
     folder = resolved.folder;
-    fields = { ...fields, item: resolved.ref };
+    recorded = { ...recorded, item: resolved.ref };
   }
-  return appendJournal(deps, folder, event, { ...fields, cruze: deps.bundle.version });
+  return appendJournal(deps, folder, event, { ...recorded, cruze: deps.bundle.version });
 }
 
 export async function listEvents(deps: ProjectDeps, event?: string): Promise<JournalEntry[]> {

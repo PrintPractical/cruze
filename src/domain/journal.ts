@@ -9,7 +9,7 @@ export interface JournalEntry {
 
 /** Events other tools and skills record, with the fields each requires. */
 export const RECORDED_EVENTS: Record<string, string[]> = {
-  rethink: ["level", "kind", "summary", "wrong", "caught_by"],
+  rethink: ["level", "kind", "summary", "wrong", "found_by"],
   disposition: ["finding", "disposition", "reason", "review"],
   review: ["review", "round", "blockers", "concerns"],
   override: ["gate", "reason"],
@@ -17,13 +17,27 @@ export const RECORDED_EVENTS: Record<string, string[]> = {
   verification: ["result", "summary"],
 };
 
+/** Fields an event may carry beyond its required ones, checked when present. A defect rethink must say which step missed it. */
+const OPTIONAL_FIELDS: Record<string, string[]> = {
+  rethink: ["missed_by"],
+  review: ["nits"],
+};
+
+/** The workflow steps and checks that find or miss a problem, so a retro can count them. */
+export const STEPS = ["envision", "architect", "research", "design-review", "walkthrough", "plan", "plan-review", "build", "code-review", "verify", "land", "validate", "check", "user"];
+
 export const FIELD_VALUES: Record<string, string[]> = {
   level: ["task", "change", "feature", "architecture", "vision"],
   kind: ["defect", "discovery"],
   disposition: ["fixed", "waived", "deferred", "rejected"],
   review: ["design", "plan", "code"],
   result: ["accepted", "sent-back"],
+  found_by: STEPS,
+  missed_by: STEPS,
 };
+
+/** Fields recorded as numbers rather than text. */
+const COUNT_FIELDS = ["round", "blockers", "concerns", "nits"];
 
 export function journalPath(folder: string): string {
   return `${folder}/journal.jsonl`;
@@ -53,10 +67,20 @@ export function serializeEntry(entry: JournalEntry): string {
 export function recordedEventProblems(event: string, fields: Record<string, string>): string[] {
   const required = RECORDED_EVENTS[event];
   if (required === undefined) return [`unknown event "${event}"; recordable events: ${Object.keys(RECORDED_EVENTS).join(", ")}`];
-  const problems = required.filter((field) => (fields[field] ?? "").trim() === "").map((field) => `${event} needs ${field}`);
-  for (const [field, allowed] of Object.entries(FIELD_VALUES)) {
+  const needed = event === "rethink" && fields["kind"] === "defect" ? [...required, "missed_by"] : required;
+  const problems = needed.filter((field) => (fields[field] ?? "").trim() === "").map((field) => `${event} needs ${field}${field === "missed_by" ? " for a defect" : ""}`);
+  const known = [...required, ...(OPTIONAL_FIELDS[event] ?? [])];
+  for (const field of known) {
     const value = fields[field];
-    if (value !== undefined && required.includes(field) && !allowed.includes(value)) problems.push(`${field} must be one of ${allowed.join(", ")}`);
+    if (value === undefined) continue;
+    const allowed = FIELD_VALUES[field];
+    if (allowed !== undefined && !allowed.includes(value)) problems.push(`${field} must be one of ${allowed.join(", ")}`);
+    if (COUNT_FIELDS.includes(field) && !/^\d+$/.test(value)) problems.push(`${field} must be a whole number`);
   }
   return problems;
+}
+
+/** The fields as the journal stores them: counts become numbers. */
+export function recordedFields(fields: Record<string, string>): Record<string, string | number> {
+  return Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, COUNT_FIELDS.includes(key) ? Number(value) : value]));
 }

@@ -4,6 +4,7 @@
 export type Snapshot = ReadonlyMap<string, string>;
 
 export const PATHS = {
+  readme: "README.md",
   vision: "docs/vision.md",
   glossary: "docs/glossary.md",
   architecture: "docs/architecture.md",

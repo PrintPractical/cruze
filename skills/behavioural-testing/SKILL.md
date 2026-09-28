@@ -36,6 +36,12 @@ A behaviour test drives a use case, not a single domain type, so it keeps passin
 - Time, randomness and the environment are ports too. Inject a clock instead of reading the system time.
 - A fake earns trust from the contract tests it shares with the real adapter. Read [fakes.md](fakes.md) before writing one.
 
+## Test support
+
+- Share fixtures and harnesses the way you share fakes. Keep one builder or constant for each domain value tests keep needing, such as a valid configuration or an ID from a string, and one harness per seam, such as an in-process service or the real binary started on a temporary directory. They live in the test support module the language file names.
+- Before writing a helper in a test file, look in the test support module. Use or extend what is there, and never redefine it.
+- Split a test file by the behaviour it covers, one use case, port or flow per file. File budgets apply to source, not to tests, so never split a test file to meet one.
+
 ## Expected values
 
 - Take expected values from an independent source: the scenario's worked example, a spec, or a known-good literal. Never compute the expected value the way the code does.

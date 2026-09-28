@@ -21,7 +21,9 @@ These add to the hexagonal design rules for Rust projects. The module map decide
 
 ## Errors
 
-- Define structured error enums with `thiserror` for the domain, each use case and each adapter, and convert between them at the boundaries.
+- Define error enums with `thiserror` where the hexagonal-design error rules call for a type, not one per layer by default. A use case whose only failure is a domain error returns that error. One that adds failures wraps it in a single `#[from]` variant.
+- Put what differs between similar failures in fields, such as `TooLarge { subject: Subject, size: usize, limit: usize }`, rather than `BatchTooLarge`, `MutationTooLarge` and `SetTooLarge`.
+- A match arm that can only be `unreachable!`, or an `expect` on an error the caller has ruled out, means the callee returns too wide a type: narrow it.
 - `anyhow` belongs only in the composition root and binaries, where no caller inspects the error. Never return it from a port or a domain function.
 - No `unwrap`, `expect` or `panic!` for conditions that can happen in production. Tests may use them.
 
@@ -37,4 +39,7 @@ These add to the hexagonal design rules for Rust projects. The module map decide
 - Add dependencies with `cargo add`, so the version comes from the registry.
 - No `unsafe` unless the user approves it or an unavoidable low-level boundary needs it, with a `// SAFETY:` comment giving the reason.
 - Format with `cargo fmt`, lint with `cargo clippy -- -D warnings`, and test with `cargo test`.
-- Behaviour, contract and smoke tests live in `tests/` and reach the code through the library's public API. They share fakes through `tests/support/mod.rs`, which each test file declares with `mod support;`. Domain tests sit in a `#[cfg(test)] mod tests` beside the code and need no fakes.
+- Behaviour, contract and smoke tests live in the crate's `tests/` directory and reach the code through the library's public API. Domain tests sit in a `#[cfg(test)] mod tests` beside the code and need no fakes.
+- When a module's inline tests would take its file past the budget, move them to the crate's `tests/`, named for the module: `tests/<module>.rs`, or `tests/<module>/main.rs` declaring one file per topic, such as `tests/generation/add_generation.rs`. Cargo builds each `tests/*.rs` and each `tests/*/main.rs` as a test binary, and nothing deeper. Never move them to `src/<module>/tests.rs` or `src/<module>/tests/`: `cruze check` reports those as `test-placement`. A test that needs a private item is testing structure, so drive the public API instead. When a private seam really is the contract, such as a filesystem trait a crash test injects, list the file under `check.exceptions` with that reason.
+- Group integration tests into a few binaries by area, `tests/<area>/main.rs` with one module per topic, since every binary links the crate again.
+- Share fakes, fixtures and harnesses within a crate through `tests/support/mod.rs`, which each test binary declares with `mod support;`. In a workspace, put what several crates' tests share in one dev-only crate, such as `<project>-test-support`, listed under `[dev-dependencies]`. Never share them with `#[path]` includes.

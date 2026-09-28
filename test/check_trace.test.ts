@@ -65,6 +65,24 @@ describe("checking source code", () => {
     assert.ok(report.findings.some((f) => f.path === "src/helpers.rs" && f.rule === "outside-module-map"));
   });
 
+  // mw-configuration-service: tests that outgrew their module went to src/<module>/tests.rs in half the crates, tests/ in the rest.
+  it("flags Rust tests split out into files under src/, and leaves inline modules and tests/ alone", async () => {
+    const h = await exampleProject();
+    writeSources(h, {
+      "src/access/domain/console_session/tests.rs": "use super::*;\n",
+      "src/access/domain/console_session/tests/detach.rs": "use super::*;\n",
+      "src/access/domain/hop_tests.rs": "use super::*;\n",
+      "src/access/domain/escape_detector.rs": "pub struct EscapeDetector;\n#[cfg(test)]\nmod tests {}\n",
+    });
+    const report = await checkCode(h.deps, { ci: true });
+    assert.deepEqual(report.findings.filter((f) => f.rule === "test-placement").map((f) => f.path).sort(), [
+      "src/access/domain/console_session/tests.rs",
+      "src/access/domain/console_session/tests/detach.rs",
+      "src/access/domain/hop_tests.rs",
+    ]);
+    assert.equal(report.passed, false);
+  });
+
   it("checks only the named file when asked, for the fast per-task check", async () => {
     const h = await exampleProject();
     writeSources(h, { "src/access/domain/console_session.rs": "use crate::access::adapters::serial_connector::SerialConnector;\n" });

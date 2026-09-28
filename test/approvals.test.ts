@@ -66,7 +66,7 @@ describe("approvals and the build gate", () => {
     assert.equal(blocked.passed, false);
     assert.ok(blocked.reasons.some((r) => r.includes(CHANGE_01_PATH) && r.includes("PORT-access.terminal")));
 
-    await recordEvent(h.deps, "rethink", { level: "architecture", kind: "discovery", summary: "input order is part of the contract", wrong: "PORT-access.terminal", caught_by: "plan" }, CHANGE_01);
+    await recordEvent(h.deps, "rethink", { level: "architecture", kind: "discovery", summary: "input order is part of the contract", wrong: "PORT-access.terminal", found_by: "plan" }, CHANGE_01);
     for (const ref of ["architecture", FEATURE, CHANGE_01]) await approveArtifact(h.deps, ref);
     assert.equal((await checkBuildGate(h.deps)).passed, true);
     const change = (await showStatus(h.deps)).features[0]?.changes[0];

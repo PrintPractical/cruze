@@ -17,8 +17,9 @@ Run these steps for each component in a design that isn't domain logic. Domain l
 4. Recommend one. Adopt a library, or build with a concrete reason: the behaviour is specific to this product, no candidate meets a stated constraint, every candidate brings disproportionate risk or complexity, or the capability is the product itself. Avoiding a dependency is not a reason on its own.
 5. Record the result as a row in the `## Adopt or build` table of the feature or standalone change, as Component, Decision, Choice and Reason. At project scope, record it as the adapter's `Adopts` fact, and put rows for anything no adapter owns in the walking-skeleton change's `## Adopt or build`. When the evidence runs longer than the reason, write it to `.cruze/notes/<date>-<slug>.md` and cite that note in the reason.
 6. Take the recommendation to the user. Adopting means a new dependency, which follows `.agents/skills/cruze-dependency-approval/SKILL.md`. Building commodity functionality is the user's call as well.
+7. Verify what the design will rely on. List each claim the design makes about an adopted library or tool: the features or flags it needs, and each command the design spells out, such as a CI step. Once the user has approved the dependency, check each claim by running it: build a scratch project outside the repository with exactly the declared features, and run each command there or with `--help`. When a claim can't be run, check it in that version's source. Write the features into the `Adopts` fact or the row's Choice.
 
-Done when every non-domain component in the design has a row with a decision and a reason.
+Done when every non-domain component in the design has a row with a decision and a reason, and every claim the design relies on is verified, with how.
 
 ## Answering a question
 

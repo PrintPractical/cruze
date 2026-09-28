@@ -6,7 +6,7 @@ import { countTypes } from "./type_count.ts";
 export interface CheckFinding {
   path: string;
   line?: number;
-  rule: "layer" | "max-lines" | "max-types" | "outside-module-map" | "no-layer";
+  rule: "layer" | "max-lines" | "max-types" | "outside-module-map" | "no-layer" | "test-placement";
   message: string;
   /** Layer violations always fail; the rest fail in CI unless excepted. */
   severity: "error" | "warning";
@@ -56,9 +56,28 @@ export function checkSource(input: CheckInput): CheckFinding[] {
     if (!excepted && types !== null && types > config.check.maxTypes) {
       findings.push({ path, rule: "max-types", severity: "warning", message: `${types} top-level types, over the budget of ${config.check.maxTypes}` });
     }
-    if (modulePaths.length > 0 && !modulePaths.some((module) => (module.endsWith("/") ? path.startsWith(module) : path === module))) {
+    if (!excepted && isRustTestFileInSource(path)) {
+      findings.push({ path, rule: "test-placement", severity: "warning", message: "Rust tests that leave their inline module go in the crate's tests/ directory, not under src/" });
+    }
+    if (modulePaths.length > 0 && !insideModuleMap(path, modulePaths)) {
       findings.push({ path, rule: "outside-module-map", severity: "warning", message: "the file is outside every module in the architecture's module map" });
     }
   }
   return findings;
+}
+
+/** Whether a module's Path covers the file: a directory path ending in `/` covers everything under it, any other names one file. */
+export function insideModuleMap(path: string, modulePaths: string[]): boolean {
+  return modulePaths.some((module) => (module.endsWith("/") ? path.startsWith(module) : path === module));
+}
+
+/** A Rust file of tests split out of a module: `tests.rs`, `*_tests.rs`, or anything under a `tests/` folder inside `src/`. */
+function isRustTestFileInSource(path: string): boolean {
+  if (!path.endsWith(".rs")) return false;
+  const segments = path.split("/");
+  const inSource = segments.lastIndexOf("src");
+  if (inSource === -1) return false;
+  const below = segments.slice(inSource + 1);
+  const file = below.at(-1) ?? "";
+  return file === "tests.rs" || file.endsWith("_tests.rs") || below.slice(0, -1).includes("tests");
 }

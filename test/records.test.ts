@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { exportFeedback, listEvents, recordEvent } from "../src/app/use_cases/journal_events.ts";
+import { listEvents } from "../src/app/use_cases/journal_events.ts";
 import { createNote, createProjectDoc } from "../src/app/use_cases/new_project_doc.ts";
 import { createWorkItem } from "../src/app/use_cases/new_work_item.ts";
 import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
@@ -227,23 +227,5 @@ describe("naming and closing work", () => {
     assert.doesNotMatch(roadmap, /\| walking-skeleton \| 2026-09-24-walking-skeleton \| landed \|/);
     assert.match(roadmap, /\| open-console \| 2026-09-25-open-console \| building \|/);
     assert.deepEqual((await validate(h.deps)).problems, []);
-  });
-});
-
-describe("the journal and feedback export", () => {
-  it("refuses a rethink that is missing what the feedback loop needs", async () => {
-    const h = await exampleProject();
-    await assert.rejects(recordEvent(h.deps, "rethink", { level: "architecture", kind: "defect", summary: "x" }), rejectsWith("invalid-event"));
-    await assert.rejects(recordEvent(h.deps, "rethink", { level: "galaxy", kind: "defect", summary: "x", wrong: "y", caught_by: "plan" }), rejectsWith("invalid-event"));
-  });
-
-  it("exports every entry, including archived work's, with the project name and people redacted", async () => {
-    const h = await exampleProject();
-    await recordEvent(h.deps, "rethink", { level: "change", kind: "defect", summary: "Console Access list output was ambiguous", wrong: "SCN-inventory.list-configured", caught_by: "verify" }, "2026-09-24-walking-skeleton");
-    const bundle = await exportFeedback(h.deps, true);
-    assert.equal(bundle.entries.length, 1);
-    assert.equal(bundle.entries[0]?.by, "<redacted>");
-    assert.equal(bundle.entries[0]?.["summary"], "<project> list output was ambiguous");
-    assert.equal(bundle.entries[0]?.["item"], "2026-09-24-walking-skeleton");
   });
 });

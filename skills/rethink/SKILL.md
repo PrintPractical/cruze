@@ -24,9 +24,11 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
    ```sh
    cruze journal add rethink --set level=<task|change|feature|architecture|vision> --set kind=<defect|discovery> \
      --set summary="<what changed>" --set wrong="<document and element, and what was wrong>" \
-     --set caught_by="<for a defect, the step that should have caught it; for a discovery, the step that found it>" \
+     --set found_by=<step> [--set missed_by=<step>] \
      --set agent="<the agent you run in>" [--item <ref>]
    ```
+
+   `found_by` is the step that found it. A defect also needs `missed_by`, the earliest step whose job was to catch it. Both take one of `envision`, `architect`, `research`, `design-review`, `walkthrough`, `plan`, `plan-review`, `build`, `code-review`, `verify`, `land`, `validate`, `check` or `user`.
 
 Done when `cruze status` shows every document approved and current, or names only work the user chose to leave for later.
 

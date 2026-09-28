@@ -9,6 +9,6 @@ The test plan decides, before any code, which test proves each scenario and at w
 2. **One `contract` row per port that a built adapter implements.** The seam names the fake and each real adapter, and what stands in for the outside world: a temporary directory, a pseudo-terminal, a local test server.
 3. **A `domain` row only for real logic.** Add one for a state machine, a calculation, or an invariant with many edge cases, when reaching every case through use cases would take many tests.
 4. **A `smoke` row for each flow the change completes,** when that flow is one of the system's top 1 to 3. It runs the real inbound adapter wired by the real composition root.
-5. **Test file paths follow the language's conventions.** Put behaviour, contract and smoke tests where the language keeps tests that use the public API, such as `tests/` in Rust. Put domain tests where it keeps unit tests.
+5. **Test file paths follow the language's conventions.** Put behaviour, contract and smoke tests where the language keeps tests that use the public API, such as `tests/` in Rust. Put domain tests where it keeps unit tests. When the language file says where tests go once they outgrow their source file, follow it. Add each test to the file for its seam in the test support module the language file names, rather than a new file per task.
 
 Done when every delivered scenario has a `behaviour` row, every port a built adapter implements has a `contract` row, and every test file path is a real path the project's test runner will find.
