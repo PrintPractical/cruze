@@ -15,6 +15,8 @@ The result is an approved `docs/vision.md` and a `docs/glossary.md` holding the 
 5. **Write the vision.** Fill each section, and remove every template guide.
 6. **Fill the feature map.** For each capability, run `cruze features add <slug> --summary "<summary>" --goals <GOAL IDs>`. Put command syntax in backticks, such as `` `consolectl console <device>` ``, so it isn't read as a template guide. Running `add` again for the same slug replaces its entry in place. Done when every goal is served by at least one feature on the map.
 7. **Confirm.** Walk the user through the vision in one short summary: the problem, the goals with their measures, the non-goals, the constraints, and the feature map. Ask whether it matches their understanding, and apply any corrections.
-8. **Approve.** When the user approves, run `cruze approve vision` and quote its result. Commit, with a message such as `docs: envision the project`.
+8. **Approve.** When the user approves, run `cruze approve vision` and quote its result.
+9. **Introduce the project in the README.** Under the title of `README.md`, write one paragraph drawn from the vision's Problem, Users and Goals: what the product is, who it is for, and why it exists, ending with a link to `docs/vision.md`. Keep anything already there that is still true. Done when `cruze validate` reports no `readme-overview` warning.
+10. **Commit,** with a message such as `docs: envision the project`.
 
-Done when `cruze status` shows `docs/vision.md` approved and the glossary holds every domain term the vision uses.
+Done when `cruze status` shows `docs/vision.md` approved, the README says what the project is, and the glossary holds every domain term the vision uses.

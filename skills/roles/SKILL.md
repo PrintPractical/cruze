@@ -28,12 +28,14 @@ A review has at most two rounds. Only blockers can force the second one.
 ### Round 1
 
 1. Commit the documents under review (`docs: <artifact> for design review`), so the fixes in round 2 have a diff. Then run the reviewer on the complete artifact.
-2. Record the round: `cruze journal add review --set review=<design|plan|code> --set round=1 --set blockers=<n> --set concerns=<n>`, adding `--item <ref>` for a feature or change.
+2. Record the round: `cruze journal add review --set review=<design|plan|code> --set round=1 --set blockers=<n> --set concerns=<n> --set nits=<n>`, with the counts from the report's last line, adding `--item <ref>` for a feature or change.
 3. Present every finding to the user with your recommended disposition and why:
    - `fixed`: you will change the design as the finding proposes.
    - `waived`: the finding is right, but the user accepts the risk.
    - `deferred`: it belongs to later work. When it is future scope, add it with `cruze features add <slug> --summary <text> --goals <ids>`.
    - `rejected`: the finding is wrong, with the reason.
+
+   A finding whose fix would change an approved element, such as one marked `Needs design change`, is never `deferred` or `waived`. Recommend `rethink` at that element's level now. Once the rethink is done and the code follows it, record the finding as `fixed`.
 4. The user decides each one. Record each decision: `cruze journal add disposition --set finding="<rubric item>: <summary>" --set disposition=<fixed|waived|deferred|rejected> --set reason="<reason>" --set review=<design|plan|code>`, with the same `--item`. A recorded disposition is never raised again.
 5. Apply every `fixed` change, then run `cruze validate`. Done when it reports no errors.
 6. When a finding could be caught by a tool, such as a layering, naming or size rule, tell the user which `cruze check` rule or linter setting would catch it next time.

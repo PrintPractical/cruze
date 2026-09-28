@@ -1,5 +1,5 @@
 import { buildProjectView, type ProjectView } from "../domain/project/project_view.ts";
-import { SNAPSHOT_ROOTS } from "../domain/project/layout.ts";
+import { PATHS, SNAPSHOT_ROOTS } from "../domain/project/layout.ts";
 import { journalPath, serializeEntry, type JournalEntry } from "../domain/journal.ts";
 import type { Bundle } from "./ports/bundle.ts";
 import type { Clock } from "./ports/clock.ts";
@@ -14,7 +14,7 @@ export interface ProjectDeps {
   bundle: Bundle;
 }
 
-/** Reads every document under docs/ and .cruze/ into a view. */
+/** Reads every document under docs/ and .cruze/, and the README, into a view. */
 export async function loadView(files: ProjectFiles): Promise<ProjectView> {
   const snapshot = new Map<string, string>();
   for (const root of SNAPSHOT_ROOTS) {
@@ -23,6 +23,8 @@ export async function loadView(files: ProjectFiles): Promise<ProjectView> {
       if (text !== undefined) snapshot.set(path, text);
     }
   }
+  const readme = await files.readText(PATHS.readme);
+  if (readme !== undefined) snapshot.set(PATHS.readme, readme);
   return buildProjectView(snapshot);
 }
 

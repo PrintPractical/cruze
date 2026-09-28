@@ -42,6 +42,7 @@ describe("three features in flight at once, from init to land", () => {
     const h = await withFiles(new MemoryProjectFiles());
     await initProject({ files: h.files, bundle: h.deps.bundle, prompter: new ScriptedPrompter() }, { name: "Console Access", defaultName: "x", agents: [] });
     for (const [path, text] of snapshotFromDisk(EXAMPLE_ROOT)) if (path !== ".cruze/config.yaml") h.files.files.set(path, text);
+    h.files.files.set("README.md", "# Console Access\n\n`consolectl` opens device consoles over serial ports and SSH hops, for people and agents in a lab.\n");
     h.files.files.set(`.cruze/features/${DEVICE_TAGS}/feature.md`, DEVICE_TAGS_TEXT);
     h.files.files.set(`.cruze/features/${SESSION_LOG}/feature.md`, SESSION_LOG_TEXT);
     assert.deepEqual((await validate(h.deps)).problems, []);

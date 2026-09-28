@@ -12,8 +12,8 @@ Every rethink, waived blocker and escaped bug in a project that uses Cruze is ev
 1. **Load the bundles.** Read each bundle the maintainer gives you. Each is JSON with `format: "cruze-feedback/1"`, the `cruze` version that exported it, `redacted`, and `entries`: journal entries, each with `event`, `at` and the event's fields. Note each bundle's Cruze version, then read `CHANGELOG.md` since that version. An issue a later release already fixed is closed; say so rather than proposing it again.
 2. **Count.** Tally the entries, per bundle and in total:
    - `land`: the landed changes, the denominator for every rate below.
-   - `rethink`: by `level`, and by `kind` (`defect` or `discovery`).
-   - `review`: rounds by type (`design`, `plan`, `code`), and blockers and concerns per round. A round 2 that still has blockers means the reviewer or the fix went wrong.
+   - `rethink`: by `level`, by `kind` (`defect` or `discovery`), and by `found_by` and `missed_by`. Bundles from Cruze 0.0.1 have a free-text `caught_by` instead: read both steps out of its wording.
+   - `review`: rounds by type (`design`, `plan`, `code`), and blockers, concerns and nits per round. Cruze 0.0.1 recorded these counts as strings, so convert them before adding. A round 2 that still has blockers means the reviewer or the fix went wrong. A round that lists the maximum 5 concerns may have cut real findings to nits.
    - `disposition`: by `disposition`. Each `waived` blocker and `rejected` finding counts against the rubric item it names.
    - `verification`: every `sent-back` result.
    - `bug`: by `escaped`, the step that let the defect through.

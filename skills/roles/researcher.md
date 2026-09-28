@@ -26,6 +26,7 @@ For components, report one block each:
 
 Evidence: <the evaluation table for the serious candidates, with sources and the date checked>
 New dependency: yes or no
+Claims to verify: <each feature, flag or command the design would rely on, with where the source shows it>
 ```
 
 For a question, report the answer, its evidence (version or commit, and file and line or URL) and what you couldn't verify.

@@ -20,7 +20,7 @@ Review against these items and nothing else. Each finding names one.
 
 1. **Scenarios.** Every scenario the change delivers is implemented, and has a test that carries its ID, drives the seam the test plan names, and takes its expected values from the scenario.
 2. **Failures.** Each failure scenario produces the error it specifies and leaves the state it specifies.
-3. **Scope.** The code adds no behaviour the change's scope doesn't deliver. Unrequested behaviour is a finding, even when it looks useful.
+3. **Scope.** The code adds no behaviour the change's scope doesn't deliver, and no public item, variant or operation that only a later change uses. Unrequested or early code is a finding, even when it looks useful or the next change needs it.
 4. **Protected tests.** No behaviour, contract or smoke test for an approved scenario, port or flow was weakened, skipped or deleted without a delta that changes its subject.
 
 ### Architecture lane
@@ -28,7 +28,7 @@ Review against these items and nothing else. Each finding names one.
 5. **Placement.** Every file the diff adds or changes is where the architecture puts its owner, and matches the task's file targets or a recorded deviation.
 6. **Direction.** Dependencies point inward. No technology type crosses a port. Inbound adapters hold no domain rules or workflow.
 7. **Size.** No file holds two responsibilities or passes its budget without a recorded exception.
-8. **Idiom.** The code is idiomatic for the language, uses its standard tooling, and follows the language file's rules.
+8. **Idiom.** The code is idiomatic for the language, uses its standard tooling, and follows the language file's rules, including where tests live. Tests reuse the fixtures and harnesses in the test support module rather than redefining them.
 9. **Libraries.** Nothing hand-writes what a mature library does without a recorded `build` decision, and every new dependency has a recorded approval.
 10. **Contracts.** Each adapter honours its port's `Operations`, and each fake passes the same contract tests as the real adapter.
 
@@ -42,9 +42,10 @@ Each finding has this shape:
 - Evidence: <path:line, quoting the code>
 - Failure scenario: <what goes wrong, concretely, when this runs>
 - Proposed fix: <the specific change>
+- Needs design change: <the approved element whose text the fix must change, such as a port's `Operations`, or `no`>
 ```
 
-- A **blocker** means a scenario fails or is untested, a protected test was weakened, a layering rule is broken, or an unapproved dependency was added. Everything else is a **concern**.
+- A **blocker** means a scenario fails or is untested, a protected test was weakened, a layering rule is broken, an unapproved dependency was added, or an adapter can't honour its port's `Operations`. A finding that needs a design change is a blocker. Everything else is a **concern**.
 - List every blocker. List at most 5 concerns, the most important first. Count the rest as nits without listing them.
 - Drop any finding that contradicts the settled ledger. The only exception is a blocker with new evidence, which you mark `New evidence:` and explain.
 - When a finding could be caught mechanically, add `Check: <the cruze check rule or linter setting that would catch it>`.

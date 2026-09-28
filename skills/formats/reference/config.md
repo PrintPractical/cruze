@@ -42,9 +42,9 @@ layers:
 | `tracker` | Where work items live. `markdown` is the only value in V1. |
 | `source` | Globs of the source files `cruze check` inspects. |
 | `tests` | Globs of the files `cruze trace` searches for scenario IDs. |
-| `check.max_lines` | Line budget per source file. |
+| `check.max_lines` | Line budget per source file. Test files outside `source` have no budget. |
 | `check.max_types` | Budget of top-level types per source file. |
-| `check.exceptions` | Files allowed past a budget, each with a `path` and a `reason`. |
+| `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. |
 | `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. The default runs Claude Code in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. |

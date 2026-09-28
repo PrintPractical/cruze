@@ -30,7 +30,7 @@ For task `T<n>`:
 
 1. **Read it.** Note its owner, its files, the IDs it proves, and the test plan rows for those IDs.
 2. **Red.** Write the tests for the IDs it proves, at the seams the test plan names, carrying the IDs. Run them, and see them fail for the reason you expect.
-3. **Green.** Write the least code that makes them pass, in the task's files. Code that belongs to another task waits for that task.
+3. **Green.** Write the least code that makes them pass, in the task's files. Code that belongs to another task, or another change, waits for it, even when the next change will need it.
 4. **Check.** Run `cruze check <the task's files>`, the formatter and the linter, and fix what they report. Run the tests the task touched, and the rest of the suite when they are quick.
 5. **Commit** with a Conventional Commit message naming the task, such as `feat(access): console session state machine (T2)`.
 6. **Tick it.** Run `cruze task done T<n>`, which records the commit. Its progress edit rides along in the next commit.

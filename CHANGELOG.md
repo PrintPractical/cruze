@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Changes from the first retro, on a real project's feedback bundle and a review of its code.
+
+### Added
+
+- `cruze validate` warns `outside-module-map` when a task writes a source file that no module's `Path` covers, at plan time instead of in CI.
+- `cruze validate` warns `feature-size` when a feature has more than 6 changes, and `architect` splits such a feature.
+- `cruze validate` warns `readme-overview` once the vision is approved and the README says nothing under its title. `envision` now writes that overview, and a vision-level rethink keeps it current.
+- `cruze check` reports `test-placement` for Rust tests split into files under `src/`, such as `src/<module>/tests.rs`. The Rust notes say where they go instead: the crate's `tests/` directory, grouped into a few binaries.
+- The behavioural-testing skill has a test support section: one fixture per domain value and one harness per seam, reused rather than redefined. In a Rust workspace, tests share them through a dev-only crate rather than `#[path]` includes.
+
+### Changed
+
+- `cruze journal add rethink` takes `found_by`, plus `missed_by` for a defect, each one of a fixed list of steps, in place of free-text `caught_by`. Review rounds record `nits`, and their counts are stored as numbers.
+- The design reviewer treats two elements that contradict each other as a blocker, and checks every use case, adapter and guarantee against the elements it must agree with. It also checks that each change builds whole elements and names every dependency, that adopted libraries name the features the design uses, and that nothing is designed that no requirement asks for.
+- Research verifies each claim the design relies on, such as a library's features or a CI command, by running it before the design review. An unverified claim is a blocker.
+- The code reviewer marks a finding that needs a design change, and treats it and an adapter that can't honour its port as blockers. Such a finding goes to `rethink` instead of being deferred or waived. Code built only for a later change is a Scope finding.
+- `plan` lists every file a changed signature or default breaks, splits files before a task takes them past their budgets, gives each new item to the task of its first user when the linter rejects unused code, and splits test files by behaviour, not size.
+
+### Fixed
+
+- `cruze land` refuses a merge that would leave errors in the feature or changes it lands, such as a decision citing an ID the change removes. Before, it checked only `docs/`.
+
 ## [0.0.1] - 2026-09-24
 
 The first preview release. It covers the whole greenfield workflow, from an idea to a landed change, and has been tested with Claude Code.
