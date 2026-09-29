@@ -1,3 +1,4 @@
+import { versionNotice } from "../../../app/use_cases/record_version.ts";
 import { CruzeError } from "../../../domain/cruze_error.ts";
 import { type CliContext, UsageError } from "./cli_context.ts";
 import { COMMANDS, USAGE } from "./commands.ts";
@@ -10,12 +11,17 @@ export interface Terminal {
   stdoutIsTerminal: boolean;
 }
 
+/** Commands that set the version themselves, or report the skew as a problem of their own. */
+const NO_VERSION_NOTICE = new Set(["init", "install", "validate"]);
+
 /**
  * Runs one CLI invocation and returns the exit code: 0 on success, 1 when a check fails or
  * an expected error occurs, 2 for usage errors. Agents get JSON on stdout; people get a summary on stderr.
+ * When the project's skills don't match this CLI, a note on stderr says so, even when the command fails.
  */
 export async function runCli(argv: string[], context: CliContext, terminal: Terminal): Promise<number> {
   let json = !terminal.stdoutIsTerminal || argv.includes("--json");
+  let notice: string | undefined;
   try {
     const parsed = parseCommand(argv);
     json ||= parsed.options.json;
@@ -30,6 +36,7 @@ export async function runCli(argv: string[], context: CliContext, terminal: Term
     }
     const command = COMMANDS[name];
     if (command === undefined) throw new UsageError(`Unknown command: ${name}`);
+    if (!NO_VERSION_NOTICE.has(name)) notice = await versionNotice(context.files, context.bundle.version);
     const result = await command.handler(context, args, parsed.options);
     terminal.stderr(result.human);
     if (json) terminal.stdout(JSON.stringify(result.json, null, 2));
@@ -46,5 +53,7 @@ export async function runCli(argv: string[], context: CliContext, terminal: Term
       return 1;
     }
     throw error;
+  } finally {
+    if (notice !== undefined) terminal.stderr(`cruze: note: ${notice}`);
   }
 }

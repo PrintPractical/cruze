@@ -54,5 +54,6 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - Anything the CLI writes inside a managed block or a `- Status:` line must stay out of every hash, or routine bookkeeping will make designs look edited. When adding a CLI write, add a test that approvals stay current across it.
 
 - Claude Code does not read `.agents/skills/`. It only finds Cruze skills through the links `cruze install` creates in `.claude/skills/`.
+- Bumping the version in `package.json` also bumps `cruze:` in `examples/console-access/.cruze/config.yaml`, or the fixture reports a `cruze-version` warning and the tests fail.
 - `npx <path-to-tarball>` fails. Use `npx --package=<tarball> cruze ...` to try a packed build.
 - The build is `scripts/build.mjs`: Node's type stripper over `src/`, with no dependencies. Don't add install scripts (`prepare`, `postinstall`). npm skips them for global installs, and a git install relies on `bin/cruze.mjs` building `dist/` on first run instead.
