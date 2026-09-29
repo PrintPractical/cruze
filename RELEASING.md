@@ -23,8 +23,21 @@ Until this is set up, leave `NPM_PUBLISH` unset; releases then go to GitHub only
 
 ## Each release
 
-1. Move the `[Unreleased]` entries in `CHANGELOG.md` under a new version heading.
-2. Run `npm version <patch|minor|major>`. This updates `package.json` and creates the `v<version>` tag.
-3. Push the commit and the tag with `git push --follow-tags`.
+`main` takes changes only through pull requests, so a release is prepared on a branch and tagged once it merges.
+
+1. From an up-to-date `main`, create a branch such as `release-<version>`.
+2. Run `npm version <version> --no-git-tag-version`. This updates `package.json` and `package-lock.json` without tagging a commit that may never reach `main`.
+3. Set `cruze:` and `standards:` in `examples/console-access/.cruze/config.yaml` to the version.
+4. Move the `[Unreleased]` entries in `CHANGELOG.md` under a new `## [<version>] - <date>` heading, and update the compare links at the bottom.
+5. Update the version in the README's install commands and status line.
+6. Check that `skills/realign/notes/<version>.md` has a note for every user-visible change in the release, including those for new work only.
+7. Run `npm run check`, commit with a message such as `chore: release <version>`, and open a pull request.
+8. Once it merges, tag the merge commit on `main` and push only the tag:
+
+   ```sh
+   git checkout main && git pull --ff-only
+   git tag v<version>
+   git push origin v<version>
+   ```
 
 The workflow runs `npm run check`, confirms the tag matches `package.json`, creates the GitHub Release with the package attached, and, when `NPM_PUBLISH` is `true`, publishes to npm with provenance unless that version is already there.

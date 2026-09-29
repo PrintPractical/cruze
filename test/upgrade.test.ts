@@ -5,7 +5,7 @@ import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
 import { FakeBundle } from "./fakes/fake_bundle.ts";
 import { MemoryProjectFiles } from "./fakes/memory_project_files.ts";
-import { edit, exampleProject } from "./support/harness.ts";
+import { exampleProject, setVersions } from "./support/harness.ts";
 
 const CONFIG = `# Cruze project configuration, created by cruze 0.0.1.
 version: 1
@@ -62,13 +62,15 @@ describe("upgrading a project to a new Cruze", () => {
 
   it("warns in validate when the project's skills don't match this CLI, and says what to run", async () => {
     const h = await exampleProject();
+    const cli = h.deps.bundle.version;
     const skew = async (): Promise<string[]> => (await validate(h.deps)).problems.filter((p) => p.rule === "cruze-version").map((p) => `${p.severity}: ${p.message}`);
+    setVersions(h.files, { cruze: cli });
     assert.deepEqual(await skew(), []);
-    edit(h.files, ".cruze/config.yaml", 'cruze: "0.0.1"', 'cruze: "0.0.0"');
-    assert.match((await skew())[0] ?? "", /^warning: the project's skills are from Cruze 0\.0\.0, older than this CLI \(0\.0\.1\); run `cruze install`/);
-    edit(h.files, ".cruze/config.yaml", 'cruze: "0.0.0"', 'cruze: "0.2.0"');
-    assert.match((await skew())[0] ?? "", /newer than this CLI \(0\.0\.1\); upgrade the CLI/);
-    edit(h.files, ".cruze/config.yaml", 'cruze: "0.2.0"\n', "");
+    setVersions(h.files, { cruze: "0.0.0" });
+    assert.match((await skew())[0] ?? "", new RegExp(`^warning: the project's skills are from Cruze 0\\.0\\.0, older than this CLI \\(${cli.replaceAll(".", "\\.")}\\); run \`cruze install\``));
+    setVersions(h.files, { cruze: "99.0.0" });
+    assert.match((await skew())[0] ?? "", /newer than this CLI .*; upgrade the CLI/);
+    setVersions(h.files, { cruze: null });
     assert.match((await skew())[0] ?? "", /doesn't record which Cruze its skills came from; run `cruze install`/);
   });
 });

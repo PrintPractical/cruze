@@ -52,6 +52,19 @@ export function pathOf(ref: string): string {
   return change === undefined ? `.cruze/changes/${feature}/change.md` : `.cruze/features/${feature}/changes/${change}/change.md`;
 }
 
+/** Sets the fixture's recorded Cruze versions, so a test doesn't depend on the release it runs in. */
+export function setVersions(files: MemoryProjectFiles, versions: { cruze?: string | null; standards?: string | null }): void {
+  let text = files.files.get(".cruze/config.yaml") ?? "";
+  for (const key of ["cruze", "standards"] as const) {
+    const value = versions[key];
+    if (value === undefined) continue;
+    const line = new RegExp(`^${key}: .*\\n`, "m");
+    assert.ok(line.test(text), `the fixture's config has no ${key}: line`);
+    text = text.replace(line, value === null ? "" : `${key}: "${value}"\n`);
+  }
+  files.files.set(".cruze/config.yaml", text);
+}
+
 /** Replaces text in a file, failing the test when the text isn't there. */
 export function edit(files: MemoryProjectFiles, path: string, from: string, to: string): void {
   const text = files.files.get(path) ?? "";

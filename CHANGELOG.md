@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Most of these changes come from the first retro, on a real project's feedback bundle and a review of its code.
+## [0.0.2] - 2026-09-28
+
+Most of these changes come from the first retro, on a real project's feedback bundle and a review of its code. Existing projects upgrade as the README's Upgrading section says: install the new CLI, run `cruze install`, then `realign` when it suits you.
 
 ### Added
 
@@ -64,5 +66,6 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/PrintPractical/cruze/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/PrintPractical/cruze/releases/tag/v0.0.1

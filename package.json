@@ -1,6 +1,6 @@
 {
   "name": "@printpractical/cruze",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Spec-driven development for coding agents: one living model of the system, small deltas, convergent review.",
   "license": "Apache-2.0",
   "author": "Chris Buchter",
