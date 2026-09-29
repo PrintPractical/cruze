@@ -5,6 +5,7 @@
 ```yaml
 version: 1
 cruze: "0.0.2"
+standards: "0.0.2"
 project: "Console Access"
 tracker: markdown
 
@@ -40,13 +41,14 @@ layers:
 | --- | --- |
 | `version` | Format version. Always `1` for now. |
 | `cruze` | The Cruze version whose skills the project installed. `cruze install` writes it; don't edit it, except to go back to an older version on purpose. |
+| `standards` | The Cruze version whose expectations the code meets. `cruze realign done` moves it up. A rule a later release added reports but fails no CI until then. Without it, a project meets `0.0.1`. |
 | `project` | The project name, quoted. |
 | `tracker` | Where work items live. `markdown` is the only value in V1. |
 | `source` | Globs of the source files `cruze check` inspects. |
 | `tests` | Globs of the files `cruze trace` searches for scenario IDs. |
 | `check.max_lines` | Line budget per source file. Test files outside `source` have no budget. |
 | `check.max_types` | Budget of top-level types per source file. |
-| `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. |
+| `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. `realign` adds entries whose reason ends `scheduled in <ref>`, and landing that change removes them. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. |
 | `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. The default runs Claude Code in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. |

@@ -48,6 +48,7 @@ export interface Options {
   gate?: string;
   override?: string;
   overlap: boolean;
+  full: boolean;
   replan: string[];
   rebase: string[];
   round?: string;

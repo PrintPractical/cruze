@@ -6,6 +6,9 @@ import { PackageBundle } from "../src/adapters/outbound/package_bundle.ts";
 import { INIT_SCAFFOLD, renderTemplate } from "../src/domain/scaffold.ts";
 import { SKILL_FILE, agentToolProblems, skillProblems } from "../src/domain/skill.ts";
 import { skillLinkProblems, type SkillFiles } from "../src/domain/skill_links.ts";
+import { compareVersions } from "../src/domain/versions/cruze_version.ts";
+import { parseRealignNotes, type RealignNote } from "../src/domain/versions/realign_notes.ts";
+import { RULE_SINCE } from "../src/domain/versions/rule_versions.ts";
 
 // Lints the real package contents: what `npm publish` would ship.
 describe("the shipped bundle", () => {
@@ -41,6 +44,41 @@ describe("the shipped bundle", () => {
       const rendered = renderTemplate(await bundle.template(entry.template), values);
       assert.doesNotMatch(rendered, /\{\{/, `${entry.template} has an unfilled placeholder`);
     }
+  });
+});
+
+// Realign brings existing projects up to each release, so a release must say what it expects of them.
+describe("the realign notes", () => {
+  const notesOf = async (): Promise<{ notes: RealignNote[]; problems: string[]; versions: string[] }> => {
+    const skill = (await (await PackageBundle.locate()).skills()).find((s) => s.folder === "realign");
+    const files = (skill?.files ?? []).filter((f) => f.path.startsWith("notes/"));
+    const parsed = files.map((f) => ({ version: /^notes\/(.+)\.md$/.exec(f.path)?.[1] ?? "", text: f.text }));
+    const results = parsed.map((p) => parseRealignNotes(p.version, p.text));
+    const badNames = parsed.filter((p) => !/^\d+\.\d+\.\d+$/.test(p.version)).map((p) => `notes/${p.version}.md is not named for a version`);
+    return { notes: results.flatMap((r) => r.notes), problems: [...badNames, ...results.flatMap((r) => r.problems)], versions: parsed.map((p) => p.version) };
+  };
+
+  it("are well formed", async () => {
+    assert.deepEqual((await notesOf()).problems, []);
+  });
+
+  it("give every rule that reports on existing code a note in the release that introduced it", async () => {
+    const { notes } = await notesOf();
+    const missing = Object.entries(RULE_SINCE).filter(([key, since]) => !notes.some((n) => n.detect === key && n.version === since)).map(([key, since]) => `${key} has no note in notes/${since}.md`);
+    const unknown = notes.filter((n) => n.detect !== undefined && RULE_SINCE[n.detect] === undefined).map((n) => `${n.version} ${n.id} detects ${n.detect}, which RULE_SINCE doesn't list`);
+    assert.deepEqual([...missing, ...unknown], []);
+  });
+
+  it("include a notes file for the coming release whenever the changelog has unreleased changes", async () => {
+    const bundle = await PackageBundle.locate();
+    const changelog = readFileSync(fileURLToPath(new URL("../CHANGELOG.md", import.meta.url)), "utf8");
+    const unreleased = changelog.slice(changelog.indexOf("## [Unreleased]"), changelog.indexOf("\n## [", changelog.indexOf("## [Unreleased]") + 1));
+    if (!/^- /m.test(unreleased)) return;
+    const { versions } = await notesOf();
+    assert.ok(
+      versions.some((v) => compareVersions(v, bundle.version) > 0),
+      `the changelog has unreleased changes, so add skills/realign/notes/<next version>.md, newer than ${bundle.version}`,
+    );
   });
 });
 

@@ -5,12 +5,14 @@ import { readProgress } from "../project/progress.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { readRoadmapItems, readRoadmapStatus } from "../project/roadmap.ts";
 import { changesOf, featureOf, type WorkItem } from "../project/work_items.ts";
+import { compareVersions } from "../versions/cruze_version.ts";
+import { FIRST_RELEASE } from "../versions/rule_versions.ts";
 import { isVerified } from "./verification.ts";
 import { activeChange } from "./work_status.ts";
 
 /** The Cruze step to run next, computed from the project's state and the current branch. */
 
-export type Step = "envision" | "architect" | "roadmap" | "plan" | "build" | "verify" | "land" | "rethink" | "switch-branch";
+export type Step = "envision" | "architect" | "roadmap" | "plan" | "build" | "verify" | "land" | "rethink" | "realign" | "switch-branch";
 
 export interface NextStep {
   step: Step;
@@ -31,10 +33,25 @@ export function nextSteps(view: ProjectView, branch: string | null): NextReport 
   const active = activeChange(view, branch);
   const inFlight = view.items.filter((item) => !item.archived && item.kind !== "change").flatMap((item) => itemSteps(view, item, branch));
   const roadmap = roadmapStep(view);
-  const candidates = [...(active === undefined ? [] : [changeStep(view, active, branch)]), ...inFlight, ...(roadmap === null ? [] : [roadmap])];
+  const realign = realignStep(view);
+  const candidates = [
+    ...(active === undefined ? [] : [changeStep(view, active, branch)]),
+    ...inFlight,
+    ...(roadmap === null ? [] : [roadmap]),
+    ...(realign === null ? [] : [realign]),
+  ];
   const unique = candidates.filter((c, i) => candidates.findIndex((o) => o.step === c.step && o.target === c.target) === i);
   const [next, ...also] = unique;
   return { next: next ?? { step: "roadmap", reason: "every item on the roadmap has landed; close the release and plan the next" }, also };
+}
+
+/** Realign comes when nothing else is due: the installed skills expect more than the code meets. */
+function realignStep(view: ProjectView): NextStep | null {
+  const config = view.config?.config;
+  if (config?.cruze === undefined) return null;
+  const standards = config.standards ?? FIRST_RELEASE;
+  if (compareVersions(standards, config.cruze) >= 0) return null;
+  return { step: "realign", target: config.cruze, reason: `the code meets Cruze ${standards}'s expectations, and the installed skills are ${config.cruze}` };
 }
 
 /** The project documents come first: nothing else can proceed without them. */

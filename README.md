@@ -85,6 +85,8 @@ The CLI writes JSON to stdout when it isn't attached to a terminal, and a human 
 
 A repository runs three copies of Cruze: the CLI on your path, the skills in `.agents/skills/`, and the CLI that CI runs. `.cruze/config.yaml` records the version the skills came from, as `cruze: "0.0.2"`. When the CLI you run differs from it, every `cruze` command says so in a note on stderr, and `cruze validate` reports it as a `cruze-version` warning.
 
+It also records `standards:`, the version whose expectations the code meets. A release can expect more of existing code, such as where tests live. Its new rules report on your code right away, but they fail CI only once you realign to that release, so upgrading never turns CI red.
+
 1. **Upgrade the CLI** the same way you installed it, naming the new version, then check it with `cruze --version`:
 
    ```sh
@@ -104,9 +106,9 @@ A repository runs three copies of Cruze: the CLI on your path, the skills in `.a
    - It records the new version in `.cruze/config.yaml`.
    - It moves `.github/workflows/ci.yml` to the new version when CI runs the npm package, a release tarball or a release tag. It names any other source, such as a branch, for you to update by hand.
 
-3. **Check what the new version expects.** Read `CHANGELOG.md` for every version you skipped, then run `cruze validate` and `cruze check`. A new rule can report on documents and code that passed before, and `cruze check --ci` fails on its warnings. Fix what it reports, or list a file under `check.exceptions` in `.cruze/config.yaml` with the reason.
+3. **Commit** the skills, the config and the CI workflow together, with a message such as `chore: upgrade Cruze to <version>`, so CI runs the version the skills were written for.
 
-4. **Commit** the skills, the config and the CI workflow together, with a message such as `chore: upgrade Cruze to <version>`, so CI runs the version the skills were written for.
+4. **Realign the code** when it suits you, with the `realign` skill. `cruze realign status` lists what each release since `standards:` expects of existing code: what its CLI rules find, and the questions a fresh-context auditor answers. You decide each finding: fix it in a prefactor change, waive it for good, or defer it. `cruze realign done` then moves `standards:` up. Findings still waiting for their prefactor are listed under `check.exceptions` until it lands, so CI stays green. Add `--full` to audit against every release, such as for a project that adopted Cruze partway. `cruze next` suggests realigning when nothing else is due.
 
 An older CLI refuses to install over a repository that already moved to a newer version, so a stale CLI on another machine can't roll it back. To go back on purpose, set `cruze:` in `.cruze/config.yaml` to the older version first, then run that version's `cruze install`.
 
@@ -128,8 +130,10 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
 | `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |
-| `cruze review <role>` | Runs a review role (design reviewer, code reviewer, verifier or researcher) in a fresh agent context, through the command in `.cruze/config.yaml` |
+| `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml` |
 | `cruze land` | Merges a verified change into the living docs, re-stamps the approvals the merge would make stale, fills the Commands and Layout sections of `AGENTS.md`, and archives finished work |
+| `cruze realign status` | Lists what the installed Cruze expects of existing code since its `standards:` version, with what the CLI rules find now; `--full` covers every release |
+| `cruze realign done` | Moves `standards:` up once every finding is fixed, waived or scheduled in a change named with `--change` |
 | `cruze abandon <ref>` | Archives a feature or standalone change that stops for good, with its reason, and puts a feature back on the future list |
 | `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override or bug; `cruze feedback export` bundles the journal for improving Cruze itself |
 
@@ -151,8 +155,9 @@ Stepping back is editing: change an upstream document and every approval that ci
 | `cruze-land` | Merges the change into the living docs and updates the changelog, README and `AGENTS.md`; also lands bug fixes |
 | `cruze-triage` | Reproduces a bug, finds its root cause against the living docs, and fixes it test-first or routes it to architect or rethink |
 | `cruze-rethink` | Steps back to the level a discovery touches, keeps completed work, re-approves what went stale and records why |
+| `cruze-realign` | Brings existing code up to what a new Cruze expects: audits it against each release's notes, decides every finding with you, and schedules the fixes as prefactor changes |
 | `cruze-next` | Says which step to run next and why |
-| `cruze-roles` | The fresh-context design reviewer, code reviewer, verifier and researcher, and how a review runs to a disposition for every finding |
+| `cruze-roles` | The fresh-context design reviewer, code reviewer, verifier, researcher and auditor, and how a review runs to a disposition for every finding |
 | `cruze-formats` | The format of every Cruze document, with templates |
 | `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, and notes for Rust and C++ |
 | `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |

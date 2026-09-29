@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { checkCode, traceTests } from "../src/app/use_cases/check_code.ts";
-import { BRANCH_01, CHANGE_01, exampleProject, type Harness } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, edit, exampleProject, type Harness } from "./support/harness.ts";
 
 /** A consolectl source tree that follows the example's layer rules. */
 function writeSources(h: Harness, overrides: Record<string, string> = {}): void {
@@ -66,7 +66,7 @@ describe("checking source code", () => {
   });
 
   // mw-configuration-service: tests that outgrew their module went to src/<module>/tests.rs in half the crates, tests/ in the rest.
-  it("flags Rust tests split out into files under src/, and leaves inline modules and tests/ alone", async () => {
+  it("flags Rust tests split out into files under src/, and fails CI on them only once the project realigned past the rule", async () => {
     const h = await exampleProject();
     writeSources(h, {
       "src/access/domain/console_session/tests.rs": "use super::*;\n",
@@ -80,7 +80,12 @@ describe("checking source code", () => {
       "src/access/domain/console_session/tests/detach.rs",
       "src/access/domain/hop_tests.rs",
     ]);
-    assert.equal(report.passed, false);
+    assert.ok(report.findings.filter((f) => f.rule === "test-placement").every((f) => f.pending === true));
+    assert.equal(report.passed, true, "a rule newer than the project's standards fails nothing");
+    edit(h.files, ".cruze/config.yaml", 'standards: "0.0.1"', 'standards: "0.0.2"');
+    const realigned = await checkCode(h.deps, { ci: true });
+    assert.equal(realigned.findings.some((f) => f.pending === true), false);
+    assert.equal(realigned.passed, false);
   });
 
   it("checks only the named file when asked, for the fast per-task check", async () => {

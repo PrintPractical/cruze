@@ -38,7 +38,7 @@ Every rethink, waived blocker and escaped bug in a project that uses Cruze is ev
    Prefer a mechanical fix, such as a validation or check rule, over more prose in a skill. Prefer tightening an existing rule over adding a new one.
 5. **Write an eval case per proposal,** following [eval-cases.md](eval-cases.md). A proposal without an eval case is incomplete.
 6. **Present the retro** to the maintainer: the counts, the groups ranked by frequency times cost, and each proposal with its eval case. The maintainer decides which to accept.
-7. **Implement the accepted proposals** on a branch, following `AGENTS.md` and `docs/contributing/writing-skills.md`. Add each eval, record each user-visible change in `CHANGELOG.md`, and run `npm run check`.
+7. **Implement the accepted proposals** on a branch, following `AGENTS.md` and `docs/contributing/writing-skills.md`. Add each eval, record each user-visible change in `CHANGELOG.md`, and add a realign note for it to `skills/realign/notes/<coming version>.md`, in the format `skills/realign/notes.md` gives. A proposal that changes what existing code must look like gets `Applies to: existing code`, with its `Detect` rule or the auditor's `Ask`. Run `npm run check`.
 
 ## Rules
 
