@@ -10,7 +10,7 @@ import { showStatus, suggestNext } from "../src/app/use_cases/project_status.ts"
 import { realignDone } from "../src/app/use_cases/realign_done.ts";
 import { realignStatus } from "../src/app/use_cases/realign_status.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { BRANCH_01, CHANGE_01, approveDesign, buildChange, edit, exampleProject, type Harness } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, approveDesign, buildChange, exampleProject, setVersions, type Harness } from "./support/harness.ts";
 
 const CONFIG = ".cruze/config.yaml";
 const SPLIT_TESTS = "src/access/domain/console_session/tests.rs";
@@ -24,7 +24,7 @@ async function bundleAt(version: string): Promise<Bundle> {
 /** The example, with 0.0.2's skills installed over code that meets 0.0.1, and a Rust test file split under src/. */
 async function upgradedProject(): Promise<{ h: Harness; deps: ProjectDeps }> {
   const h = await exampleProject();
-  edit(h.files, CONFIG, 'cruze: "0.0.1"', 'cruze: "0.0.2"');
+  setVersions(h.files, { cruze: "0.0.2", standards: "0.0.1" });
   h.files.files.set("src/access/domain/console_session.rs", "pub struct ConsoleSession;\n#[cfg(test)]\nmod tests;\n");
   h.files.files.set(SPLIT_TESTS, "use super::*;\n");
   return { h, deps: { ...h.deps, bundle: await bundleAt("0.0.2") } };
@@ -46,13 +46,14 @@ describe("realigning a project to a new Cruze", () => {
 
   it("finds nothing once the code meets the installed version, unless asked for a full audit", async () => {
     const { h, deps } = await upgradedProject();
-    edit(h.files, CONFIG, 'standards: "0.0.1"', 'standards: "0.0.2"');
+    setVersions(h.files, { standards: "0.0.2" });
     assert.deepEqual((await realignStatus(deps, { full: false })).notes, []);
     assert.ok((await realignStatus(deps, { full: true })).notes.some((n) => n.id === "test-placement"));
   });
 
   it("asks for cruze install first when the skills are older than the CLI", async () => {
     const h = await exampleProject();
+    setVersions(h.files, { cruze: "0.0.1" });
     await assert.rejects(realignStatus({ ...h.deps, bundle: await bundleAt("0.0.2") }, { full: false }), rejectsWith("install-first", /skills are from Cruze 0\.0\.1, and this CLI is 0\.0\.2/));
   });
 

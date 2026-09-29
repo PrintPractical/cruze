@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { checkCode, traceTests } from "../src/app/use_cases/check_code.ts";
-import { BRANCH_01, CHANGE_01, edit, exampleProject, type Harness } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, exampleProject, setVersions, type Harness } from "./support/harness.ts";
 
 /** A consolectl source tree that follows the example's layer rules. */
 function writeSources(h: Harness, overrides: Record<string, string> = {}): void {
@@ -74,6 +74,7 @@ describe("checking source code", () => {
       "src/access/domain/hop_tests.rs": "use super::*;\n",
       "src/access/domain/escape_detector.rs": "pub struct EscapeDetector;\n#[cfg(test)]\nmod tests {}\n",
     });
+    setVersions(h.files, { standards: "0.0.1" });
     const report = await checkCode(h.deps, { ci: true });
     assert.deepEqual(report.findings.filter((f) => f.rule === "test-placement").map((f) => f.path).sort(), [
       "src/access/domain/console_session/tests.rs",
@@ -82,7 +83,7 @@ describe("checking source code", () => {
     ]);
     assert.ok(report.findings.filter((f) => f.rule === "test-placement").every((f) => f.pending === true));
     assert.equal(report.passed, true, "a rule newer than the project's standards fails nothing");
-    edit(h.files, ".cruze/config.yaml", 'standards: "0.0.1"', 'standards: "0.0.2"');
+    setVersions(h.files, { standards: "0.0.2" });
     const realigned = await checkCode(h.deps, { ci: true });
     assert.equal(realigned.findings.some((f) => f.pending === true), false);
     assert.equal(realigned.passed, false);
