@@ -13,12 +13,13 @@ A role is a prompt with fixed inputs and a report as its only output. It runs in
 | Code reviewer | [code-reviewer.md](code-reviewer.md) | verify, for the code review |
 | Verifier | [verifier.md](verifier.md) | verify, to run the system |
 | Researcher | [researcher.md](researcher.md) | architect, for adopt-or-build decisions |
+| Auditor | [auditor.md](auditor.md) | realign, to compare existing code with what a release now expects |
 
 ## Running a role
 
 1. Read the role file and gather exactly the inputs it lists. Done when you have every input path, plus any command output the role asks for.
 2. Start a fresh context: a helper agent with no conversation history, where the agent can start one. Give it the role file's full text and the inputs the role lists, including draft documents it names, and nothing else. Your own opinions, the conversation and your reasons for the design stay out.
-3. If the agent can't start a helper, run `cruze review <role> --item <ref>`, where the role is `design-reviewer`, `code-reviewer`, `verifier` or `researcher`. Add `--base <commit>` for the code under review. It starts the agent configured under `review:` in `.cruze/config.yaml` in a fresh context and prints the role's report. If that can't run either, the reviewers and the verifier must still run fresh: tell the user, and have them run the role in a new session. The researcher may run in your own context, since its evidence is checkable; say that you did.
+3. If the agent can't start a helper, run `cruze review <role> --item <ref>`, where the role is `design-reviewer`, `code-reviewer`, `verifier`, `researcher` or `auditor`. Add `--base <commit>` for the code under review. It starts the agent configured under `review:` in `.cruze/config.yaml` in a fresh context and prints the role's report. If that can't run either, the reviewers, the verifier and the auditor must still run fresh: tell the user, and have them run the role in a new session. The researcher may run in your own context, since its evidence is checkable; say that you did.
 4. Take the report as it comes back. Check its evidence against the files before you act on any finding.
 
 ## Running a review

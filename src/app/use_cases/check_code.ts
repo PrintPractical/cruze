@@ -2,6 +2,7 @@ import { factsOf } from "../../domain/elements.ts";
 import { checkSource, type CheckFinding } from "../../domain/check/check_source.ts";
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { matchesAny } from "../../domain/glob.ts";
+import { FIRST_RELEASE, isPending } from "../../domain/versions/rule_versions.ts";
 import type { CruzeConfig } from "../../domain/config.ts";
 import type { ProjectView } from "../../domain/project/project_view.ts";
 import { resolveChange } from "../../domain/project/artifact_ref.ts";
@@ -18,7 +19,8 @@ export interface CheckReport {
 
 /**
  * Enforces layer rules and file budgets. Layer violations always fail; budget and
- * module-map warnings fail only with `ci`.
+ * module-map warnings fail only with `ci`. A rule newer than the project's `standards:`
+ * is pending: it reports, but fails nothing until the project realigns.
  */
 export async function checkCode(deps: ProjectDeps, options: { files?: string[]; ci: boolean }): Promise<CheckReport> {
   const view = await loadView(deps.files);
@@ -32,8 +34,11 @@ export async function checkCode(deps: ProjectDeps, options: { files?: string[]; 
     }
   }
   const only = options.files?.filter((file) => sources.has(file));
-  const findings = checkSource({ config, sources, modulePaths: modulePaths(view), ...(only === undefined ? {} : { only }) });
-  const failing = findings.filter((f) => f.severity === "error" || options.ci);
+  const standards = config.standards ?? FIRST_RELEASE;
+  const findings = checkSource({ config, sources, modulePaths: modulePaths(view), ...(only === undefined ? {} : { only }) }).map((f) =>
+    isPending("check", f.rule, standards) ? { ...f, pending: true as const } : f,
+  );
+  const failing = findings.filter((f) => f.pending !== true && (f.severity === "error" || options.ci));
   return { passed: failing.length === 0, checked: only?.length ?? sources.size, findings };
 }
 

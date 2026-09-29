@@ -5,6 +5,8 @@ export interface CruzeConfig {
   version: 1;
   /** The Cruze version whose skills the project installed, recorded by `cruze install`. */
   cruze?: string;
+  /** The Cruze version whose expectations the code meets, moved forward by `realign`. */
+  standards?: string;
   project: string;
   tracker: "markdown";
   source: string[];
@@ -47,6 +49,8 @@ export function parseConfig(text: string): ConfigResult {
   if (root["version"] !== 1) problems.push("version must be 1");
   const cruze = root["cruze"];
   if (cruze !== undefined && (typeof cruze !== "string" || cruze.trim() === "")) problems.push("cruze must be a version string, such as \"0.0.2\"");
+  const standards = root["standards"];
+  if (standards !== undefined && (typeof standards !== "string" || standards.trim() === "")) problems.push("standards must be a version string, such as \"0.0.2\"");
   if (typeof root["project"] !== "string" || root["project"] === "") problems.push("project must be a non-empty string");
   if (root["tracker"] !== "markdown") problems.push("tracker must be markdown");
   const source = stringList(root["source"], "source", problems);
@@ -97,6 +101,7 @@ export function parseConfig(text: string): ConfigResult {
   const config: CruzeConfig = {
     version: 1,
     ...(typeof cruze === "string" && cruze.trim() !== "" ? { cruze } : {}),
+    ...(typeof standards === "string" && standards.trim() !== "" ? { standards } : {}),
     project: typeof root["project"] === "string" ? root["project"] : "",
     tracker: "markdown",
     source,

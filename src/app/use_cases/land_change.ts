@@ -15,6 +15,7 @@ import { changesOf, featureOf, type WorkItem } from "../../domain/project/work_i
 import { isVerified } from "../../domain/status/verification.ts";
 import { activeChange } from "../../domain/status/work_status.ts";
 import { validateProject } from "../../domain/validation/validate_project.ts";
+import { withoutScheduledExceptions } from "../../domain/versions/scheduled_exceptions.ts";
 import { appendJournal, loadView, withFiles, type ProjectDeps } from "../project_context.ts";
 
 const AGENTS_FILE = "AGENTS.md";
@@ -26,6 +27,8 @@ export interface LandReport {
   removed: string[];
   restamped: string[];
   finished: boolean;
+  /** Files whose `check.exceptions` entry `realign` scheduled in this change, removed now that it lands. */
+  unexcepted: string[];
   archivedTo?: string;
 }
 
@@ -83,8 +86,9 @@ export async function landChange(deps: ProjectDeps, ref?: string, options: { ove
     const rendered = renderAgentsFile(agents, merged);
     if (rendered !== agents) await deps.files.writeText(AGENTS_FILE, rendered);
   }
+  const unexcepted = await clearScheduledExceptions(deps, [change.ref, source.ref]);
 
-  const report: LandReport = { change: change.ref, merged: plan.mergedIds, built: plan.built, removed: plan.removed, restamped: restamp, finished: books.finished };
+  const report: LandReport = { change: change.ref, merged: plan.mergedIds, built: plan.built, removed: plan.removed, restamped: restamp, finished: books.finished, unexcepted };
   if (books.archive !== undefined) report.archivedTo = books.archive.to;
   return report;
 }
@@ -113,4 +117,18 @@ function requireStillValid(before: ProjectView, after: ProjectView, work: string
   if (introduced.length > 0) {
     throw new CruzeError("merge-invalid", `landing would leave errors behind; nothing was written:\n  ${introduced.map((p) => `${p.path}:${p.line ?? ""} ${p.message}`).join("\n  ")}`);
   }
+}
+
+/** Removes the exceptions `realign` scheduled in the landed work, so CI checks those files again. */
+async function clearScheduledExceptions(deps: ProjectDeps, refs: string[]): Promise<string[]> {
+  let text = await deps.files.readText(PATHS.config);
+  if (text === undefined) return [];
+  const removed: string[] = [];
+  for (const ref of [...new Set(refs)]) {
+    const result = withoutScheduledExceptions(text, ref);
+    text = result.text;
+    removed.push(...result.removed);
+  }
+  if (removed.length > 0) await deps.files.writeText(PATHS.config, text);
+  return removed;
 }

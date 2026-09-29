@@ -31,17 +31,21 @@ export function versionSkew(cli: string, recorded: string | undefined): VersionS
   return undefined;
 }
 
-const RECORD = /^cruze:.*$/m;
-
 /**
  * The config text with `cruze:` set to the version. The line is replaced in place, or added
  * after `version:`, so the file's comments and layout survive.
  */
 export function withRecordedVersion(configText: string, version: string): string {
-  const line = `cruze: ${JSON.stringify(version)}`;
-  if (RECORD.test(configText)) return configText.replace(RECORD, line);
-  const at = /^version:.*$/m.exec(configText);
-  if (at === null) return `${line}\n${configText}`;
-  const end = at.index + at[0].length;
+  return withVersionLine(configText, "cruze", version);
+}
+
+/** The config text with a top-level version key, such as `cruze:` or `standards:`, set in place. */
+export function withVersionLine(configText: string, key: "cruze" | "standards", version: string): string {
+  const line = `${key}: ${JSON.stringify(version)}`;
+  const existing = new RegExp(`^${key}:.*$`, "m");
+  if (existing.test(configText)) return configText.replace(existing, line);
+  const anchor = key === "standards" ? /^cruze:.*$/m.exec(configText) ?? /^version:.*$/m.exec(configText) : /^version:.*$/m.exec(configText);
+  if (anchor === null) return `${line}\n${configText}`;
+  const end = anchor.index + anchor[0].length;
   return `${configText.slice(0, end)}\n${line}${configText.slice(end)}`;
 }

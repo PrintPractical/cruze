@@ -10,6 +10,8 @@ export interface CheckFinding {
   message: string;
   /** Layer violations always fail; the rest fail in CI unless excepted. */
   severity: "error" | "warning";
+  /** Set when the rule is newer than the project's `standards:`: it reports, but can't fail CI until the project realigns. */
+  pending?: true;
 }
 
 export interface CheckInput {

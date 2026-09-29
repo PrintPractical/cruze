@@ -5,7 +5,7 @@ import type { CliContext, CommandResult, Options } from "../cli_context.ts";
 export async function runCheck(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
   const files = [...options.file, ...args];
   const report = await checkCode(context, { ci: options.ci, ...(files.length === 0 ? {} : { files }) });
-  const lines = report.findings.map((f) => `${f.severity} ${f.path}${f.line === undefined ? "" : `:${f.line}`} ${f.message} [${f.rule}]`);
+  const lines = report.findings.map((f) => `${f.severity} ${f.path}${f.line === undefined ? "" : `:${f.line}`} ${f.message} [${f.rule}]${f.pending === true ? " (pending realign)" : ""}`);
   lines.push(`Checked ${report.checked} file(s): ${report.passed ? "passed" : "failed"}.`);
   return { json: report, human: lines.join("\n"), failed: !report.passed };
 }
@@ -25,6 +25,7 @@ export async function runLand(context: CliContext, args: string[], options: Opti
   if (report.built.length > 0) lines.push(`Now built: ${report.built.join(", ")}`);
   if (report.removed.length > 0) lines.push(`Removed: ${report.removed.join(", ")}`);
   if (report.restamped.length > 0) lines.push(`Re-stamped approvals: ${report.restamped.join(", ")}`);
+  if (report.unexcepted.length > 0) lines.push(`CI checks these again, now that the change realign scheduled them in has landed: ${report.unexcepted.join(", ")}`);
   if (report.archivedTo !== undefined) lines.push(`Finished; archived to ${report.archivedTo}.`);
   return { json: report, human: lines.join("\n") };
 }

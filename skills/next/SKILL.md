@@ -25,6 +25,7 @@ Next reads the project's state and says what to do now. The CLI works it out fro
 | `verify` | `verify`, on this branch |
 | `land` | `land`, on this branch |
 | `rethink` | `rethink`: something approved changed, and the work citing it must be reviewed |
+| `realign` | `realign`: the installed Cruze expects more of existing code than it meets |
 | `switch-branch` | Switch to the named branch, where that change is built |
 
 When the user asks about something `cruze next` didn't name, such as a bug or an idea, point them to `triage` or `explore`.

@@ -3,6 +3,7 @@ import { runCheck, runLand, runTrace } from "./commands/code.ts";
 import { runApprove, runNew, runValidate } from "./commands/documents.ts";
 import { runInit } from "./commands/init.ts";
 import { runInstall } from "./commands/install.ts";
+import { runRealign } from "./commands/realign.ts";
 import { runFeedback, runJournal } from "./commands/journal.ts";
 import { runAbandon, runFeatures, runRoadmap, runTask } from "./commands/progress.ts";
 import { runReviewCommand } from "./commands/review.ts";
@@ -26,6 +27,7 @@ export const COMMANDS: Record<string, { handler: Handler; usage: string }> = {
   check: { handler: runCheck, usage: "check [<file>...] [--ci]                          enforce layer rules and file budgets" },
   abandon: { handler: runAbandon, usage: "abandon <ref> --reason <text>                     archive a feature or standalone change that stops for good" },
   land: { handler: runLand, usage: "land [<ref>] [--override <reason>]                merge a verified change into the living docs" },
+  realign: { handler: runRealign, usage: "realign <status [--full]|done [--change <ref>]>    what the installed Cruze expects of existing code, and recording that the code meets it" },
 };
 
 export const USAGE = `Usage: cruze <command> [options]

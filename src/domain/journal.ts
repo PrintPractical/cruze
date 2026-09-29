@@ -24,13 +24,13 @@ const OPTIONAL_FIELDS: Record<string, string[]> = {
 };
 
 /** The workflow steps and checks that find or miss a problem, so a retro can count them. */
-export const STEPS = ["envision", "architect", "research", "design-review", "walkthrough", "plan", "plan-review", "build", "code-review", "verify", "land", "validate", "check", "user"];
+export const STEPS = ["envision", "architect", "research", "design-review", "walkthrough", "plan", "plan-review", "build", "code-review", "verify", "land", "realign", "validate", "check", "user"];
 
 export const FIELD_VALUES: Record<string, string[]> = {
   level: ["task", "change", "feature", "architecture", "vision"],
   kind: ["defect", "discovery"],
   disposition: ["fixed", "waived", "deferred", "rejected"],
-  review: ["design", "plan", "code"],
+  review: ["design", "plan", "code", "realign"],
   result: ["accepted", "sent-back"],
   found_by: STEPS,
   missed_by: STEPS,
