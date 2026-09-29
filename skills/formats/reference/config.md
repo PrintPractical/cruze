@@ -51,7 +51,7 @@ layers:
 | `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. `realign` adds entries whose reason ends `scheduled in <ref>`, and landing that change removes them. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. |
-| `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. The default runs Claude Code in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. |
+| `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. Optional. `cruze init` sets it for Claude Code to run in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. When it is unset, or its program isn't installed, `cruze review` hands the role's prompt back to the calling agent to run in a helper. |
 
 Rules for layers:
 

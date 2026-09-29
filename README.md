@@ -64,18 +64,18 @@ When you didn't install from npm, tell `init` where Cruze came from, so the CI i
 cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.2/printpractical-cruze-0.0.2.tgz
 ```
 
-`init` asks for the project name, then creates:
+`init` asks for the project name, and which coding agent you use: `claude` for Claude Code, or `other` for any agent that reads `AGENTS.md` and `.agents/skills/`, such as Codex or OpenCode. It doesn't ask when you pass `--agent claude` or `--agent other`, or when the repository already has `CLAUDE.md` or `.claude/`. With `--yes`, or without a terminal, it sets up Claude Code. Then it creates:
 
 | Path | Purpose |
 | --- | --- |
 | `README.md` | Titled with the project name |
 | `CHANGELOG.md` | In [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format |
 | `AGENTS.md` | Agent instructions; Cruze keeps its managed sections current |
-| `CLAUDE.md` | One line that imports `AGENTS.md`, for Claude Code |
-| `.cruze/config.yaml` | Project configuration, including the Cruze version whose skills the project uses |
+| `CLAUDE.md` | For Claude Code only: a link to `AGENTS.md` |
+| `.cruze/config.yaml` | Project configuration, including the Cruze version whose skills the project uses, and for Claude Code the command `cruze review` runs |
 | `.github/workflows/ci.yml` | CI that runs `cruze validate`, `check` and `trace`; the walking-skeleton change adds the language's build and test steps |
 | `.gitattributes` | Merges Cruze's journals line by line, so parallel branches don't conflict on them |
-| `.agents/skills/cruze-*` | The Cruze skills, linked into `.claude/skills/` for Claude Code |
+| `.agents/skills/cruze-*` | The Cruze skills, also linked into `.claude/skills/` for Claude Code |
 
 Existing files are never overwritten, so it is safe to run in an existing repository.
 
@@ -130,7 +130,7 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
 | `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |
-| `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml` |
+| `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml`. When no command is set, or its program isn't installed, it prints the role's prompt for the agent to run in a helper of its own |
 | `cruze land` | Merges a verified change into the living docs, re-stamps the approvals the merge would make stale, fills the Commands and Layout sections of `AGENTS.md`, and archives finished work |
 | `cruze realign status` | Lists what the installed Cruze expects of existing code since its `standards:` version, with what the CLI rules find now; `--full` covers every release |
 | `cruze realign done` | Moves `standards:` up once every finding is fixed, waived or scheduled in a change named with `--change` |

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, describe, it } from "node:test";
@@ -33,7 +33,20 @@ describe("the cruze command", () => {
     assert.equal(report.project, "Smoke Test");
     assert.equal(readFileSync(join(repo, "README.md"), "utf8"), "# Smoke Test\n");
     assert.match(readFileSync(join(repo, ".claude/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
+    assert.equal(readlinkSync(join(repo, "CLAUDE.md")), "AGENTS.md");
     assert.match(stderr, /Initialized Smoke Test/);
+  });
+
+  it("initializes a repository for another agent without Claude Code's files, and hands its reviews to a helper", () => {
+    const repo = emptyRepo();
+    const init = cruze(repo, "init", "--name", "Smoke Test", "--agent", "other", "--yes");
+    assert.equal(init.code, 0, init.stderr);
+    assert.equal(existsSync(join(repo, "CLAUDE.md")), false);
+    assert.equal(existsSync(join(repo, ".claude")), false);
+    assert.match(readFileSync(join(repo, ".agents/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
+    const review = cruze(repo, "review", "design-reviewer");
+    assert.equal(review.code, 0, review.stderr);
+    assert.equal(JSON.parse(review.stdout).status, "run-in-helper");
   });
 
   it("reinstalls skills idempotently", () => {
@@ -100,5 +113,19 @@ describe("the cruze command", () => {
     assert.equal(failed.code, 1);
     assert.match(failed.stderr, /cruze: note: the project's skills are from Cruze 0\.0\.0, older than this CLI/);
     assert.doesNotMatch(cruze(emptyRepo(), "status").stderr, /note:/);
+  });
+
+  // A project on OpenCode had its review try to start Claude Code, which it didn't have.
+  it("hands the review prompt back to the agent when the configured review agent isn't installed", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    const config = join(repo, ".cruze/config.yaml");
+    writeFileSync(config, readFileSync(config, "utf8").replace(/^  command: .*$/m, '  command: ["cruze-no-such-agent", "-p"]'));
+    const { code, stdout, stderr } = cruze(repo, "review", "design-reviewer");
+    assert.equal(code, 0, stderr);
+    const report = JSON.parse(stdout);
+    assert.equal(report.status, "run-in-helper");
+    assert.match(report.instruction, /^cruze-no-such-agent is not installed/);
+    assert.match(report.prompt, /^# Design reviewer\n/);
   });
 });

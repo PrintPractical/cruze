@@ -14,5 +14,5 @@ export async function runReviewCommand(context: CliContext, args: string[], opti
     ...(blockers === undefined ? {} : { blockers }),
     ...(options.base === undefined ? {} : { base: options.base }),
   });
-  return { json: report, human: report.report };
+  return { json: report, human: report.status === "reported" ? report.report : `${report.instruction}\n\n${report.prompt}` };
 }

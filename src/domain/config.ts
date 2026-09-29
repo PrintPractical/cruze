@@ -19,12 +19,12 @@ export interface CruzeConfig {
   layers: Layer[];
   /** Named project commands, such as `test: cargo test`, shown in AGENTS.md. */
   commands: Record<string, string>;
-  /** How `cruze review` starts an agent in a fresh context: the program and its arguments. */
-  review: { command: string[] };
+  /**
+   * How `cruze review` starts an agent in a fresh context: the program and its arguments.
+   * Without one, the calling agent runs the role's prompt in a helper of its own.
+   */
+  review: { command?: string[] };
 }
-
-/** Claude Code in print mode, allowed to read the project, its history and run `cruze`, but not to edit. */
-export const DEFAULT_REVIEW_COMMAND = ["claude", "-p", "--allowedTools", "Read Grep Glob Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(cruze:*)"];
 
 export interface Layer {
   name: string;
@@ -95,8 +95,8 @@ export function parseConfig(text: string): ConfigResult {
     }
   }
   const review = asRecord(root["review"]) ?? {};
-  const reviewCommand = review["command"] === undefined ? DEFAULT_REVIEW_COMMAND : stringList(review["command"], "review.command", problems);
-  if (reviewCommand.length === 0) problems.push("review.command needs at least the program to run");
+  const reviewCommand = review["command"] === undefined ? undefined : stringList(review["command"], "review.command", problems);
+  if (reviewCommand?.length === 0) problems.push("review.command needs at least the program to run");
 
   const config: CruzeConfig = {
     version: 1,
@@ -109,7 +109,7 @@ export function parseConfig(text: string): ConfigResult {
     check: { maxLines: maxLines ?? 250, maxTypes: maxTypes ?? 5, exceptions },
     layers,
     commands,
-    review: { command: reviewCommand.length === 0 ? DEFAULT_REVIEW_COMMAND : reviewCommand },
+    review: reviewCommand === undefined || reviewCommand.length === 0 ? {} : { command: reviewCommand },
   };
   return { config, problems };
 }
