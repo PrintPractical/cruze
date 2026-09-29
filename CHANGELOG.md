@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-09-29
+
+Cruze stops assuming Claude Code, after a project on OpenCode had its review try to run `claude`. Existing projects upgrade as the README's Upgrading section says. A project on another agent should also delete `review.command` from `.cruze/config.yaml`, so its reviews run in its own agent.
+
 ### Changed
 
 - `cruze init` asks which coding agent you use, `claude` or `other`, unless `--agent` names it or the repository already has `CLAUDE.md` or `.claude/`. Only Claude Code gets `CLAUDE.md`, the `.claude/skills/` links and a `review.command`. With `--yes`, or without a terminal, it sets up Claude Code, as before.
@@ -76,6 +80,7 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/PrintPractical/cruze/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/PrintPractical/cruze/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/PrintPractical/cruze/releases/tag/v0.0.1
