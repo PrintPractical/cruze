@@ -4,6 +4,7 @@ import { AGENT_SKILL_HOMES, SHARED_SKILLS_DIR, agentSkillHome, knownAgents } fro
 import { SKILL_FILE, installedSkillName, isInstalledSkillName, skillProblems } from "../../domain/skill.ts";
 import type { Bundle, BundledSkill } from "../ports/bundle.ts";
 import type { ProjectFiles } from "../ports/project_files.ts";
+import { recordVersion, refuseDowngrade, type VersionRecord } from "./record_version.ts";
 
 export interface InstallSkillsRequest {
   /** Agents to link skills for even when the project shows no sign of using them. */
@@ -15,12 +16,16 @@ export interface InstallSkillsReport {
   installed: string[];
   removed: string[];
   linked: Array<{ agent: string; dir: string }>;
+  /** The version recorded in .cruze/config.yaml, and the CI workflow's Cruze pin. */
+  recorded: VersionRecord;
 }
 
 /**
  * Replaces the project's Cruze skills with the bundled set. Skills are written to
  * the shared Agent Skills directory, and linked for every agent the project uses.
  * Skills without the Cruze prefix belong to the user and are never touched.
+ * The project then records this version, and its CI runs it too. An older CLI
+ * never replaces the skills of a project that moved to a newer one.
  */
 export async function installSkills(
   deps: { files: ProjectFiles; bundle: Bundle },
@@ -29,6 +34,7 @@ export async function installSkills(
   const { files, bundle } = deps;
   const skills = await bundle.skills();
   assertValid(skills);
+  await refuseDowngrade(files, bundle.version);
 
   const names = skills.map((skill) => installedSkillName(skill.folder));
   const removed = await removeStaleSkills(files, SHARED_SKILLS_DIR, names);
@@ -48,7 +54,8 @@ export async function installSkills(
     linked.push({ agent, dir: home.skillsDir });
   }
 
-  return { version: bundle.version, installed: names, removed, linked };
+  const recorded = await recordVersion(files, bundle.version);
+  return { version: bundle.version, installed: names, removed, linked, recorded };
 }
 
 function assertValid(skills: BundledSkill[]): void {

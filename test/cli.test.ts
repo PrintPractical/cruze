@@ -89,4 +89,16 @@ describe("the cruze command", () => {
     assert.equal(code, 0, stderr);
     assert.ok(elapsed < 1000, `cruze check --file took ${Math.round(elapsed)} ms`);
   });
+
+  // Every project on 0.0.1 had its rethinks refused once the CLI moved on, with nothing saying why.
+  it("notes on stderr when the project's skills are older than the CLI, even when the command fails", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    const config = join(repo, ".cruze/config.yaml");
+    writeFileSync(config, readFileSync(config, "utf8").replace(/^cruze: .*$/m, 'cruze: "0.0.0"'));
+    const failed = cruze(repo, "journal", "add", "rethink", "--set", "caught_by=plan");
+    assert.equal(failed.code, 1);
+    assert.match(failed.stderr, /cruze: note: the project's skills are from Cruze 0\.0\.0, older than this CLI/);
+    assert.doesNotMatch(cruze(emptyRepo(), "status").stderr, /note:/);
+  });
 });

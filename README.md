@@ -72,24 +72,43 @@ cruze init --package https://github.com/PrintPractical/cruze/releases/download/v
 | `CHANGELOG.md` | In [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format |
 | `AGENTS.md` | Agent instructions; Cruze keeps its managed sections current |
 | `CLAUDE.md` | One line that imports `AGENTS.md`, for Claude Code |
-| `.cruze/config.yaml` | Project configuration |
+| `.cruze/config.yaml` | Project configuration, including the Cruze version whose skills the project uses |
 | `.github/workflows/ci.yml` | CI that runs `cruze validate`, `check` and `trace`; the walking-skeleton change adds the language's build and test steps |
 | `.gitattributes` | Merges Cruze's journals line by line, so parallel branches don't conflict on them |
 | `.agents/skills/cruze-*` | The Cruze skills, linked into `.claude/skills/` for Claude Code |
 
 Existing files are never overwritten, so it is safe to run in an existing repository.
 
-To upgrade, install the new version globally the same way, then update the skills in each repository:
-
-```sh
-cruze install
-```
-
-Also update the version in `.github/workflows/ci.yml`.
-
-`install` replaces the Cruze skills (those named `cruze-*`) and leaves your own skills alone. Pass `--agent claude` to link skills for Claude Code in a repository without `CLAUDE.md` or `.claude/`.
-
 The CLI writes JSON to stdout when it isn't attached to a terminal, and a human summary to stderr. Pass `--json` to get JSON on a terminal too.
+
+## Upgrading
+
+A repository runs three copies of Cruze: the CLI on your path, the skills in `.agents/skills/`, and the CLI that CI runs. `.cruze/config.yaml` records the version the skills came from, as `cruze: "0.0.2"`. When the CLI you run differs from it, every `cruze` command says so in a note on stderr, and `cruze validate` reports it as a `cruze-version` warning.
+
+1. **Upgrade the CLI** the same way you installed it, naming the new version, then check it with `cruze --version`:
+
+   ```sh
+   npm install -g https://github.com/PrintPractical/cruze/releases/download/v<version>/printpractical-cruze-<version>.tgz
+   npm install -g @printpractical/cruze@<version>
+   npm install -g --install-links github:PrintPractical/cruze#v<version>
+   ```
+
+2. **Update each repository.** In its root, run:
+
+   ```sh
+   cruze install
+   ```
+
+   `install` does three things:
+   - It replaces the Cruze skills (those named `cruze-*`) and leaves your own skills alone. Pass `--agent claude` to link them for Claude Code in a repository without `CLAUDE.md` or `.claude/`.
+   - It records the new version in `.cruze/config.yaml`.
+   - It moves `.github/workflows/ci.yml` to the new version when CI runs the npm package, a release tarball or a release tag. It names any other source, such as a branch, for you to update by hand.
+
+3. **Check what the new version expects.** Read `CHANGELOG.md` for every version you skipped, then run `cruze validate` and `cruze check`. A new rule can report on documents and code that passed before, and `cruze check --ci` fails on its warnings. Fix what it reports, or list a file under `check.exceptions` in `.cruze/config.yaml` with the reason.
+
+4. **Commit** the skills, the config and the CI workflow together, with a message such as `chore: upgrade Cruze to <version>`, so CI runs the version the skills were written for.
+
+An older CLI refuses to install over a repository that already moved to a newer version, so a stale CLI on another machine can't roll it back. To go back on purpose, set `cruze:` in `.cruze/config.yaml` to the older version first, then run that version's `cruze install`.
 
 ## Commands
 

@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Changes from the first retro, on a real project's feedback bundle and a review of its code.
+Most of these changes come from the first retro, on a real project's feedback bundle and a review of its code.
 
 ### Added
 
+- `cruze install` records the installed version as `cruze:` in `.cruze/config.yaml`, and moves the CI workflow to it when CI runs the npm package, a release tarball or a release tag. It refuses to install an older version over a project that moved to a newer one.
+- Every `cruze` command notes on stderr when the project's skills are from a different Cruze than the CLI, even when the command fails, and `cruze validate` reports it as a `cruze-version` warning.
+- The README's Upgrading section: upgrade the CLI, run `cruze install` in each repository, check what the new version expects, and commit.
 - `cruze validate` warns `outside-module-map` when a task writes a source file that no module's `Path` covers, at plan time instead of in CI.
 - `cruze validate` warns `feature-size` when a feature has more than 6 changes, and `architect` splits such a feature.
 - `cruze validate` warns `readme-overview` once the vision is approved and the README says nothing under its title. `envision` now writes that overview, and a vision-level rethink keeps it current.

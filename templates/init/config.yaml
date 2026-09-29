@@ -1,6 +1,8 @@
 # Cruze project configuration, created by cruze {{cruze_version}}.
 # The format is described in .agents/skills/cruze-formats/reference/config.md.
 version: 1
+# The Cruze whose skills this project installed. `cruze install` keeps it current.
+cruze: "{{cruze_version}}"
 project: {{project_name_quoted}}
 
 # Where work items are tracked. V1 supports markdown in the repository only.

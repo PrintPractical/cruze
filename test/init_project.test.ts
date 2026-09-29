@@ -23,7 +23,7 @@ describe("initializing a project", () => {
 
     assert.deepEqual(report.created, STARTING_FILES);
     assert.equal(files.files.get("README.md"), "# Console Access\n");
-    assert.equal(files.files.get(".cruze/config.yaml"), 'project: "Console Access"\n');
+    assert.equal(files.files.get(".cruze/config.yaml"), 'cruze: "9.9.9"\nproject: "Console Access"\n');
     assert.deepEqual(report.skills.installed, ["cruze-plan", "cruze-build"]);
     assert.deepEqual(report.skills.linked, [{ agent: "claude", dir: ".claude/skills" }]);
   });
@@ -36,8 +36,8 @@ describe("initializing a project", () => {
     assert.equal(published.files.files.get(".github/workflows/ci.yml"), "run: npx --yes --package=@printpractical/cruze@9.9.9 cruze validate\n");
 
     const fromGit = setup();
-    await initProject({ ...fromGit.deps, bundle }, { name: "A", defaultName: "dir", agents: [], package: "github:PrintPractical/cruze#v0.0.1" });
-    assert.equal(fromGit.files.files.get(".github/workflows/ci.yml"), "run: npx --yes --package=github:PrintPractical/cruze#v0.0.1 cruze validate\n");
+    await initProject({ ...fromGit.deps, bundle }, { name: "A", defaultName: "dir", agents: [], package: "github:PrintPractical/cruze#v9.9.9" });
+    assert.equal(fromGit.files.files.get(".github/workflows/ci.yml"), "run: npx --yes --package=github:PrintPractical/cruze#v9.9.9 cruze validate\n");
   });
 
   it("leaves existing files untouched and reports them as skipped", async () => {

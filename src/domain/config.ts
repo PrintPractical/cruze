@@ -3,6 +3,8 @@ import { parse as parseYaml } from "yaml";
 /** `.cruze/config.yaml`, as described in the cruze-formats skill. */
 export interface CruzeConfig {
   version: 1;
+  /** The Cruze version whose skills the project installed, recorded by `cruze install`. */
+  cruze?: string;
   project: string;
   tracker: "markdown";
   source: string[];
@@ -43,6 +45,8 @@ export function parseConfig(text: string): ConfigResult {
   if (root === null) return { config: null, problems: ["the file must be a YAML mapping"] };
 
   if (root["version"] !== 1) problems.push("version must be 1");
+  const cruze = root["cruze"];
+  if (cruze !== undefined && (typeof cruze !== "string" || cruze.trim() === "")) problems.push("cruze must be a version string, such as \"0.0.2\"");
   if (typeof root["project"] !== "string" || root["project"] === "") problems.push("project must be a non-empty string");
   if (root["tracker"] !== "markdown") problems.push("tracker must be markdown");
   const source = stringList(root["source"], "source", problems);
@@ -92,6 +96,7 @@ export function parseConfig(text: string): ConfigResult {
 
   const config: CruzeConfig = {
     version: 1,
+    ...(typeof cruze === "string" && cruze.trim() !== "" ? { cruze } : {}),
     project: typeof root["project"] === "string" ? root["project"] : "",
     tracker: "markdown",
     source,

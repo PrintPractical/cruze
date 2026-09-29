@@ -4,6 +4,7 @@
 
 ```yaml
 version: 1
+cruze: "0.0.2"
 project: "Console Access"
 tracker: markdown
 
@@ -38,6 +39,7 @@ layers:
 | Key | Meaning |
 | --- | --- |
 | `version` | Format version. Always `1` for now. |
+| `cruze` | The Cruze version whose skills the project installed. `cruze install` writes it; don't edit it, except to go back to an older version on purpose. |
 | `project` | The project name, quoted. |
 | `tracker` | Where work items live. `markdown` is the only value in V1. |
 | `source` | Globs of the source files `cruze check` inspects. |
