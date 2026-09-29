@@ -101,4 +101,18 @@ describe("the cruze command", () => {
     assert.match(failed.stderr, /cruze: note: the project's skills are from Cruze 0\.0\.0, older than this CLI/);
     assert.doesNotMatch(cruze(emptyRepo(), "status").stderr, /note:/);
   });
+
+  // A project on OpenCode had its review try to start Claude Code, which it didn't have.
+  it("hands the review prompt back to the agent when the configured review agent isn't installed", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    const config = join(repo, ".cruze/config.yaml");
+    writeFileSync(config, readFileSync(config, "utf8").replace(/^  command: .*$/m, '  command: ["cruze-no-such-agent", "-p"]'));
+    const { code, stdout, stderr } = cruze(repo, "review", "design-reviewer");
+    assert.equal(code, 0, stderr);
+    const report = JSON.parse(stdout);
+    assert.equal(report.status, "run-in-helper");
+    assert.match(report.instruction, /^cruze-no-such-agent is not installed/);
+    assert.match(report.prompt, /^# Design reviewer\n/);
+  });
 });

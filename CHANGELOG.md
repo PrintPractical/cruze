@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `cruze review` no longer fails when the agent under `review.command` isn't installed, such as Claude Code in a project that uses OpenCode. It reports `status: run-in-helper` with the role's full prompt, and the calling agent runs that prompt in a helper of its own.
+
 ## [0.0.2] - 2026-09-28
 
 Most of these changes come from the first retro, on a real project's feedback bundle and a review of its code. Existing projects upgrade as the README's Upgrading section says: install the new CLI, run `cruze install`, then `realign` when it suits you.

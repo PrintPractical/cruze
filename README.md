@@ -130,7 +130,7 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
 | `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |
-| `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml` |
+| `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml`. When that command's program isn't installed, it prints the role's prompt for the agent to run in a helper of its own |
 | `cruze land` | Merges a verified change into the living docs, re-stamps the approvals the merge would make stale, fills the Commands and Layout sections of `AGENTS.md`, and archives finished work |
 | `cruze realign status` | Lists what the installed Cruze expects of existing code since its `standards:` version, with what the CLI rules find now; `--full` covers every release |
 | `cruze realign done` | Moves `standards:` up once every finding is fixed, waived or scheduled in a change named with `--change` |

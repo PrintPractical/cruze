@@ -18,16 +18,19 @@ export interface ReviewRequest {
   base?: string;
 }
 
-export interface ReviewReport {
-  role: Role;
-  item?: string;
-  command: string[];
-  report: string;
-}
+/**
+ * The role's report, or, when the configured agent isn't installed, the prompt for the calling
+ * agent to run in a helper of its own.
+ */
+export type ReviewReport = { role: Role; item?: string; command: string[] } & (
+  | { status: "reported"; report: string }
+  | { status: "run-in-helper"; instruction: string; prompt: string }
+);
 
 /**
  * Runs a Cruze role in a fresh agent context: the role's prompt, what it reviews, and nothing
- * from the conversation that produced the work. Returns the role's report as written.
+ * from the conversation that produced the work. Returns the role's report as written, or the
+ * prompt to run in a helper when the configured agent isn't installed.
  */
 export async function runReview(deps: ProjectDeps & { runner: AgentRunner }, request: ReviewRequest): Promise<ReviewReport> {
   if (!(ROLES as readonly string[]).includes(request.role)) throw new CruzeError("unknown-role", `the roles are ${ROLES.join(", ")}`);
@@ -57,10 +60,19 @@ export async function runReview(deps: ProjectDeps & { runner: AgentRunner }, req
 
   const command = view.config?.config?.review.command ?? [];
   const run = await deps.runner.run(command, prompt);
+  const subject = { role, ...(request.item === undefined ? {} : { item: request.item }), command };
+  if (run.kind === "missing") return { ...subject, status: "run-in-helper", instruction: helperInstruction(command[0] ?? ""), prompt };
   if (run.exitCode !== 0) throw new CruzeError("review-failed", `${command.join(" ")} exited with ${run.exitCode}: ${run.error.trim() || run.output.trim()}`);
-  const report: ReviewReport = { role, command, report: run.output.trim() };
-  if (request.item !== undefined) report.item = request.item;
-  return report;
+  return { ...subject, status: "reported", report: run.output.trim() };
+}
+
+function helperInstruction(program: string): string {
+  return [
+    `${program === "" ? "No review agent is configured" : `${program} is not installed`}, so cruze review can't start a fresh context.`,
+    "Start a helper agent with no conversation history, give it this prompt and nothing else, and take its report as the role's report.",
+    "If you can't start a helper, tell the user, and have them run the prompt in a new session.",
+    "To use another agent for reviews, set review.command in .cruze/config.yaml.",
+  ].join(" ");
 }
 
 async function bundledRole(deps: ProjectDeps, role: Role): Promise<string> {
