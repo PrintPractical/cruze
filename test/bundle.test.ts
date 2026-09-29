@@ -3,7 +3,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { PackageBundle } from "../src/adapters/outbound/package_bundle.ts";
-import { INIT_SCAFFOLD, renderTemplate } from "../src/domain/scaffold.ts";
+import { parseConfig } from "../src/domain/config.ts";
+import { INIT_AGENTS, INIT_SCAFFOLD, renderTemplate, reviewSettingTemplate } from "../src/domain/scaffold.ts";
 import { SKILL_FILE, agentToolProblems, skillProblems } from "../src/domain/skill.ts";
 import { skillLinkProblems, type SkillFiles } from "../src/domain/skill_links.ts";
 import { compareVersions } from "../src/domain/versions/cruze_version.ts";
@@ -39,10 +40,17 @@ describe("the shipped bundle", () => {
 
   it("has a template for every starting file, with no unfilled placeholders", async () => {
     const bundle = await PackageBundle.locate();
-    const values = { project_name: "Demo", project_name_quoted: '"Demo"', cruze_version: bundle.version, cruze_package: `@printpractical/cruze@${bundle.version}` };
-    for (const entry of INIT_SCAFFOLD) {
-      const rendered = renderTemplate(await bundle.template(entry.template), values);
-      assert.doesNotMatch(rendered, /\{\{/, `${entry.template} has an unfilled placeholder`);
+    for (const agent of INIT_AGENTS) {
+      const review_setting = await bundle.template(reviewSettingTemplate(agent));
+      const values = { project_name: "Demo", project_name_quoted: '"Demo"', cruze_version: bundle.version, cruze_package: `@printpractical/cruze@${bundle.version}`, review_setting };
+      for (const entry of INIT_SCAFFOLD) {
+        const rendered = renderTemplate(await bundle.template(entry.template), values);
+        assert.doesNotMatch(rendered, /\{\{/, `${entry.template} has an unfilled placeholder`);
+        if (entry.path !== ".cruze/config.yaml") continue;
+        const parsed = parseConfig(rendered);
+        assert.deepEqual(parsed.problems, [], `the config for ${agent} is invalid`);
+        assert.equal(parsed.config?.review.command?.[0], agent === "claude" ? "claude" : undefined);
+      }
     }
   });
 });

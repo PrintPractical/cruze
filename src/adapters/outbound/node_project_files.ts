@@ -78,7 +78,8 @@ export class NodeProjectFiles implements ProjectFiles {
     this.assertInsideRoot(resolve(dirname(linkPath), target));
     await mkdir(dirname(linkPath), { recursive: true });
     await rm(linkPath, { recursive: true, force: true });
-    await symlink(target, linkPath, "dir");
+    // No link type: on Windows, Node picks a file or directory link from what the target is.
+    await symlink(target, linkPath);
   }
 
   /** Resolves a project-relative path, refusing anything outside the root. */

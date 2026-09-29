@@ -22,7 +22,7 @@ export interface ReviewRequest {
  * The role's report, or, when the configured agent isn't installed, the prompt for the calling
  * agent to run in a helper of its own.
  */
-export type ReviewReport = { role: Role; item?: string; command: string[] } & (
+export type ReviewReport = { role: Role; item?: string; command?: string[] } & (
   | { status: "reported"; report: string }
   | { status: "run-in-helper"; instruction: string; prompt: string }
 );
@@ -58,20 +58,22 @@ export async function runReview(deps: ProjectDeps & { runner: AgentRunner }, req
     context.map((line) => `- ${line}`).join("\n"),
   ].join("\n\n");
 
-  const command = view.config?.config?.review.command ?? [];
+  const subject = { role, ...(request.item === undefined ? {} : { item: request.item }) };
+  const command = view.config?.config?.review.command;
+  if (command === undefined) return { ...subject, status: "run-in-helper", instruction: helperInstruction(undefined), prompt };
   const run = await deps.runner.run(command, prompt);
-  const subject = { role, ...(request.item === undefined ? {} : { item: request.item }), command };
-  if (run.kind === "missing") return { ...subject, status: "run-in-helper", instruction: helperInstruction(command[0] ?? ""), prompt };
+  if (run.kind === "missing") return { ...subject, command, status: "run-in-helper", instruction: helperInstruction(command[0]), prompt };
   if (run.exitCode !== 0) throw new CruzeError("review-failed", `${command.join(" ")} exited with ${run.exitCode}: ${run.error.trim() || run.output.trim()}`);
-  return { ...subject, status: "reported", report: run.output.trim() };
+  return { ...subject, command, status: "reported", report: run.output.trim() };
 }
 
-function helperInstruction(program: string): string {
+/** Why cruze review can't start the fresh context itself, and how the calling agent does instead. */
+function helperInstruction(program: string | undefined): string {
   return [
-    `${program === "" ? "No review agent is configured" : `${program} is not installed`}, so cruze review can't start a fresh context.`,
+    program === undefined ? "No review agent is configured under review.command." : `${program} is not installed, so cruze review can't start a fresh context.`,
     "Start a helper agent with no conversation history, give it this prompt and nothing else, and take its report as the role's report.",
     "If you can't start a helper, tell the user, and have them run the prompt in a new session.",
-    "To use another agent for reviews, set review.command in .cruze/config.yaml.",
+    "To have cruze review start an agent itself, set review.command in .cruze/config.yaml.",
   ].join(" ");
 }
 

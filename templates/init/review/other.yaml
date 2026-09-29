@@ -1,0 +1,7 @@
+# How `cruze review` starts an agent in a fresh context to run a role, with the
+# prompt on standard input. Without it, your agent runs each role in a helper
+# of its own. To have cruze review start one instead, set the command, such as
+# ["codex", "exec", "-"] for Codex or ["opencode", "run", "--agent", "plan"] for
+# OpenCode.
+# review:
+#   command: ["codex", "exec", "-"]

@@ -36,17 +36,18 @@ export class FakeBundle implements Bundle {
   }
 }
 
-/** Answers every question with a fixed reply, recording what was asked. */
+/** Answers questions with the given replies in order, then with each fallback, recording what was asked. */
 export class ScriptedPrompter implements Prompter {
   readonly questions: Array<{ question: string; fallback: string }> = [];
-  private readonly reply: string | undefined;
+  private readonly replies: string[];
 
-  constructor(reply?: string) {
-    this.reply = reply;
+  constructor(...replies: string[]) {
+    this.replies = replies;
   }
 
   async ask(question: string, fallback: string): Promise<string> {
+    const reply = this.replies[this.questions.length];
     this.questions.push({ question, fallback });
-    return this.reply === undefined || this.reply.trim() === "" ? fallback : this.reply;
+    return reply === undefined || reply.trim() === "" ? fallback : reply;
   }
 }

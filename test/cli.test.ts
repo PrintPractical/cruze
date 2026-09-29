@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, describe, it } from "node:test";
@@ -33,7 +33,20 @@ describe("the cruze command", () => {
     assert.equal(report.project, "Smoke Test");
     assert.equal(readFileSync(join(repo, "README.md"), "utf8"), "# Smoke Test\n");
     assert.match(readFileSync(join(repo, ".claude/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
+    assert.equal(readlinkSync(join(repo, "CLAUDE.md")), "AGENTS.md");
     assert.match(stderr, /Initialized Smoke Test/);
+  });
+
+  it("initializes a repository for another agent without Claude Code's files, and hands its reviews to a helper", () => {
+    const repo = emptyRepo();
+    const init = cruze(repo, "init", "--name", "Smoke Test", "--agent", "other", "--yes");
+    assert.equal(init.code, 0, init.stderr);
+    assert.equal(existsSync(join(repo, "CLAUDE.md")), false);
+    assert.equal(existsSync(join(repo, ".claude")), false);
+    assert.match(readFileSync(join(repo, ".agents/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
+    const review = cruze(repo, "review", "design-reviewer");
+    assert.equal(review.code, 0, review.stderr);
+    assert.equal(JSON.parse(review.stdout).status, "run-in-helper");
   });
 
   it("reinstalls skills idempotently", () => {

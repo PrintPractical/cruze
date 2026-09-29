@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `cruze init` asks which coding agent you use, `claude` or `other`, unless `--agent` names it or the repository already has `CLAUDE.md` or `.claude/`. Only Claude Code gets `CLAUDE.md`, the `.claude/skills/` links and a `review.command`. With `--yes`, or without a terminal, it sets up Claude Code, as before.
+- `CLAUDE.md` is a link to `AGENTS.md` instead of a file importing it.
+- `review.command` has no default. Without it, `cruze review` hands the role's prompt to the calling agent to run in a helper. A project on another agent that `init` set up for Claude Code can delete the setting.
+
 ### Fixed
 
 - `cruze review` no longer fails when the agent under `review.command` isn't installed, such as Claude Code in a project that uses OpenCode. It reports `status: run-in-helper` with the role's full prompt, and the calling agent runs that prompt in a helper of its own.
