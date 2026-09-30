@@ -1,4 +1,5 @@
 import { exportFeedback, listEvents, recordEvent } from "../../../../app/use_cases/journal_events.ts";
+import { writeArgumentFile } from "../argument_files.ts";
 import { UsageError, requireArgs, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
 export async function runJournal(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
@@ -24,7 +25,7 @@ export async function runFeedback(context: CliContext, args: string[], options: 
   if (args[0] !== "export") throw new UsageError("usage: cruze feedback export [--out <file>] [--no-redact]");
   const bundle = await exportFeedback(context, options.redact);
   if (options.out !== undefined) {
-    await context.files.writeText(options.out, `${JSON.stringify(bundle, null, 2)}\n`);
+    await writeArgumentFile(options.out, `${JSON.stringify(bundle, null, 2)}\n`);
     return { json: { out: options.out, entries: bundle.entries.length }, human: `Wrote ${bundle.entries.length} entries to ${options.out}.` };
   }
   return { json: bundle, human: `${bundle.entries.length} journal entries${bundle.redacted ? ", redacted" : ""}.` };

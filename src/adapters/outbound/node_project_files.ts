@@ -1,6 +1,7 @@
 import { appendFile, lstat, mkdir, readFile, readdir, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import type { ProjectFiles } from "../../app/ports/project_files.ts";
+import { CruzeError } from "../../domain/cruze_error.ts";
 
 /** Project files on the local disk, confined to one root directory. */
 export class NodeProjectFiles implements ProjectFiles {
@@ -92,7 +93,7 @@ export class NodeProjectFiles implements ProjectFiles {
   private assertInsideRoot(absolute: string): void {
     const fromRoot = relative(this.root, absolute);
     if (fromRoot.startsWith("..") || isAbsolute(fromRoot)) {
-      throw new Error(`Path escapes the project root: ${absolute}`);
+      throw new CruzeError("outside-project", `${absolute} is outside the project at ${this.root}`);
     }
   }
 }

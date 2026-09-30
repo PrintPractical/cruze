@@ -128,4 +128,24 @@ describe("the cruze command", () => {
     assert.match(report.instruction, /^cruze-no-such-agent is not installed/);
     assert.match(report.prompt, /^# Design reviewer\n/);
   });
+
+  // An agent wrote its round-1 blockers to its session scratchpad, and the review crashed on the path.
+  it("reads and writes files named on the command line wherever they are, outside the project too", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--agent", "other", "--yes").code, 0);
+    const scratch = emptyRepo();
+    writeFileSync(join(scratch, "blockers.md"), "- B1: the port has no error case\n");
+
+    const review = cruze(repo, "review", "design-reviewer", "--round", "2", "--blockers", join(scratch, "blockers.md"));
+    assert.equal(review.code, 0, review.stderr);
+    assert.match(JSON.parse(review.stdout).prompt, /B1: the port has no error case/);
+
+    const missing = cruze(repo, "review", "design-reviewer", "--round", "2", "--blockers", join(scratch, "none.md"));
+    assert.equal(missing.code, 2);
+    assert.match(missing.stderr, /cannot read .*none\.md: ENOENT/);
+
+    const exported = cruze(repo, "feedback", "export", "--out", join(scratch, "out/feedback.json"));
+    assert.equal(exported.code, 0, exported.stderr);
+    assert.ok(existsSync(join(scratch, "out/feedback.json")));
+  });
 });
