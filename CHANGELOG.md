@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `cruze review --blockers` and `cruze feedback export --out` accept a file outside the project, such as one in an agent's scratch directory. The review crashed on such a path. A project path that leads outside the project now fails with the `outside-project` error instead of a stack trace.
+
 ## [0.0.3] - 2026-09-29
 
 Cruze stops assuming Claude Code, after a project on OpenCode had its review try to run `claude`. Existing projects upgrade as the README's Upgrading section says. A project on another agent should also delete `review.command` from `.cruze/config.yaml`, so its reviews run in its own agent.
