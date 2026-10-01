@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-10-01
+
+Fixes from the first projects on 0.0.3. Existing projects upgrade as the README's Upgrading section says. Every command now prints its result on stdout in one format and refuses options it doesn't take, so a script that read the text summary from stderr, or passed a command an option it ignored, needs updating.
+
 ### Added
 
 - `cruze features update <slug> --summary <text>` corrects a feature's summary on the feature map, on the future or the implemented list. Envision runs it when a decision changes what the summary promised, and land checks the summary when a feature finishes. Before, land carried the summary from when the feature was added, even after the feature's decisions had replaced it.
@@ -21,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `cruze status --overlap` ignores changes that have landed, here or on their own branch. It reported a branch that had already merged and been archived.
 - `cruze status --overlap` counts only the elements a change's scope and delta name. It counted an element the other change named only as a test seam.
 - `cruze journal list --item <ref>` lists that change's entries, or a feature's and its changes'. It ignored `--item` and listed the whole project's.
-
 - `cruze review --blockers` and `cruze feedback export --out` accept a file outside the project, such as one in an agent's scratch directory. The review crashed on such a path. A project path that leads outside the project now fails with the `outside-project` error instead of a stack trace.
 
 ## [0.0.3] - 2026-09-29
@@ -97,7 +100,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/PrintPractical/cruze/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/PrintPractical/cruze/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/PrintPractical/cruze/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/PrintPractical/cruze/releases/tag/v0.0.1
