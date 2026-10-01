@@ -9,7 +9,7 @@ Cruze is a spec-driven development framework. It keeps one living model of the s
 
 This installation is an early preview. It has:
 
-- The `cruze` CLI: `cruze init` sets up a repository, `cruze install` updates the skills after an upgrade, and `cruze help` lists the commands that validate, approve, check, trace and land work. Each prints its result on stdout, as JSON when stdout isn't a terminal, or as text with `--text`.
+- The `cruze` CLI: `cruze init` sets up a repository, `cruze install` updates the skills after an upgrade, and `cruze help` lists the commands that validate, approve, check, trace and land work. Each prints its result on stdout, as JSON when stdout isn't a terminal, or as text with `--text`. A command refuses an option it doesn't take, so check `cruze help` when one is refused.
 - `cruze-formats`, the format of every Cruze document.
 - Knowledge skills holding the standards to design and code to: `cruze-hexagonal-design`, `cruze-behavioural-testing`, `cruze-grilling`, `cruze-domain-language`, `cruze-dependency-approval` and `cruze-research`.
 - The workflow: `explore` (optional), `envision` for the what, `architect` for the how, `roadmap` for the order of work, then `plan`, `build`, `verify` and `land` for each change. `triage` handles bugs, `rethink` steps back from anywhere, and `next` says what to do now.

@@ -3,6 +3,9 @@ import type { ApprovalStatus } from "../../../../domain/approvals/evaluate.ts";
 import { UsageError, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
 export async function runStatus(context: CliContext, _args: string[], options: Options): Promise<CommandResult> {
+  if (options.override !== undefined && options.gate === undefined) throw new UsageError("--override goes with --gate build");
+  if (options.change !== undefined && !options.overlap) throw new UsageError("--change goes with --overlap");
+  if (options.gate !== undefined && options.overlap) throw new UsageError("--gate and --overlap are alternatives");
   if (options.gate !== undefined) {
     if (options.gate !== "build") throw new UsageError(`unknown gate "${options.gate}"; the only gate is build`);
     const report = await checkBuildGate(context, options.override);

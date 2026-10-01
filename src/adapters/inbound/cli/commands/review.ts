@@ -6,6 +6,7 @@ export async function runReviewCommand(context: CliContext, args: string[], opti
   requireArgs(args, ["role"]);
   const round = options.round === undefined ? undefined : Number(options.round);
   if (round !== undefined && round !== 1 && round !== 2) throw new UsageError("--round is 1 or 2");
+  if (options.blockers !== undefined && round !== 2) throw new UsageError("--blockers goes with --round 2");
   const blockers = options.blockers === undefined ? undefined : await readArgumentFile(options.blockers);
   const report = await runReview(context, {
     role: args[0] ?? "",
