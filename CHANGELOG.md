@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Every command prints its result on stdout in one format: JSON when stdout isn't a terminal or with `--json`, and text on a terminal or with the new `--text`. stderr carries only errors and notes. Before, the text went to stderr alongside the JSON, so `cruze journal list | grep` filtered only the JSON, and agents got every result twice.
+
 ### Fixed
+
+- `cruze status --overlap` ignores changes that have landed, here or on their own branch. It reported a branch that had already merged and been archived.
+- `cruze status --overlap` counts only the elements a change's scope and delta name. It counted an element the other change named only as a test seam.
+- `cruze journal list --item <ref>` lists that change's entries, or a feature's and its changes'. It ignored `--item` and listed the whole project's.
 
 - `cruze review --blockers` and `cruze feedback export --out` accept a file outside the project, such as one in an agent's scratch directory. The review crashed on such a path. A project path that leads outside the project now fails with the `outside-project` error instead of a stack trace.
 

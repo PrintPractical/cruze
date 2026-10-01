@@ -1,5 +1,4 @@
 import { evaluateApproval, type ApprovalStatus } from "../approvals/evaluate.ts";
-import { findIds } from "../ids.ts";
 import { PATHS } from "../project/layout.ts";
 import { readDelta } from "../project/deltas.ts";
 import { readScope } from "../project/plan_parts.ts";
@@ -89,13 +88,12 @@ export function buildGateReasons(view: ProjectView, branch: string | null): stri
   });
 }
 
-/** The elements a change touches: its scope plus every ID its documents cite. */
+/** The elements a change touches: its scope and its delta, not the elements it only cites, such as a test seam. */
 export function touchedIds(view: ProjectView, change: WorkItem): Set<string> {
   const feature = featureOf(view.items, change);
   const scope = readScope(change.doc);
   const ids = new Set([...(scope?.delivers ?? []), ...(scope?.builds ?? []), ...(scope?.removes ?? [])]);
   const deltaDoc = feature?.doc ?? change.doc;
   for (const id of readDelta(deltaDoc).ids) ids.add(id);
-  for (const id of findIds(change.doc.lines.join("\n"))) ids.add(id);
   return new Set([...ids].filter((id) => !id.startsWith("RULE-")));
 }

@@ -34,7 +34,8 @@ describe("the cruze command", () => {
     assert.equal(readFileSync(join(repo, "README.md"), "utf8"), "# Smoke Test\n");
     assert.match(readFileSync(join(repo, ".claude/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
     assert.equal(readlinkSync(join(repo, "CLAUDE.md")), "AGENTS.md");
-    assert.match(stderr, /Initialized Smoke Test/);
+    assert.equal(stderr, "");
+    assert.match(cruze(emptyRepo(), "init", "--name", "Smoke Test", "--yes", "--text").stdout, /Initialized Smoke Test/);
   });
 
   it("initializes a repository for another agent without Claude Code's files, and hands its reviews to a helper", () => {
@@ -73,9 +74,9 @@ describe("the cruze command", () => {
     assert.equal(cruze(repo, "approve", "vision").code, 0);
     const status = JSON.parse(cruze(repo, "status").stdout);
     assert.equal(status.documents[0].state, "approved");
-    const gate = cruze(repo, "status", "--gate", "build");
+    const gate = cruze(repo, "status", "--gate", "build", "--text");
     assert.equal(gate.code, 1);
-    assert.match(gate.stderr, /Build gate blocked/);
+    assert.match(gate.stdout, /Build gate blocked/);
   });
 
   it("exits with 2 and shows usage for an unknown command", () => {
@@ -127,6 +128,26 @@ describe("the cruze command", () => {
     assert.equal(report.status, "run-in-helper");
     assert.match(report.instruction, /^cruze-no-such-agent is not installed/);
     assert.match(report.prompt, /^# Design reviewer\n/);
+  });
+
+  // An agent piped journal list into grep, which filtered the JSON while the text lines went to stderr unfiltered.
+  it("prints its result on stdout in one format, so a pipe filters all of it", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    assert.equal(cruze(repo, "journal", "add", "disposition", "--set", "finding=F1", "--set", "disposition=waived", "--set", "reason=r", "--set", "review=code").code, 0);
+
+    const text = cruze(repo, "journal", "list", "--event", "disposition", "--text");
+    assert.equal(text.code, 0, text.stderr);
+    assert.match(text.stdout, /^\S+ disposition \{.*"finding":"F1"/);
+    assert.equal(text.stderr, "");
+
+    const json = cruze(repo, "journal", "list", "--event", "disposition");
+    assert.equal(JSON.parse(json.stdout)[0].finding, "F1");
+    assert.equal(json.stderr, "");
+
+    const both = cruze(repo, "journal", "list", "--json", "--text");
+    assert.equal(both.code, 2);
+    assert.match(both.stderr, /--json and --text are alternatives/);
   });
 
   // An agent wrote its round-1 blockers to its session scratchpad, and the review crashed on the path.

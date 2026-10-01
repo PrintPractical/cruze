@@ -1,5 +1,5 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
-import { recordedEventProblems, recordedFields, type JournalEntry } from "../../domain/journal.ts";
+import { journalPath, parseJournal, recordedEventProblems, recordedFields, type JournalEntry } from "../../domain/journal.ts";
 import { resolveArtifact } from "../../domain/project/artifact_ref.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
 
@@ -18,9 +18,17 @@ export async function recordEvent(deps: ProjectDeps, event: string, fields: Reco
   return appendJournal(deps, folder, event, { ...recorded, cruze: deps.bundle.version });
 }
 
-export async function listEvents(deps: ProjectDeps, event?: string): Promise<JournalEntry[]> {
-  const { journal } = await loadView(deps.files);
-  return event === undefined ? journal : journal.filter((entry) => entry.event === event);
+/** The journal, or one feature's or change's part of it: its own journal, and a feature's changes' too. */
+export async function listEvents(deps: ProjectDeps, event?: string, item?: string): Promise<JournalEntry[]> {
+  const view = await loadView(deps.files);
+  let entries = view.journal;
+  if (item !== undefined) {
+    const resolved = resolveArtifact(view, item).item;
+    if (resolved === undefined) throw new CruzeError("not-found", `"${item}" is not a feature or change`);
+    const parts = [resolved, ...view.items.filter((i) => resolved.kind === "feature" && i.featureRef === resolved.ref)];
+    entries = parts.flatMap((part) => parseJournal(view.snapshot.get(journalPath(part.folder))).entries).sort((a, b) => a.at.localeCompare(b.at));
+  }
+  return event === undefined ? entries : entries.filter((entry) => entry.event === event);
 }
 
 export interface FeedbackExport {

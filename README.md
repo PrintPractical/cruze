@@ -79,7 +79,7 @@ cruze init --package https://github.com/PrintPractical/cruze/releases/download/v
 
 Existing files are never overwritten, so it is safe to run in an existing repository.
 
-The CLI writes JSON to stdout when it isn't attached to a terminal, and a human summary to stderr. Pass `--json` to get JSON on a terminal too.
+The CLI writes its result to stdout: JSON when stdout isn't a terminal, and text on a terminal. Pass `--json` to get JSON on a terminal, or `--text` to get text through a pipe, as in `cruze journal list --text | grep review`. Errors and notes go to stderr.
 
 ## Upgrading
 
