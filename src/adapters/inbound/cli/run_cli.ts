@@ -16,15 +16,17 @@ const NO_VERSION_NOTICE = new Set(["init", "install", "validate"]);
 
 /**
  * Runs one CLI invocation and returns the exit code: 0 on success, 1 when a check fails or
- * an expected error occurs, 2 for usage errors. Agents get JSON on stdout; people get a summary on stderr.
- * When the project's skills don't match this CLI, a note on stderr says so, even when the command fails.
+ * an expected error occurs, 2 for usage errors. The result goes to stdout in one format: JSON for an agent,
+ * when stdout isn't a terminal or with --json, and text for a person, on a terminal or with --text.
+ * stderr carries errors, and a note when the project's skills don't match this CLI, even when the command fails.
  */
 export async function runCli(argv: string[], context: CliContext, terminal: Terminal): Promise<number> {
-  let json = !terminal.stdoutIsTerminal || argv.includes("--json");
+  // Read from argv too, so a usage error is reported in the format asked for.
+  const json = argv.includes("--json") || (!terminal.stdoutIsTerminal && !argv.includes("--text"));
   let notice: string | undefined;
   try {
     const parsed = parseCommand(argv);
-    json ||= parsed.options.json;
+    if (parsed.options.json && parsed.options.text) throw new UsageError("--json and --text are alternatives");
     if (parsed.version) {
       terminal.stdout(context.bundle.version);
       return 0;
@@ -38,8 +40,8 @@ export async function runCli(argv: string[], context: CliContext, terminal: Term
     if (command === undefined) throw new UsageError(`Unknown command: ${name}`);
     if (!NO_VERSION_NOTICE.has(name)) notice = await versionNotice(context.files, context.bundle.version);
     const result = await command.handler(context, args, parsed.options);
-    terminal.stderr(result.human);
     if (json) terminal.stdout(JSON.stringify(result.json, null, 2));
+    else if (result.human !== "") terminal.stdout(result.human);
     return result.failed === true ? 1 : 0;
   } catch (error) {
     if (error instanceof UsageError) {

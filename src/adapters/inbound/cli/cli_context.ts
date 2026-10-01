@@ -29,6 +29,7 @@ export interface Options {
   yes: boolean;
   agent: string[];
   json: boolean;
+  text: boolean;
   title?: string;
   feature?: string;
   roadmap?: string;

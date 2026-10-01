@@ -1,6 +1,7 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { readProgress } from "../../domain/project/progress.ts";
 import { buildProjectView } from "../../domain/project/project_view.ts";
+import { findWorkItem, type WorkItem } from "../../domain/project/work_items.ts";
 import { nextSteps, type NextReport } from "../../domain/status/next_step.ts";
 import { activeChange, buildGateReasons, projectStatus, touchedIds, type ProjectStatus } from "../../domain/status/work_status.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
@@ -59,10 +60,11 @@ export async function findOverlaps(deps: ProjectDeps, ref?: string): Promise<{ c
   const overlaps: Overlap[] = [];
   for (const other of await deps.repository.otherBranches()) {
     const theirs = buildProjectView(new Map([...view.snapshot].filter(([p]) => p.startsWith("docs/")).concat([...(await deps.repository.filesOnBranch(other, ".cruze"))])));
-    // Work in flight on a branch is the change bound to it.
+    // Work in flight on a branch is the change bound to it that hasn't landed, there or here.
     const boundThere = theirs.items.filter((i) => {
       const bound = readProgress(i.doc).branch;
-      return !i.archived && i.ref !== change.ref && bound !== undefined && (other === bound || other.endsWith(`/${bound}`));
+      const here = findWorkItem(view.items, i.ref);
+      return !landed(i) && (here === undefined || !landed(here)) && i.ref !== change.ref && bound !== undefined && (other === bound || other.endsWith(`/${bound}`));
     });
     for (const item of boundThere) {
       const shared = [...touchedIds(theirs, item)].filter((id) => mine.has(id));
@@ -70,4 +72,8 @@ export async function findOverlaps(deps: ProjectDeps, ref?: string): Promise<{ c
     }
   }
   return { change: change.ref, overlaps };
+}
+
+function landed(item: WorkItem): boolean {
+  return item.archived || readProgress(item.doc).landed !== undefined;
 }

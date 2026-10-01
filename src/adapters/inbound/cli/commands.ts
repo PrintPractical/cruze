@@ -20,7 +20,7 @@ export const COMMANDS: Record<string, { handler: Handler; usage: string }> = {
   task: { handler: runTask, usage: "task <done|deviation|reopen> <T#> [text] [--change <ref>] [--commit <sha>]" },
   features: { handler: runFeatures, usage: "features <add|drop> <slug> [--summary <text> --goals <ids>] [--reason <text>]" },
   roadmap: { handler: runRoadmap, usage: "roadmap prune                                     clear landed items from the roadmap status when a release closes" },
-  journal: { handler: runJournal, usage: "journal <add <event> --set key=value... [--item <ref>]|list [--event <event>]>" },
+  journal: { handler: runJournal, usage: "journal <add <event> --set key=value... [--item <ref>]|list [--event <event>] [--item <ref>]>" },
   review: { handler: runReviewCommand, usage: "review <role> [--item <ref>] [--round 1|2 --blockers <file>] [--base <commit>]   run a role in a fresh agent context" },
   feedback: { handler: runFeedback, usage: "feedback export [--out <file>] [--no-redact]" },
   trace: { handler: runTrace, usage: "trace [--all] [--change <ref>]                    link scenarios to the tests that prove them" },
@@ -35,4 +35,5 @@ export const USAGE = `Usage: cruze <command> [options]
 Commands:
 ${Object.values(COMMANDS).map((c) => `  ${c.usage}`).join("\n")}
 
-Every command prints JSON on stdout when it isn't a terminal, or with --json.`;
+Every command prints its result on stdout: JSON when stdout isn't a terminal or with --json,
+and text on a terminal or with --text. Errors and notes go to stderr.`;

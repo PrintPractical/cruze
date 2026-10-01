@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { exportFeedback, recordEvent } from "../src/app/use_cases/journal_events.ts";
+import { exportFeedback, listEvents, recordEvent } from "../src/app/use_cases/journal_events.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { exampleProject } from "./support/harness.ts";
+import { CHANGE_01, FEATURE, exampleProject } from "./support/harness.ts";
 
 const rejectsWith = (code: string) => (error: unknown) => error instanceof CruzeError && error.code === code;
 
@@ -39,5 +39,21 @@ describe("the journal and feedback export", () => {
     const entry = await recordEvent(h.deps, "review", { review: "design", round: "1", blockers: "2", concerns: "5", nits: "3" });
     assert.deepEqual([entry["round"], entry["blockers"], entry["concerns"], entry["nits"]], [1, 2, 5, 3]);
     await assert.rejects(recordEvent(h.deps, "review", { review: "design", round: "1", blockers: "two", concerns: "0" }), rejectsWith("invalid-event"));
+  });
+
+  // A project listed one change's dispositions with --item and got every disposition in the project.
+  it("lists one change's entries, or a feature's with its changes'", async () => {
+    const h = await exampleProject();
+    const disposition = (finding: string) => ({ finding, disposition: "deferred", reason: "later", review: "code" });
+    await recordEvent(h.deps, "disposition", disposition("project-wide"));
+    await recordEvent(h.deps, "disposition", disposition("feature finding"), FEATURE);
+    await recordEvent(h.deps, "disposition", disposition("change finding"), CHANGE_01);
+    await recordEvent(h.deps, "rethink", { level: "change", kind: "discovery", summary: "s", wrong: "w", found_by: "build" }, CHANGE_01);
+
+    const findings = async (item?: string) => (await listEvents(h.deps, "disposition", item)).map((e) => e["finding"]);
+    assert.deepEqual(await findings(CHANGE_01), ["change finding"]);
+    assert.deepEqual(await findings(FEATURE), ["feature finding", "change finding"]);
+    assert.deepEqual(await findings(), ["project-wide", "feature finding", "change finding"]);
+    await assert.rejects(listEvents(h.deps, "disposition", "no-such-item"), rejectsWith("not-found"));
   });
 });

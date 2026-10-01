@@ -44,7 +44,7 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 
 - Many small modules: one responsibility per file, and a file stays under 250 lines. When a file gains a second responsibility, split it.
 - Prefer Node built-ins. A new runtime dependency needs explicit approval from the maintainer.
-- CLI output: JSON on stdout for agents, human text on stderr. Expected failures throw `CruzeError` with a stable `code`.
+- CLI output: the result on stdout in one format, JSON for agents (stdout not a terminal, or `--json`) or text for people (a terminal, or `--text`). stderr carries only errors and notes. Expected failures throw `CruzeError` with a stable `code`.
 - Write erasable TypeScript only (no enums, namespaces or parameter properties), so Node can run sources directly. Relative imports use the `.ts` extension; the build rewrites them.
 - Test behaviour through use cases with fakes that honour the port contracts. Unit-test domain rules directly only when the logic is non-trivial.
 - Skills follow [docs/contributing/writing-skills.md](docs/contributing/writing-skills.md), and `test/bundle.test.ts` enforces the format.

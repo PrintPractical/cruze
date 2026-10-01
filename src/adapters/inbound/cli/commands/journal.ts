@@ -15,7 +15,7 @@ export async function runJournal(context: CliContext, args: string[], options: O
     return { json: entry, human: `Recorded ${entry.event}.` };
   }
   if (args[0] === "list") {
-    const entries = await listEvents(context, options.event);
+    const entries = await listEvents(context, options.event, options.item);
     return { json: entries, human: entries.map((e) => `${e.at} ${e.event} ${JSON.stringify({ ...e, at: undefined, event: undefined, by: undefined })}`).join("\n") || "No entries." };
   }
   throw new UsageError(`cruze journal takes add or list, not "${args[0]}"`);
