@@ -126,7 +126,7 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze status --overlap` | Lists changes on other branches that touch the same elements as this branch's change |
 | `cruze new <kind>` | Creates a project document (`vision`, `glossary`, `architecture`, `roadmap`) or work (`feature`, `change`, `adr`, `note`) from its template, with a dated ID that is never reused |
 | `cruze task done <T#>` | Ticks a task with its commit; `cruze task reopen` unticks one a rethink changed, and `cruze task deviation` records a small departure from the plan |
-| `cruze features <add\|drop>` | Edits the future list of the feature map |
+| `cruze features <add\|update\|drop>` | Edits the feature map: adds or drops a future feature, or corrects a summary |
 | `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
 | `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |

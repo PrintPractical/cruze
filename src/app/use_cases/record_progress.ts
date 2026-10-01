@@ -58,6 +58,23 @@ export async function addFutureFeature(deps: ProjectDeps, slug: string, summary:
   return { feature: slug };
 }
 
+/**
+ * Replaces a feature's summary on the feature map, in the future list or the implemented list,
+ * when a decision changed what the feature delivers. Its goals or release stay as they are.
+ */
+export async function updateFeatureSummary(deps: ProjectDeps, slug: string, summary: string): Promise<{ feature: string; list: "Future" | "Implemented" }> {
+  if (summary.trim() === "") throw new CruzeError("missing-summary", "a feature needs a summary");
+  const vision = await requireVision(deps);
+  const future = readRows(vision, "Future").find((row) => row[0] === slug);
+  const implemented = readRows(vision, "Implemented").find((row) => row[0] === slug);
+  if (future === undefined && implemented === undefined) throw new CruzeError("not-found", `${slug} is not on the feature map`);
+  const list = future !== undefined ? "Future" : "Implemented";
+  const cells = future !== undefined ? [slug, summary.trim(), future[2] ?? ""] : [slug, implemented?.[1] ?? "", summary.trim()];
+  await deps.files.writeText(PATHS.vision, upsertRow(vision, list, cells));
+  await appendJournal(deps, ".cruze", "feature-map", { action: "update", feature: slug, summary: summary.trim() });
+  return { feature: slug, list };
+}
+
 export async function dropFutureFeature(deps: ProjectDeps, slug: string, reason: string): Promise<{ feature: string }> {
   const vision = await requireVision(deps);
   const { text, removed } = removeRow(vision, "Future", slug);

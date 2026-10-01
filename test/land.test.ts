@@ -4,7 +4,7 @@ import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
 import { recordEvent } from "../src/app/use_cases/journal_events.ts";
 import { landChange } from "../src/app/use_cases/land_change.ts";
 import { showStatus } from "../src/app/use_cases/project_status.ts";
-import { completeTask } from "../src/app/use_cases/record_progress.ts";
+import { completeTask, updateFeatureSummary } from "../src/app/use_cases/record_progress.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
 import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, CHANGE_02, CHANGE_02_TEXT, FEATURE, FEATURE_PATH, approveDesign, buildChange, edit, exampleProject, type Harness } from "./support/harness.ts";
@@ -59,6 +59,20 @@ describe("landing a change", () => {
     assert.equal(statusOf(h, "docs/architecture.md", "ADP-access.ssh-connector"), "built");
     assert.match(h.files.files.get("docs/vision.md") ?? "", /### Implemented\n\n\| Feature \| Release \| Summary \|\n\| --- \| --- \| --- \|\n\| open-console \| v0\.1 \|/);
     assert.match(h.files.files.get("docs/roadmap.md") ?? "", /\| open-console \| 2026-09-25-open-console \| landed \|/);
+    assert.deepEqual((await validate(h.deps)).problems, []);
+  });
+
+  // A project's decisions replaced two policies its feature-map summary promised, and land kept the old summary.
+  it("corrects a finished feature's summary on the implemented list, keeping its release and the vision's approval", async () => {
+    const h = await landFirstChange();
+    h.files.files.set(`.cruze/features/${FEATURE}/changes/02-ssh-hops/change.md`, CHANGE_02_TEXT);
+    await buildChange(h, CHANGE_02, "open-console-ssh");
+    await landChange(h.deps, CHANGE_02);
+
+    const report = await updateFeatureSummary(h.deps, "open-console", "Interactive console over local serial and SSH hop chains, detached with an escape sequence");
+    assert.deepEqual(report, { feature: "open-console", list: "Implemented" });
+    assert.match(h.files.files.get("docs/vision.md") ?? "", /\| open-console \| v0\.1 \| Interactive console over local serial and SSH hop chains, detached with an escape sequence \|/);
+    assert.equal((await showStatus(h.deps)).documents.find((d) => d.artifact === "docs/vision.md")?.state, "approved");
     assert.deepEqual((await validate(h.deps)).problems, []);
   });
 

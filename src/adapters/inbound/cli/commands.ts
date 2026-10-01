@@ -29,7 +29,7 @@ export const COMMANDS: Record<string, Command> = {
     usage: "new <vision|glossary|architecture|roadmap> | new <feature|change|adr|note> <slug> --title <title> [--feature <ref>] [--roadmap <slug>]",
   },
   task: { handler: runTask, options: { done: ["change", "commit"], deviation: ["change"], reopen: ["change"] }, usage: "task <done|deviation|reopen> <T#> [text] [--change <ref>] [--commit <sha>]" },
-  features: { handler: runFeatures, options: { add: ["summary", "goals"], drop: ["reason"] }, usage: "features <add|drop> <slug> [--summary <text> --goals <ids>] [--reason <text>]" },
+  features: { handler: runFeatures, options: { add: ["summary", "goals"], update: ["summary"], drop: ["reason"] }, usage: "features <add|update|drop> <slug> [--summary <text>] [--goals <ids>] [--reason <text>]" },
   roadmap: { handler: runRoadmap, options: { prune: [] }, usage: "roadmap prune                                     clear landed items from the roadmap status when a release closes" },
   journal: { handler: runJournal, options: { add: ["set", "item"], list: ["event", "item"] }, usage: "journal <add <event> --set key=value... [--item <ref>]|list [--event <event>] [--item <ref>]>" },
   review: { handler: runReviewCommand, options: ["item", "round", "blockers", "base"], usage: "review <role> [--item <ref>] [--round 1|2 --blockers <file>] [--base <commit>]   run a role in a fresh agent context" },

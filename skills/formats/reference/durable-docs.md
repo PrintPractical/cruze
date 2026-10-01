@@ -16,7 +16,7 @@ What the product is for. At most one page, excluding the feature map.
 | `## Feature map` | Managed. `### Implemented` is a table of Feature, Release and Summary. `### Future` is a table of Feature, Summary and Goals |
 
 - Feature-map entries are named by slug, such as `jump-hosts`. A future entry gets a folder ID only when its feature starts.
-- Only the CLI writes the feature map. `cruze features add` puts an entry on the future list, `cruze features drop` removes one, and `land` moves a finished feature to implemented, tagged with the release in progress.
+- Only the CLI writes the feature map. `cruze features add` puts an entry on the future list, `cruze features update` corrects an entry's summary on either list, `cruze features drop` removes one from the future list, and `land` moves a finished feature to implemented, tagged with the release in progress.
 
 ## docs/glossary.md
 

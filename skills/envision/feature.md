@@ -13,6 +13,7 @@ The result is a feature folder whose `feature.md` holds the intent, the settled 
    - **Requirements:** each behaviour the feature adds, changes or removes, and the capability it belongs to. It goes in an existing capability when the behaviour fits one; otherwise it starts a new capability.
    - **Scenarios:** for each requirement, the main case, each edge and failure case a user will meet, and what they observe in each. Invent concrete edge cases to test the boundaries.
 6. **Grill in rounds** until every open decision is settled. Record decisions under `## Settled decisions` and terms in the glossary as they settle.
+   - When a decision changes something the feature's summary on the feature map promises, such as a policy it names, correct the summary with `cruze features update <slug> --summary <text>`.
 7. **Write the spec delta.** Use `ADDED` for new requirements, `MODIFIED` for a requirement whose text or scenarios change (writing its full new body with every scenario it keeps), `REMOVED` with a `Reason` and `Migration` for retired behaviour, and `ADDED CAPABILITY` for a new capability.
    - Name every ID with glossary terms. An ID is never reused.
    - Done when every requirement has a scenario for its main case and one for each failure a user can meet.
