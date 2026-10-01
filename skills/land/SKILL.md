@@ -20,6 +20,7 @@ Land makes finished work part of the living model. `cruze land` merges the chang
    - When they don't hold, stop and offer `rethink`.
 4. **Run `cruze land`** and quote its report: what it merged, what is now built, and whether the work finished and was archived.
    - A `merge-conflict` means someone changed an element this feature merged earlier. Stop and run `rethink`, which reconciles it.
+   - When the work finished, read the feature's row under `### Implemented` in `docs/vision.md` against its settled decisions and spec delta. When the summary no longer describes what landed, correct it with `cruze features update <slug> --summary <text>`.
    - A `merge-invalid` means the merged docs, or the feature and changes being landed, wouldn't validate, such as a decision citing an ID the change removes. Nothing was written. Stop and run `rethink`.
 5. **Update the changelog.** Under `## [Unreleased]` in `CHANGELOG.md`, add one line per user-visible behaviour the change delivers, in the user's words, under `### Added`, `### Changed` or `### Removed`. Name the behaviour, not the code, including any rule a user can now run into that no scenario covers yet.
 6. **Update the README** when the change altered how someone installs, runs or uses the product. Run every command you add, to check it works.

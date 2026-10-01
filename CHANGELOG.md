@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `cruze features update <slug> --summary <text>` corrects a feature's summary on the feature map, on the future or the implemented list. Envision runs it when a decision changes what the summary promised, and land checks the summary when a feature finishes. Before, land carried the summary from when the feature was added, even after the feature's decisions had replaced it.
+
 ### Changed
 
 - Every command refuses an option it doesn't take, with a usage error naming the options it does take, instead of ignoring it. `cruze validate --item x` and `cruze journal list --change x` exit with 2. `cruze status` refuses `--override` without `--gate`, `--change` without `--overlap`, and both modes at once; `cruze review` refuses `--blockers` without `--round 2`.

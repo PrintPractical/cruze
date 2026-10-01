@@ -4,7 +4,7 @@ import { listEvents } from "../src/app/use_cases/journal_events.ts";
 import { createNote, createProjectDoc } from "../src/app/use_cases/new_project_doc.ts";
 import { createWorkItem } from "../src/app/use_cases/new_work_item.ts";
 import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
-import { addFutureFeature, completeTask, dropFutureFeature, pruneRoadmap, recordDeviation } from "../src/app/use_cases/record_progress.ts";
+import { addFutureFeature, completeTask, dropFutureFeature, pruneRoadmap, recordDeviation, updateFeatureSummary } from "../src/app/use_cases/record_progress.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
 import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, FEATURE, exampleProject } from "./support/harness.ts";
@@ -202,10 +202,13 @@ describe("recording progress", () => {
     assert.deepEqual((await validate(h.deps)).problems.filter((p) => p.rule === "template-leftover"), []);
   });
 
-  it("adds and drops future features on the feature map", async () => {
+  it("adds, updates and drops future features on the feature map", async () => {
     const h = await exampleProject();
     await addFutureFeature(h.deps, "telnet", "Consoles over telnet", ["GOAL-one-command"]);
     assert.match(h.files.files.get("docs/vision.md") ?? "", /\| telnet \| Consoles over telnet \| GOAL-one-command \|/);
+    await updateFeatureSummary(h.deps, "telnet", "Consoles over telnet, read-only");
+    assert.match(h.files.files.get("docs/vision.md") ?? "", /\| telnet \| Consoles over telnet, read-only \| GOAL-one-command \|/);
+    await assert.rejects(updateFeatureSummary(h.deps, "gopher", "x"), rejectsWith("not-found"));
     await dropFutureFeature(h.deps, "telnet", "every lab device supports SSH");
     assert.doesNotMatch(h.files.files.get("docs/vision.md") ?? "", /telnet/);
     assert.deepEqual((await validate(h.deps)).problems, []);

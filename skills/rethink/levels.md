@@ -30,7 +30,7 @@
 
 ## Vision
 
-1. Edit `docs/vision.md` with the user: goals, non-goals or constraints. The feature map changes only through `cruze features add` and `cruze features drop`. When the problem, users or goals changed, update the overview under the title of `README.md` to match.
+1. Edit `docs/vision.md` with the user: goals, non-goals or constraints. The feature map changes only through `cruze features add`, `cruze features update` and `cruze features drop`. When the problem, users or goals changed, update the overview under the title of `README.md` to match.
 2. Update `docs/roadmap.md` to match, following `.agents/skills/cruze-roadmap/SKILL.md`.
 3. For each feature in progress that served a dropped goal, the user decides: keep it, or stop it with `cruze abandon <ref> --reason "<why>"`. Abandoning archives the folder and puts the feature back on the future list; changes that already landed stay.
 4. Re-approve with `cruze approve vision`, then `cruze approve roadmap`.

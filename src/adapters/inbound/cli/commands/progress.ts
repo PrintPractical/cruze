@@ -1,4 +1,4 @@
-import { addFutureFeature, completeTask, dropFutureFeature, pruneRoadmap, recordDeviation, reopenTask } from "../../../../app/use_cases/record_progress.ts";
+import { addFutureFeature, completeTask, dropFutureFeature, updateFeatureSummary, pruneRoadmap, recordDeviation, reopenTask } from "../../../../app/use_cases/record_progress.ts";
 import { abandonWork } from "../../../../app/use_cases/abandon_work.ts";
 import { UsageError, requireArgs, requireOption, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
@@ -23,17 +23,21 @@ export async function runTask(context: CliContext, args: string[], options: Opti
 }
 
 export async function runFeatures(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
-  requireArgs(args, ["add|drop", "slug"]);
+  requireArgs(args, ["add|update|drop", "slug"]);
   if (args[0] === "add") {
     const goals = (options.goals ?? "").split(",").map((g) => g.trim()).filter((g) => g !== "");
     const report = await addFutureFeature(context, args[1] ?? "", requireOption(options.summary, "--summary"), goals);
     return { json: report, human: `Added ${report.feature} to the future list.` };
   }
+  if (args[0] === "update") {
+    const report = await updateFeatureSummary(context, args[1] ?? "", requireOption(options.summary, "--summary"));
+    return { json: report, human: `Updated the summary of ${report.feature} on the ${report.list === "Future" ? "future" : "implemented"} list.` };
+  }
   if (args[0] === "drop") {
     const report = await dropFutureFeature(context, args[1] ?? "", requireOption(options.reason, "--reason"));
     return { json: report, human: `Dropped ${report.feature} from the future list.` };
   }
-  throw new UsageError(`cruze features takes add or drop, not "${args[0]}"`);
+  throw new UsageError(`cruze features takes add, update or drop, not "${args[0]}"`);
 }
 
 export async function runRoadmap(context: CliContext, args: string[]): Promise<CommandResult> {
