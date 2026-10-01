@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Every command refuses an option it doesn't take, with a usage error naming the options it does take, instead of ignoring it. `cruze validate --item x` and `cruze journal list --change x` exit with 2. `cruze status` refuses `--override` without `--gate`, `--change` without `--overlap`, and both modes at once; `cruze review` refuses `--blockers` without `--round 2`.
 - Every command prints its result on stdout in one format: JSON when stdout isn't a terminal or with `--json`, and text on a terminal or with the new `--text`. stderr carries only errors and notes. Before, the text went to stderr alongside the JSON, so `cruze journal list | grep` filtered only the JSON, and agents got every result twice.
 
 ### Fixed

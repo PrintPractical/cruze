@@ -1,6 +1,7 @@
 import { versionNotice } from "../../../app/use_cases/record_version.ts";
 import { CruzeError } from "../../../domain/cruze_error.ts";
 import { type CliContext, UsageError } from "./cli_context.ts";
+import { refuseUnknownOptions } from "./command_options.ts";
 import { COMMANDS, USAGE } from "./commands.ts";
 import { parseCommand } from "./parse_command.ts";
 
@@ -38,6 +39,7 @@ export async function runCli(argv: string[], context: CliContext, terminal: Term
     }
     const command = COMMANDS[name];
     if (command === undefined) throw new UsageError(`Unknown command: ${name}`);
+    refuseUnknownOptions(name, args, command, parsed.given);
     if (!NO_VERSION_NOTICE.has(name)) notice = await versionNotice(context.files, context.bundle.version);
     const result = await command.handler(context, args, parsed.options);
     if (json) terminal.stdout(JSON.stringify(result.json, null, 2));

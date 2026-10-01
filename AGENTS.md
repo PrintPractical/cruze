@@ -57,5 +57,6 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - Claude Code does not read `.agents/skills/`. It only finds Cruze skills through the links `cruze install` creates in `.claude/skills/`.
 - A change that adds a rule reporting on existing code lists it in `RULE_SINCE` (`src/domain/versions/rule_versions.ts`) with the coming version, and adds a note to `skills/realign/notes/<coming version>.md`. Any user-visible change gets a note too, even if only `Applies to: new work only`. `test/bundle.test.ts` enforces both.
 - Bumping the version in `package.json` also bumps `cruze:` in `examples/console-access/.cruze/config.yaml`, or the fixture reports a `cruze-version` warning and the tests fail.
+- A new CLI option goes in `parse_command.ts` and in the `options` of each command that takes it in `commands.ts`, or the CLI refuses it. `test/command_lines.test.ts` checks every command line the skills and templates spell out against those lists.
 - `npx <path-to-tarball>` fails. Use `npx --package=<tarball> cruze ...` to try a packed build.
 - The build is `scripts/build.mjs`: Node's type stripper over `src/`, with no dependencies. Don't add install scripts (`prepare`, `postinstall`). npm skips them for global installs, and a git install relies on `bin/cruze.mjs` building `dist/` on first run instead.

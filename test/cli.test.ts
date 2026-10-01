@@ -150,6 +150,18 @@ describe("the cruze command", () => {
     assert.match(both.stderr, /--json and --text are alternatives/);
   });
 
+  // A reviewer passed journal list an --item that Cruze 0.0.3 ignored, and got 2,067 lines of every feature's dispositions.
+  it("refuses an option the command doesn't take, instead of ignoring it", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    const validate = cruze(repo, "validate", "--item", "nonsense");
+    assert.equal(validate.code, 2);
+    assert.equal(JSON.parse(validate.stdout).error.code, "usage");
+    assert.match(validate.stderr, /cruze validate doesn't take --item; it takes no options/);
+    assert.match(cruze(repo, "journal", "list", "--change", "x").stderr, /cruze journal list doesn't take --change; it takes --event, --item/);
+    assert.match(cruze(repo, "status", "--change", "x").stderr, /--change goes with --overlap/);
+  });
+
   // An agent wrote its round-1 blockers to its session scratchpad, and the review crashed on the path.
   it("reads and writes files named on the command line wherever they are, outside the project too", () => {
     const repo = emptyRepo();
