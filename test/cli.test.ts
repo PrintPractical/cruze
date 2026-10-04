@@ -160,6 +160,7 @@ describe("the cruze command", () => {
     assert.match(validate.stderr, /cruze validate doesn't take --item; it takes no options/);
     assert.match(cruze(repo, "journal", "list", "--change", "x").stderr, /cruze journal list doesn't take --change; it takes --event, --item/);
     assert.match(cruze(repo, "status", "--change", "x").stderr, /--change goes with --overlap/);
+    assert.match(cruze(repo, "approve", "vision", "--by-agent", "--restamp-unchanged").stderr, /--by-agent and --restamp-unchanged are alternatives/);
   });
 
   // An agent wrote its round-1 blockers to its session scratchpad, and the review crashed on the path.

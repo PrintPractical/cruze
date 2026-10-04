@@ -1,6 +1,6 @@
 ---
 name: cruze-plan
-description: Turns the next change into a test plan and ordered tasks with file targets, reviews the plan in a fresh context, and records your approval on the branch that will build it.
+description: Turns the next change into a test plan and ordered tasks with file targets, reviews the plan in a fresh context, and approves it on the branch that will build it once the review closes, leaving you to object or go straight to build.
 ---
 
 # Plan
@@ -26,7 +26,7 @@ Plan turns one designed change into work an implementer can do without guessing:
 10. **Record decisions and risks.** Put task-level choices you made under `## Settled decisions`. Under `## Risks`, name the riskiest task and how its test catches the failure. Remove every template guide.
 11. **Validate.** Run `cruze validate`. Done when it reports no errors for the change.
 12. **Review the plan.** Commit the plan, then run the review in `.agents/skills/cruze-roles/SKILL.md` with the design reviewer and its plan rubric, `review=plan`, and `--item <ref>`.
-13. **Approve.** Show the user the test plan table, the tasks in order and the risks. When they approve, run `cruze approve <ref>` on this branch and quote its result. The approval binds the change to the branch.
+13. **Approve.** Run `cruze approve <ref> --by-agent` on this branch and quote its result. The plan carries no design of its own, so once its review has closed, with no blocker open and a disposition for every finding, you approve it for the user. The approval binds the change to the branch. When it refuses with `plan-review-open`, do what it names. A blocker still open after round 2 goes to the user, and once they decide it, they approve the plan themselves with `cruze approve <ref>`.
 14. **Commit** with a message such as `docs: plan <change>`.
 
 ## When the plan needs design
@@ -49,4 +49,4 @@ The walking-skeleton change also makes CI and the project's tooling real. Its pl
 
 ## Next step
 
-`build`, on this branch.
+Show the user the test plan table, the tasks in order and the risks, and say the plan is approved. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch.

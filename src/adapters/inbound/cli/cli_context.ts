@@ -52,6 +52,8 @@ export interface Options {
   full: boolean;
   replan: string[];
   rebase: string[];
+  byAgent: boolean;
+  restampUnchanged: boolean;
   round?: string;
   package?: string;
   base?: string;

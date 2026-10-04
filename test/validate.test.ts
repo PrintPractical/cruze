@@ -53,6 +53,31 @@ describe("validating a project", () => {
     assert.match(sizes[0]?.message ?? "", /7 changes, over 6/);
   });
 
+  it("warns when a change is too small to be worth its own review and verify", async () => {
+    const h = await exampleProject();
+    edit(h.files, ".cruze/config.yaml", "changes:\n  min_builds: 2\n", "");
+    const small = (await validate(h.deps)).problems.filter((p) => p.rule === "change-too-small");
+    assert.deepEqual(small.map((p) => [p.path, p.severity]), [[FEATURE_PATH, "warning"]]);
+    assert.match(small[0]?.message ?? "", /02-ssh-hops builds 2 element\(s\), under 3/);
+  });
+
+  it("warns when a change, or its plan, is more than one review and one verifier run can hold", async () => {
+    const h = await exampleProject();
+    edit(h.files, ".cruze/config.yaml", "  min_builds: 2\n", "  min_builds: 2\n  max_scenarios: 4\n  max_tasks: 10\n");
+    const large = (await validate(h.deps)).problems.filter((p) => p.rule.endsWith("-too-large")).sort((a, b) => a.rule.localeCompare(b.rule));
+    assert.deepEqual(large.map((p) => [p.rule, p.path, p.severity]), [["change-too-large", FEATURE_PATH, "warning"], ["plan-too-large", CHANGE_01_PATH, "warning"]]);
+    assert.match(large[0]?.message ?? "", /01-local-serial delivers 5 scenarios, over 4/);
+    assert.match(large[1]?.message ?? "", /11 tasks, over 10/);
+  });
+
+  it("reports a review.decide or a size limit it doesn't know", async () => {
+    const h = await exampleProject();
+    edit(h.files, ".cruze/config.yaml", "  min_builds: 2\n", "  min_builds: none\n");
+    h.files.files.set(".cruze/config.yaml", `${h.files.files.get(".cruze/config.yaml") ?? ""}review:\n  decide: sometimes\n`);
+    const messages = (await validate(h.deps)).problems.filter((p) => p.rule === "config").map((p) => p.message).sort();
+    assert.deepEqual(messages, ["changes.min_builds must be a positive whole number", "review.decide must be exceptions or all"]);
+  });
+
   // Each case breaks one rule of the cruze-formats skill and names the rule that must catch it.
   const cases: Array<{ name: string; path: string; from: string; to: string; rule: string }> = [
     { name: "a cited ID that no document defines", path: "docs/architecture.md", from: "- Uses: PORT-inventory.device-catalog\n", to: "- Uses: PORT-inventory.device-katalog\n", rule: "unknown-id" },

@@ -52,6 +52,8 @@ export function parseCommand(argv: string[]): ParsedCommand {
         rebase: { type: "string", multiple: true, default: [] },
         base: { type: "string" },
         blockers: { type: "string" },
+        "by-agent": { type: "boolean", default: false },
+        "restamp-unchanged": { type: "boolean", default: false },
       },
     });
   } catch (error) {
@@ -74,6 +76,8 @@ export function parseCommand(argv: string[]): ParsedCommand {
     full: values.full,
     replan: values.replan,
     rebase: values.rebase,
+    byAgent: values["by-agent"],
+    restampUnchanged: values["restamp-unchanged"],
     ...optional("name", values.name),
     ...optional("title", values.title),
     ...optional("feature", values.feature),

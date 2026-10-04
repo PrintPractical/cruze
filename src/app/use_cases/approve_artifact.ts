@@ -1,3 +1,4 @@
+import { requirePlanReviewClosed, requireUnchangedSinceApproval, type AgentBasis } from "../../domain/approvals/agent_approval.ts";
 import { evaluateApproval } from "../../domain/approvals/evaluate.ts";
 import { fingerprint, isApprovable } from "../../domain/approvals/fingerprint.ts";
 import { latestApproval, serializeApprovals, withApproval, type ApprovalRecord } from "../../domain/approvals/records.ts";
@@ -29,6 +30,10 @@ export interface ApproveReport {
   replanned: string[];
   /** Elements whose current living text this feature accepted after a land conflict. */
   rebased: string[];
+  /** Why the agent gave this approval for the user, when it did. */
+  basis?: AgentBasis;
+  /** For a re-stamp: the upstream IDs or documents that had changed. */
+  restamped?: string[];
 }
 
 export interface ApproveOptions {
@@ -36,6 +41,8 @@ export interface ApproveOptions {
   replan?: string[];
   /** Elements this work's delta changes whose living text changed since its last approval; the approval accepts the current text. */
   rebase?: string[];
+  /** Approve for the user: a change whose plan review closed, or work a rethink left unchanged. */
+  agent?: AgentBasis;
 }
 
 /**
@@ -53,6 +60,9 @@ export async function approveArtifact(deps: ProjectDeps, ref: string, options: A
   if (item !== undefined && item.kind !== "feature" && !isPlanned(item.doc)) {
     throw new CruzeError("not-planned", `${path} has no test plan or tasks yet; plan it before approving`);
   }
+  const before = evaluateApproval(view, path);
+  if (options.agent === "plan-review") requirePlanReviewClosed(view.journal, item ?? notWork(path));
+  if (options.agent === "rethink") requireUnchangedSinceApproval(view.journal, item, path, before);
 
   const edits = new Map<string, string>();
   let text = view.snapshot.get(path) ?? "";
@@ -103,12 +113,23 @@ export async function approveArtifact(deps: ProjectDeps, ref: string, options: A
     upstream,
     approvedAt: deps.clock.now().toISOString(),
     by: (await deps.repository.userName()) ?? "unknown",
+    ...(options.agent === undefined ? {} : { basis: options.agent }),
   });
   for (const [changed, content] of edits) await deps.files.writeText(changed, content);
   await deps.files.writeText(approvalsPath(folder), serializeApprovals(approvals));
-  await appendJournal(deps, folder, "approve", { artifact: path, hash, ...(replanned.length > 0 ? { replanned } : {}), ...(rebased.length > 0 ? { rebased } : {}) });
+  const restamped = options.agent === "rethink" ? before.changed : undefined;
+  await appendJournal(deps, folder, "approve", {
+    artifact: path,
+    hash,
+    ...(replanned.length > 0 ? { replanned } : {}),
+    ...(rebased.length > 0 ? { rebased } : {}),
+    ...(options.agent === undefined ? {} : { basis: options.agent }),
+    ...(restamped === undefined ? {} : { restamped }),
+  });
   const report: ApproveReport = { artifact: path, hash, upstream: Object.keys(upstream), stamped, replanned, rebased };
   if (bound !== undefined) report.bound = bound;
+  if (options.agent !== undefined) report.basis = options.agent;
+  if (restamped !== undefined) report.restamped = restamped;
   return report;
 }
 
@@ -131,6 +152,10 @@ function requireRebased(view: ProjectView, deltaIds: Set<string>, previous: Appr
       `the living text of ${moved.join(", ")} changed since the last approval, and this work's delta changes ${moved.length === 1 ? "it" : "them"}. Rewrite the delta to keep that change, then approve with ${moved.map((id) => `--rebase ${id}`).join(" ")}`,
     );
   }
+}
+
+function notWork(path: string): never {
+  throw new CruzeError("needs-user", `${path} is a project document, so the user approves it`);
 }
 
 /** A change needs its feature approved; a feature or standalone change needs the architecture approved. */

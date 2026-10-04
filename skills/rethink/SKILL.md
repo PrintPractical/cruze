@@ -18,7 +18,11 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
 3. **Load the standards.** Read `.agents/skills/cruze-grilling/SKILL.md`. At feature or architecture level, also read `.agents/skills/cruze-hexagonal-design/SKILL.md`. Also read the format reference for the document you will amend: `.agents/skills/cruze-formats/reference/architecture.md`, `specs.md`, `work-items.md` or `durable-docs.md`.
 4. **Amend that level,** following the level's section in [levels.md](levels.md). Settle any decision the amendment needs with the user, and record it as that level records decisions.
 5. **Keep completed work.** A ticked task stays ticked unless the amendment changes its owner, its files, or what it proves. Reopen each task that changed with `cruze task reopen T<n> "<what changed>"`. Its commits stay in history, and build redoes the task.
-6. **Re-approve what went stale.** Run `cruze status` and work from the top down: the amended document first, then each document it lists as `upstream changed`. For each one, show the user the diff of the elements it names, and re-approve it with `cruze approve <ref>` once they agree. A change's verification carries over when its own design didn't change.
+6. **Re-approve what went stale.** Run `cruze status` and work from the top down. The amended document comes first, and the user approves it as its level says. Then take each feature or change it lists as `upstream changed`, whose own text you didn't edit:
+   - Read the diff of the elements it names, and check the work still holds against them. When it doesn't, amend it too, and the user approves it as an amended document.
+   - When it holds, re-stamp it with `cruze approve <ref> --restamp-unchanged`. The CLI refuses work whose own text changed, a project document, and a change with a task reopened since its approval; the user re-approves those.
+
+   Tell the user, in one line each, what you re-stamped and why it still holds. They can object, and that document goes to them. A change's verification carries over when its own design didn't change.
 7. **Record the rethink.** Draft the entry and show it to the user in one line. When they confirm, run:
 
    ```sh

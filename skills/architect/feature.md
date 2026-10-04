@@ -21,11 +21,16 @@ The result is a `feature.md` with a complete architecture delta and an ordered l
 
 ## Split it into changes
 
-9. **Slice vertically.** Each change delivers one or more scenarios end to end, through every layer they need, and can land on its own. The first change is the thinnest slice that proves the design, a tracer bullet. Later changes widen it.
+9. **Slice vertically.** Each change delivers scenarios end to end, through every layer they need, and can land on its own. Every change pays for its own plan review, code review, verifier run and land, so slice by what is worth that cost, not by the smallest piece that could land. The feature's first change proves the design end to end; later changes widen it in steps of real work.
 10. **Fill the Changes table.** Give each row a number and a slug, such as `01-local-serial`. List the scenario and requirement IDs it `Delivers`, the architecture IDs it `Builds`, any IDs it `Removes`, and the changes it `Depends on`.
     - A change builds an element only when its scenarios prove the whole element. Each delta element is built by exactly one change, so when an element's duties arrive in different changes, split it into elements that each arrive whole, such as frame limits split out of a concurrency rule.
     - `Depends on` names every earlier change that builds something this change's scenarios need.
 11. **Cover everything exactly once.** Every delta ID appears in exactly one change. A module the delta adds, or one still `planned` in the living docs, is built by the first change that writes a file in it. A module already `built` isn't listed. Done when `cruze validate` reports no errors for the feature, and no `not-designed` warning.
-12. **Size each change, and the feature.** A change that would need more than about 12 tasks, or touches more than one context's domain, splits in two. A feature of more than 6 changes is more than one design review can hold: split it into features that each serve part of its goals, and run `cruze features add` for the later ones. `cruze validate` warns `feature-size` until it is split.
+12. **Size each change, and the feature.** Aim for changes of about 8 to 25 tasks, each one a sitting's worth of review and verify:
+    - **Merge** a change that builds fewer than 3 elements into the change it continues, when they share adapters or screens, or form a chain where each depends on the one before. Several small changes to the same screens are one change. `cruze validate` warns `change-too-small`.
+    - **Split** a change that delivers more than 30 scenarios, or would need more than 25 tasks, or touches more than one context's domain. One verifier run and one code review can't hold more. `cruze validate` warns `change-too-large`, and `plan-too-large` once a plan passes 25 tasks.
+    - A feature of more than 6 changes is more than one design review can hold: split it into features that each serve part of its goals, and run `cruze features add` for the later ones. `cruze validate` warns `feature-size` until it is split.
+
+    The thresholds are the defaults under `changes:` in `.cruze/config.yaml`; a project can tune them.
 
 Then continue with the review and walkthrough steps of the skill. When the user approves, run `cruze approve <feature>` and quote its result. The command takes the feature's full ID, such as `2026-09-25-open-console`, or its slug when no other active item shares it.

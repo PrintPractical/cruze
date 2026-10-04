@@ -35,8 +35,11 @@ export async function runStatus(context: CliContext, _args: string[], options: O
   return { json: report, human: lines.join("\n") };
 }
 
+const BASIS: Record<string, string> = { "plan-review": " (by the agent, after its plan review)", rethink: " (re-stamped by the agent after a rethink)" };
+
 function describe(label: string, status: ApprovalStatus): string {
-  const detail = status.changed.length > 0 ? ` (${status.changed.join(", ")})` : status.unjournaled === true ? " (no journal entry)" : "";
+  const byAgent = status.state === "approved" ? BASIS[status.record?.basis ?? ""] ?? "" : "";
+  const detail = status.changed.length > 0 ? ` (${status.changed.join(", ")})` : status.unjournaled === true ? " (no journal entry)" : byAgent;
   return `${label}: ${status.state}${detail}`;
 }
 

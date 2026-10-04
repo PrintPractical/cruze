@@ -21,6 +21,7 @@ export const RECORDED_EVENTS: Record<string, string[]> = {
 const OPTIONAL_FIELDS: Record<string, string[]> = {
   rethink: ["missed_by"],
   review: ["nits"],
+  disposition: ["decided"],
 };
 
 /** The workflow steps and checks that find or miss a problem, so a retro can count them. */
@@ -30,6 +31,7 @@ export const FIELD_VALUES: Record<string, string[]> = {
   level: ["task", "change", "feature", "architecture", "vision"],
   kind: ["defect", "discovery"],
   disposition: ["fixed", "waived", "deferred", "rejected"],
+  decided: ["agent", "user"],
   review: ["design", "plan", "code", "realign"],
   result: ["accepted", "sent-back"],
   found_by: STEPS,
@@ -76,6 +78,9 @@ export function recordedEventProblems(event: string, fields: Record<string, stri
     const allowed = FIELD_VALUES[field];
     if (allowed !== undefined && !allowed.includes(value)) problems.push(`${field} must be one of ${allowed.join(", ")}`);
     if (COUNT_FIELDS.includes(field) && !/^\d+$/.test(value)) problems.push(`${field} must be a whole number`);
+  }
+  if (event === "disposition" && fields["decided"] === "agent" && fields["disposition"] !== "fixed") {
+    problems.push("the agent decides only fixes; the user waives, defers or rejects a finding (decided=user)");
   }
   return problems;
 }

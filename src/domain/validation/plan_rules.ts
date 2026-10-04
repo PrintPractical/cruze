@@ -7,6 +7,7 @@ import type { Delta } from "../project/deltas.ts";
 import { isPlanned, readScope, readTasks, readTestPlan, type Scope, type Task } from "../project/plan_parts.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { error, warning, type Problem } from "./problem.ts";
+import { planSizeProblems } from "./size_rules.ts";
 
 const TEST_KINDS = ["behaviour", "contract", "domain", "smoke"];
 
@@ -31,6 +32,7 @@ export function changePlanProblems(
     problems.push(error(path, line, "task-format", "task lines read: - T<n>: `<owner>` in `<path>`[, `<path>`], proves <ID>[, <ID>]"));
   }
   if (tasks.length === 0 && malformed.length === 0) problems.push(error(path, undefined, "missing-tasks", "the change has no tasks"));
+  problems.push(...planSizeProblems(view, path, tasks.length));
 
   const proved = new Set(tasks.flatMap((task) => task.proves));
   const taskPaths = tasks.flatMap((task) => task.paths);

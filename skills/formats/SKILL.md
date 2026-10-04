@@ -66,7 +66,7 @@ The CLI owns some content so that routine bookkeeping never changes a design:
 - A block between `<!-- cruze:managed -->` and `<!-- /cruze:managed -->` is written only by the CLI.
 - A `- Status: planned` or `- Status: built` item in an element body is written only by the CLI. Elements that have code (`ENT`, `UC`, `PORT`, `ADP`, `FLOW`, `MOD`) and scenarios (`SCN`) carry one.
 - Both are excluded from every hash. Read them freely; change them only through `cruze` commands:
-  - `cruze approve` adds missing statuses to the architecture, sets built elements back to planned with `--replan`, and binds a change to its branch.
+  - `cruze approve` adds missing statuses to the architecture, sets built elements back to planned with `--replan`, and binds a change to its branch. With `--by-agent` it approves a change whose plan review closed, and with `--restamp-unchanged` it re-stamps work a rethink left unchanged, recording that the agent gave the approval.
   - `cruze task` records progress, and `cruze features` edits the feature map.
   - `cruze land` merges work, marks it built and fills the Commands and Layout sections of `AGENTS.md`.
   - `cruze roadmap prune` and `cruze abandon` update the roadmap's status.

@@ -29,7 +29,7 @@ Review against these items and nothing else. Each finding names one.
    - each use case's `Output` and `Errors` against the `FLOW`s that serve it and the `XC` rules that apply to it;
    - each adapter's duties against the port it implements and the `XC` rules it follows;
    - each guarantee, such as "always fits" or "never returns", against the limits and failures that bound it.
-9. **Slicing.** Each change is a vertical slice that delivers scenarios end to end and can land on its own. The order respects `Depends on`, and the first change is the thinnest useful tracer bullet. A change `Builds` an element only when its delivered scenarios prove the whole body; an element whose duties arrive in several changes is split into elements that each arrive whole. `Depends on` names every earlier change that builds something this change's scenarios need. At project scope, the roadmap starts with the walking skeleton, and every goal in the release is covered.
+9. **Slicing.** Each change is a vertical slice that delivers scenarios end to end and can land on its own. The order respects `Depends on`, and the first change proves the design end to end. Each change carries enough work to be worth its own plan review, code review and verify: changes that build one or two elements each on the same adapters or screens, in a chain, are one change split too fine. A change that one verifier run can't hold is split too coarse. A change `Builds` an element only when its delivered scenarios prove the whole body; an element whose duties arrive in several changes is split into elements that each arrive whole. `Depends on` names every earlier change that builds something this change's scenarios need. At project scope, the roadmap starts with the walking skeleton, and every goal in the release is covered.
 10. **Ambiguity.** Name each point where a fresh implementer could reasonably build something different from what the user expects.
 
 ## Plan rubric
@@ -56,7 +56,7 @@ Each finding has this shape:
 ```
 
 - A **blocker** means building from the design as written would produce wrong behaviour, a layering violation or an untestable scenario. Two elements that contradict each other are always a blocker, because an implementer has to pick one. Everything else is a **concern**.
-- List every blocker. List at most 5 concerns, the most important first. Count the rest as nits without listing them.
+- List every blocker. List at most 5 concerns, or for a plan one per 5 tasks when that is more, the most important first. Count the rest as nits without listing them. Report only what would go wrong: no concerns is a valid report, and a small artifact usually has few.
 - Drop any finding that contradicts the settled ledger. The only exception is a blocker with new evidence, which you mark `New evidence:` and explain.
 - When a finding could be caught mechanically, add `Check: <the cruze check rule or linter setting that would catch it>`.
 - In round 2, report only whether each round-1 blocker is fixed, as `fixed` or `open` with the reason. Raise nothing new.

@@ -46,7 +46,7 @@ Each finding has this shape:
 ```
 
 - A **blocker** means a scenario fails or is untested, a protected test was weakened, a layering rule is broken, an unapproved dependency was added, or an adapter can't honour its port's `Operations`. A finding that needs a design change is a blocker. Everything else is a **concern**.
-- List every blocker. List at most 5 concerns, the most important first. Count the rest as nits without listing them.
+- List every blocker. List at most 5 concerns, or one per 5 tasks of the change when that is more, the most important first. Count the rest as nits without listing them. Report only what would go wrong: no concerns is a valid report, and a small change usually has few.
 - Drop any finding that contradicts the settled ledger. The only exception is a blocker with new evidence, which you mark `New evidence:` and explain.
 - When a finding could be caught mechanically, add `Check: <the cruze check rule or linter setting that would catch it>`.
 - In round 2, report only whether each round-1 blocker is fixed, as `fixed` or `open` with the reason. Raise nothing new.
