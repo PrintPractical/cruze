@@ -27,6 +27,12 @@ commands:
 
 review:
   command: ["claude", "-p", "--allowedTools", "Read Grep Glob Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(cruze:*) Bash(cargo:*)"]
+  decide: exceptions
+
+changes:
+  min_builds: 3
+  max_scenarios: 30
+  max_tasks: 25
 
 layers:
   - name: inventory-domain
@@ -52,6 +58,10 @@ layers:
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. |
 | `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. Optional. `cruze init` sets it for Claude Code to run in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. When it is unset, or its program isn't installed, `cruze review` hands the role's prompt back to the calling agent to run in a helper. |
+| `review.decide` | Which review findings the user decides. `exceptions`, the default: only findings whose fix changes behaviour, a designed port or contract, or another decision the user owns, and any the agent wouldn't simply fix as proposed. The agent fixes the rest and lists them. `all`: the user decides every finding. |
+| `changes.min_builds` | A feature's change that builds fewer elements than this gets a `change-too-small` warning: merge it into the change it continues. Default `3`. |
+| `changes.max_scenarios` | A change that delivers more scenarios than this gets a `change-too-large` warning: split it. Default `30`. |
+| `changes.max_tasks` | A plan with more tasks than this gets a `plan-too-large` warning. Default `25`. |
 
 Rules for layers:
 

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Less ceremony per change, from the journals of two projects on 0.0.4: the user agreed with 98% of review findings, round 2 rarely found a blocker still open, and small changes paid the same plan and verify cost as large ones. The user now decides what is theirs to decide, and each change carries more work.
+
+### Added
+
+- `cruze approve <change> --by-agent` approves a feature's change for the user once its plan review has closed: a plan review recorded since the change was last approved, no blocker open in its last round, and a disposition for every finding. It refuses with `plan-review-open` otherwise, and refuses a feature, a standalone change or a project document with `needs-user`. `plan` now ends approved, and the user can object or go straight to `build`.
+- `cruze approve <ref> --restamp-unchanged` re-stamps a feature or change that a rethink left unchanged, when only something it cites changed. It refuses work whose own text changed, a project document, and a change with a task reopened since its approval. Before, the user re-approved every change under a feature after each feature rethink.
+- Approvals the agent gives record their basis, `plan-review` or `rethink`, and `cruze status` says so.
+- `cruze journal add disposition` takes `decided=agent|user`, and refuses `decided=agent` for anything but `fixed`.
+- `review.decide` in `.cruze/config.yaml`: `exceptions` (the default) or `all`.
+- `cruze validate` warns `change-too-small` when a feature's change builds fewer than 3 elements, `change-too-large` when a change delivers more than 30 scenarios, and `plan-too-large` when a plan has more than 25 tasks. `changes:` in `.cruze/config.yaml` sets the thresholds.
+
+### Changed
+
+- Reviews bring the user only the exceptions: findings whose fix changes behaviour, a designed port or contract, or another decision the user owns, and findings the agent would waive, defer, reject or fix differently from the proposal. The agent fixes the rest, blockers included, and lists them, and the user can object to any.
+- `architect` sizes changes at about 8 to 25 tasks, and merges small changes that continue each other on the same adapters or screens. Before, it split any change of more than about 12 tasks.
+- Reviewers list concerns in proportion to the work: at most 5, or one per 5 tasks of a plan or change when that is more. No concerns is a valid report.
+
+### Fixed
+
+- A change approved after its verification, with a changed plan, needs verifying again even when the agent gave the approval. Only `land`'s re-stamps are ignored.
+
 ## [0.0.4] - 2026-10-01
 
 Fixes from the first projects on 0.0.3. Existing projects upgrade as the README's Upgrading section says. Every command now prints its result on stdout in one format and refuses options it doesn't take, so a script that read the text summary from stderr, or passed a command an option it ignored, needs updating.

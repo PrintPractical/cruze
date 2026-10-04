@@ -45,6 +45,8 @@ describe("three features in flight at once, from init to land", () => {
     h.files.files.set("README.md", "# Console Access\n\n`consolectl` opens device consoles over serial ports and SSH hops, for people and agents in a lab.\n");
     h.files.files.set(`.cruze/features/${DEVICE_TAGS}/feature.md`, DEVICE_TAGS_TEXT);
     h.files.files.set(`.cruze/features/${SESSION_LOG}/feature.md`, SESSION_LOG_TEXT);
+    // As in the example's own config: SSH hops stays a small second change.
+    h.files.files.set(".cruze/config.yaml", `${h.files.files.get(".cruze/config.yaml") ?? ""}\nchanges:\n  min_builds: 2\n`);
     assert.deepEqual((await validate(h.deps)).problems, []);
 
     for (const ref of ["vision", "architecture", "roadmap", FEATURE, DEVICE_TAGS, SESSION_LOG]) await approveArtifact(h.deps, ref);

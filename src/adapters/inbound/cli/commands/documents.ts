@@ -13,8 +13,12 @@ export async function runValidate(context: CliContext): Promise<CommandResult> {
 
 export async function runApprove(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
   requireArgs(args, ["document"]);
-  const report = await approveArtifact(context, args[0] ?? "", { replan: options.replan, rebase: options.rebase });
+  if (options.byAgent && options.restampUnchanged) throw new UsageError("--by-agent and --restamp-unchanged are alternatives");
+  const agent = options.byAgent ? "plan-review" : options.restampUnchanged ? "rethink" : undefined;
+  const report = await approveArtifact(context, args[0] ?? "", { replan: options.replan, rebase: options.rebase, ...(agent === undefined ? {} : { agent }) });
   const lines = [`Approved ${report.artifact} (${report.hash.slice(0, 19)}), pinned to ${report.upstream.length} upstream element(s).`];
+  if (report.basis === "plan-review") lines.push("Approved for the user: its plan review closed with no blocker open.");
+  if (report.restamped !== undefined) lines.push(`Re-stamped for the user: its own design is unchanged, and only ${report.restamped.join(", ")} changed.`);
   if (report.stamped.length > 0) lines.push(`Marked ${report.stamped.length} element(s) planned.`);
   if (report.bound !== undefined) lines.push(`Bound the change to branch ${report.bound}.`);
   if (report.replanned.length > 0) lines.push(`Set back to planned: ${report.replanned.join(", ")}.`);

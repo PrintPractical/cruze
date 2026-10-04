@@ -22,7 +22,7 @@ Spec-driven workflows tend to fail in the same few ways:
 - Everything is "fully specified", yet the result fails when a person actually uses it.
 - Review loops keep finding new things to change and never converge.
 
-Cruze answers each of these with a specific mechanism. A living `docs/architecture.md` is read at every step and updated by every change. Approvals are bound to document content, so stepping back is just editing. Every task names the file it touches, and `cruze check` enforces layer rules. Scenarios are traced to behavioural tests, and the system is actually run. Reviews use a closed rubric with a hard limit of two rounds.
+Cruze answers each of these with a specific mechanism. A living `docs/architecture.md` is read at every step and updated by every change. Approvals are bound to document content, so stepping back is just editing. Every task names the file it touches, and `cruze check` enforces layer rules. Scenarios are traced to behavioural tests, and the system is actually run. Reviews use a closed rubric with a hard limit of two rounds, and bring you only the findings that are yours to decide: changes to behaviour or to the designed contracts.
 
 ## Quick start
 
@@ -118,8 +118,8 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 
 | Command | What it does |
 | --- | --- |
-| `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config |
-| `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on |
+| `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config, and warns when a change falls outside the size band in `changes:` |
+| `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on. `--by-agent` approves a change for you once its plan review has closed, and `--restamp-unchanged` re-stamps work a rethink didn't change; both record that the agent gave the approval |
 | `cruze next` | Names the step to run next on this branch, and why, from computed status |
 | `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state |
 | `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current |
@@ -149,7 +149,7 @@ Stepping back is editing: change an upstream document and every approval that ci
 | `cruze-envision` | The what: the project's vision, goals and feature map, or one feature's intent and requirements with scenarios |
 | `cruze-architect` | The how: the architecture, a feature's architecture delta and its changes, or a tweak; ends with a design review and a walkthrough for your approval |
 | `cruze-roadmap` | Orders the release into phases with blocking edges and goal coverage, and closes a release |
-| `cruze-plan` | Turns a change into a test plan and ordered tasks with file targets, reviewed in a fresh context |
+| `cruze-plan` | Turns a change into a test plan and ordered tasks with file targets, reviewed in a fresh context and approved once the review closes |
 | `cruze-build` | Builds the change task by task, each test-first, checked and committed, and stops to rethink when the design is wrong |
 | `cruze-verify` | Runs the checks, a fresh-context verifier that uses the real system, a two-lane code review and a manual test script, then asks you to accept |
 | `cruze-land` | Merges the change into the living docs and updates the changelog, README and `AGENTS.md`; also lands bug fixes |

@@ -22,7 +22,11 @@ export const COMMANDS: Record<string, Command> = {
   validate: { handler: runValidate, options: [], usage: "validate                                          check every document against the formats" },
   status: { handler: runStatus, options: ["gate", "override", "overlap", "change"], usage: "status [--gate build [--override <reason>]] [--overlap [--change <ref>]]" },
   next: { handler: runNext, options: [], usage: "next                                              the step to run next on this branch, and why" },
-  approve: { handler: runApprove, options: ["replan", "rebase"], usage: "approve <vision|architecture|roadmap|ref|path> [--replan <ID>...] [--rebase <ID>...]   record your approval of a document" },
+  approve: {
+    handler: runApprove,
+    options: ["replan", "rebase", "by-agent", "restamp-unchanged"],
+    usage: "approve <vision|architecture|roadmap|ref|path> [--replan <ID>...] [--rebase <ID>...] [--by-agent|--restamp-unchanged]   record an approval of a document",
+  },
   new: {
     handler: runNew,
     options: { vision: [], glossary: [], architecture: [], roadmap: [], feature: ["title", "roadmap"], change: ["title", "feature", "roadmap"], adr: ["title"], note: ["title"] },

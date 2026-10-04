@@ -5,14 +5,14 @@
 1. Edit the change's `## Test plan` or `## Tasks` so they are right. The scope doesn't change at this level; a scope change is a feature-level rethink.
 2. Run `cruze validate`. Done when it reports no errors for the change.
 3. Run the plan review from `.agents/skills/cruze-roles/SKILL.md` on the diff alone, with the design reviewer's plan rubric and `review=plan`.
-4. Re-approve with `cruze approve <change>`.
+4. Re-approve with `cruze approve <change> --by-agent` once the review has closed, as plan does.
 
 ## Feature
 
 1. Edit the feature's `## Spec delta`, `## Architecture delta` or `## Changes`. For a standalone change, edit its own deltas and scope. Write complete bodies, as `architect` does, and keep the scope rules.
 2. Run `cruze validate`. Done when it reports no errors for the feature or its changes.
 3. Run the design review from the roles skill on the diff alone, with `review=design`. Walk the user through the changed parts, following `.agents/skills/cruze-architect/walkthrough.md`.
-4. Re-approve the feature. For each of its changes that shows as stale, update the change's scope, test plan and tasks to match. Reopen touched tasks, and re-approve the change.
+4. Re-approve the feature. For each of its changes that shows as stale, check it against the diff. When the amendment touches the change's scope, test plan or tasks, update them to match, reopen touched tasks, run the plan review on the diff, and re-approve it with `cruze approve <change> --by-agent`. When it doesn't, re-stamp the change as the skill's step 6 describes.
 5. When a change hasn't been created yet, only the feature's Changes row changes; `plan` picks it up.
 
 ## Architecture
@@ -26,7 +26,7 @@
    - **A prefactor**, otherwise. From an up-to-date main, run `architect "<prefactor>"`, which designs it as a standalone change, then `plan`, `build`, `verify` and `land` it before the current change continues.
 6. Run `cruze status`. Every document citing a changed element shows `upstream changed`:
    - When the document's own delta changes that element, rewrite the delta so it keeps your amendment. `cruze approve` refuses it with `rebase-required` until you do. Then approve it with `--rebase <ID>`.
-   - Otherwise, show the user the element's diff, and re-approve the document as the skill's step 6 describes.
+   - Otherwise, check the document against the element's diff, and re-stamp it or amend it as the skill's step 6 describes.
 
 ## Vision
 

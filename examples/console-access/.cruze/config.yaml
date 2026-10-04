@@ -18,6 +18,11 @@ check:
     - path: src/cli/args.rs
       reason: the clap derive struct lists every command and flag in one place
 
+# The size band of a change. The example keeps SSH hops as a small second
+# change, so it can show work that depends on an earlier one.
+changes:
+  min_builds: 2
+
 # From the module map and dependency rules in docs/architecture.md.
 layers:
   - name: inventory-domain

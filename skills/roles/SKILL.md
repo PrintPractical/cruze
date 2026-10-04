@@ -1,6 +1,6 @@
 ---
 name: cruze-roles
-description: Prompts for Cruze's fresh-context roles (the design reviewer, code reviewer, verifier and researcher), how to run one, and how to take a review through its two rounds to a disposition for every finding. Use when a Cruze workflow step says to run a role, a review or research in a fresh context.
+description: Prompts for Cruze's fresh-context roles (the design reviewer, code reviewer, verifier and researcher), how to run one, and how to take a review through its two rounds to a disposition for every finding, with the user deciding only the exceptions. Use when a Cruze workflow step says to run a role, a review or research in a fresh context.
 ---
 
 # Roles
@@ -30,16 +30,26 @@ A review has at most two rounds. Only blockers can force the second one.
 
 1. Commit the documents under review (`docs: <artifact> for design review`), so the fixes in round 2 have a diff. Then run the reviewer on the complete artifact.
 2. Record the round: `cruze journal add review --set review=<design|plan|code> --set round=1 --set blockers=<n> --set concerns=<n> --set nits=<n>`, with the counts from the report's last line, adding `--item <ref>` for a feature or change.
-3. Present every finding to the user with your recommended disposition and why:
-   - `fixed`: you will change the design as the finding proposes.
+3. **Sort the findings.** A finding is an **exception**, which the user decides, when any of these holds:
+   - Its fix changes behaviour: it adds, removes or rewrites a requirement or scenario, or changes what a person sees or does beyond what the spec says. Making the code or the plan meet a scenario as written is not a change of behaviour.
+   - Its fix changes a port, a port's `Operations` or a public contract that the approved design names.
+   - Its fix changes another decision the grilling skill leaves to the user: a context, dependency direction or a dependency.
+   - You recommend anything but `fixed`: waiving, deferring or rejecting it, or a rethink because it needs a design change.
+   - You would fix it differently from the reviewer's proposed fix.
+
+   Every other finding is yours, blockers included: you fix it as the reviewer proposes. When `review.decide` in `.cruze/config.yaml` is `all`, every finding is an exception.
+4. **Present them in one message.** First each exception, with your recommended disposition and why:
+   - `fixed`: you will change the work as the finding proposes.
    - `waived`: the finding is right, but the user accepts the risk.
    - `deferred`: it belongs to later work. When it is future scope, add it with `cruze features add <slug> --summary <text> --goals <ids>`.
    - `rejected`: the finding is wrong, with the reason.
 
    A finding whose fix would change an approved element, such as one marked `Needs design change`, is never `deferred` or `waived`. Recommend `rethink` at that element's level now. Once the rethink is done and the code follows it, record the finding as `fixed`.
-4. The user decides each one. Record each decision: `cruze journal add disposition --set finding="<rubric item>: <summary>" --set disposition=<fixed|waived|deferred|rejected> --set reason="<reason>" --set review=<design|plan|code>`, with the same `--item`. A recorded disposition is never raised again.
-5. Apply every `fixed` change, then run `cruze validate`. Done when it reports no errors.
-6. When a finding could be caught by a tool, such as a layering, naming or size rule, tell the user which `cruze check` rule or linter setting would catch it next time.
+
+   Then one line for each finding you are fixing yourself. When there are no exceptions, say what you are fixing and carry on without waiting. The user can object to any line until the work is approved, and that finding becomes an exception: revert its fix and let them decide it.
+5. **Record every disposition:** `cruze journal add disposition --set finding="<rubric item>: <summary>" --set disposition=<fixed|waived|deferred|rejected> --set reason="<reason>" --set review=<design|plan|code> --set decided=<agent|user>`, with the same `--item`. Use `decided=user` for each exception, once the user decides it, and `decided=agent` for each finding you fixed yourself. The CLI refuses `decided=agent` for anything but `fixed`. A recorded disposition is never raised again.
+6. Apply every `fixed` change, then run `cruze validate`. Done when it reports no errors.
+7. When a finding could be caught by a tool, such as a layering, naming or size rule, tell the user which `cruze check` rule or linter setting would catch it next time.
 
 ### Round 2
 
@@ -49,7 +59,7 @@ Run round 2 only when a round-1 blocker was fixed.
 2. Record the round with `round=2`.
 3. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
 
-Done when every finding has a journaled disposition and no blocker is open without the user's decision.
+Done when every finding has a journaled disposition, and every exception, and every blocker left open in round 2, has the user's decision.
 
 ## The settled ledger
 
