@@ -1,8 +1,8 @@
 # Cruze project configuration, created by cruze 0.1.0.
 # The format is described in .agents/skills/cruze-formats/reference/config.md.
 version: 1
-cruze: "0.0.4"
-standards: "0.0.4"
+cruze: "0.0.5"
+standards: "0.0.5"
 project: "Console Access"
 
 # Where work items are tracked. V1 supports markdown in the repository only.

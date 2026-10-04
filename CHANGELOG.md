@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Less ceremony per change, from the journals of two projects on 0.0.4: the user agreed with 98% of review findings, round 2 rarely found a blocker still open, and small changes paid the same plan and verify cost as large ones. The user now decides what is theirs to decide, and each change carries more work.
+## [0.0.5] - 2026-10-04
+
+Less ceremony per change, from the journals of two projects: the user agreed with 98% of review findings, round 2 rarely found a blocker still open, and small changes paid the same plan and verify cost as large ones. The user now decides what is theirs to decide, and each change carries more work. Existing projects upgrade as the README's Upgrading section says. The new size warnings apply to new work only, and a project that wants to keep deciding every review finding sets `review.decide: all`.
 
 ### Added
 
@@ -121,7 +123,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/PrintPractical/cruze/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/PrintPractical/cruze/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/PrintPractical/cruze/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/PrintPractical/cruze/compare/v0.0.1...v0.0.2
