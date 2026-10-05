@@ -11,7 +11,7 @@
 
 1. Edit the feature's `## Spec delta`, `## Architecture delta` or `## Changes`. For a standalone change, edit its own deltas and scope. Write complete bodies, as `architect` does, and keep the scope rules.
 2. Run `cruze validate`. Done when it reports no errors for the feature or its changes.
-3. Run the design review from the roles skill on the diff alone, with `review=design`. Walk the user through the changed parts, following `.agents/skills/cruze-architect/walkthrough.md`.
+3. Run the design review from the roles skill on the diff alone, with `review=design`. Run the walkthrough of the changed parts, following `.agents/skills/cruze-architect/walkthrough.md`.
 4. Re-approve the feature. For each of its changes that shows as stale, check it against the diff. When the amendment touches the change's scope, test plan or tasks, update them to match, reopen touched tasks, run the plan review on the diff, and re-approve it with `cruze approve <change> --by-agent`. When it doesn't, re-stamp the change as the skill's step 6 describes.
 5. When a change hasn't been created yet, only the feature's Changes row changes; `plan` picks it up.
 

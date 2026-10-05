@@ -5,7 +5,7 @@ description: Decides how to build and how big, at project scope (domain model, c
 
 # Architect
 
-Architect decides the how and the how big. It designs the domain, the ports and adapters, and where every element lives in the source tree, before any code exists. It ends with the one heavy human gate, the design walkthrough, where the user sees the entities, their interactions, the ports and the files, and approves the design.
+Architect decides the how and the how big. It designs the domain, the ports and adapters, and where every element lives in the source tree, before any code exists. It ends with the one heavy human gate, the design walkthrough: a short overview in plain terms, after which the user reads the design documents in full and approves or comments.
 
 ## Steps
 
@@ -25,7 +25,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
    - `.agents/skills/cruze-formats/reference/architecture.md`
 5. **Design.** Follow the scope's procedure: [project.md](project.md), [feature.md](feature.md) or [tweak.md](tweak.md). Tweak scope ends there and hands off to `plan`.
 6. **Review the design.** Run the design review in `.agents/skills/cruze-roles/SKILL.md`, with the design reviewer role. Done when every finding has a journaled disposition and no blocker is open without the user's decision.
-7. **Walk the user through it.** Follow [walkthrough.md](walkthrough.md). Apply what the user changes, run `cruze validate` again, and repeat the parts of the walkthrough those changes affect.
+7. **Hand the design to the user.** Follow [walkthrough.md](walkthrough.md): one overview message, then the documents to read in full. Apply what the user changes, run `cruze validate` again, and say what changed.
 8. **Record the approval.** Only after the user says they approve, run the scope's `cruze approve` command and quote its result, then commit. At project scope, the roadmap follows as its own approval, described in [project.md](project.md).
 
 ## Rules
