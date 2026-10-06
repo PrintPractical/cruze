@@ -28,7 +28,7 @@ export interface NewReport {
 export async function createWorkItem(deps: ProjectDeps, request: NewRequest): Promise<NewReport> {
   const view = await loadView(deps.files);
   const date = deps.clock.today();
-  const values = { id: "", title: request.title, date, project_name: "" };
+  const values = { id: "", title: request.title, title_quoted: JSON.stringify(request.title), date, project_name: "" };
   if (request.title.trim() === "") throw new CruzeError("missing-title", "a title is required");
 
   if (request.kind === "adr") {
