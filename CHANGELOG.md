@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plan names the break that a test expecting a default or empty result is first seen failing against, since such a test passes against a stub.
 - Round 2 of a review is checked by the agent when every blocker was fixed exactly as the reviewer proposed, and by a fresh reviewer only when a fix differs or goes further. `cruze journal add review` takes `checked_by=agent|reviewer`. In two projects, ten fresh round-2 reviews found nothing.
 - Architect clears its size warnings before the design is approved, or records the user accepting them, and the walkthrough lists any warning still standing. The design reviewer reports an unaccepted size warning. Before, a feature was approved with two changes over the scenario limit.
+- Research checks every claim the design or its testing approach relies on, including claims about the language, the platform's test environment and the external systems the product talks to, by running them where it can. Before, it checked only adopted libraries and tools.
+- The design reviewer checks cross-cutting rules against each other and against the layer rules, use cases that change the same state for interleavings, and at feature scope, architecture prose the delta makes untrue.
 
 ### Fixed
 
