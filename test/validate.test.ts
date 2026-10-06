@@ -70,6 +70,14 @@ describe("validating a project", () => {
     assert.match(large[1]?.message ?? "", /11 tasks, over 10/);
   });
 
+  // rto split every context into package targets per layer; a context can keep its core as one module.
+  it("accepts a core module that holds a context's domain and application together", async () => {
+    const h = await exampleProject();
+    edit(h.files, "docs/architecture.md", "- Layer: domain", "- Layer: core");
+    const report = await validate(h.deps);
+    assert.ok(!report.problems.some((p) => p.rule === "fact-value"), report.problems.map((p) => p.message).join("; "));
+  });
+
   it("reports a review.decide or a size limit it doesn't know", async () => {
     const h = await exampleProject();
     edit(h.files, ".cruze/config.yaml", "  min_builds: 2\n", "  min_builds: none\n");

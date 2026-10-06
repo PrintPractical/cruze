@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A `core` layer for a module that holds a context's domain and application together. A context now starts with one core module and its adapters, and splits into `domain` and `application` only when its domain needs a boundary of its own, recorded as a decision.
+- A guide to the normal layout for a library, a daemon or service, a mobile or desktop app, and a CLI, in the `cruze-hexagonal-design` skill. Architect names the kind of system in the Overview and starts from that layout.
+- A Swift language file: few package targets, `package` and `@testable import` instead of `public` where they will do, screens and their models as inbound adapters, and package tests separate from UI tests.
+
+### Changed
+
+- Rust projects split crates by deliverable, such as a library, a client, a daemon and a CLI, and keep layers as modules inside a crate. Before, the Rust guide suggested a crate per layer.
+- The design reviewer reports a layout that isn't normal for the kind of system and its language, and any layer, module or target split without a recorded reason. Before, an iPhone app came out as a package target per layer per context, with over a thousand `public` declarations.
+
 ## [0.0.6] - 2026-10-05
 
 Less waiting per change, from the 0.0.5 journals of two projects and one project's session transcripts: a 25-minute test suite ran about four times per change, every fresh round-2 review found nothing, and most rethinks came from claims nobody had checked or from parts of the design that contradicted each other. The design walkthrough is one message now, and the full suite runs once per commit. Existing projects upgrade as the README's Upgrading section says. Every change applies to new work only, and a project with slow UI or device tests can move them to `test_full`.

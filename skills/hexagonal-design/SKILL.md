@@ -37,12 +37,17 @@ When two rules pull apart, the earlier one wins. Prefer the simplest design that
 
 | Layer | Owns | May depend on |
 | --- | --- | --- |
+| `core` | A context's concepts, use cases and ports together (`ENT`, `UC`, `PORT`), when its domain needs no boundary of its own | The standard library, and approved libraries with no infrastructure in them |
 | `domain` | Concepts, state, rules, invariants and domain errors (`ENT`) | Domain code, the standard library, and approved libraries with no infrastructure in them, such as an error-derive crate |
 | `application` | Use cases (`UC`) and the ports they define (`PORT`) | The domain |
 | `adapter` | Inbound adapters that drive use cases, and outbound adapters that implement driven ports (`ADP`) | Application, domain and third-party libraries |
 | `composition` | Constructing adapters, injecting them, starting the runtime | Everything |
 
 `cruze check` enforces imports between the project's own layers. It allows every third-party import, so review checks that infrastructure libraries appear only in adapters.
+
+Use the fewest layers that keep the rules. A context starts with `core`, its adapters and the composition root. The boundary that matters most is between the core and infrastructure, because it is what lets tests fake the outside world. Split a context's core into `domain` and `application` when its domain has rules and invariants that several use cases share and a workflow could break, and record the split as a `D<n>` decision. A `core` module follows the domain and the application rules below together.
+
+Layers are roles, not folders. Choose the layout that is normal for the kind of system and its language, following [shapes.md](shapes.md), and give each module the layer of what it holds.
 
 Layers are dependency boundaries, not runtime hops. A port can be a plain function call. Add a task, thread, channel or process only for a concrete ownership, concurrency, isolation or backpressure need, and read [runtime.md](runtime.md) first.
 
@@ -83,12 +88,12 @@ Layers are dependency boundaries, not runtime hops. A port can be a plain functi
 
 ## Many small modules
 
-- Give each responsibility its own module, grouped by domain concept, with the hexagonal roles inside. A file may hold a few closely related types.
+- Give each responsibility its own module, grouped by domain concept, with the hexagonal roles inside. A context's core is usually one module, with each port beside the use cases that define it, and grows submodules by concept, not by layer. A file may hold a few closely related types.
 - When a file passes its budget (`check:` in `.cruze/config.yaml`, enforced by `cruze check`) or gains a second responsibility, split it into a submodule named for what it owns.
 - Entry-point and namespace files, such as `main`, `lib.rs`, `mod.rs` and `index.ts`, hold only wiring and declarations.
 - Don't create generic modules such as `utils`, `helpers`, `common`, `services`, `models`, `types` or `manager`. Shared behaviour belongs with the concept that owns it.
 - Duplication is semantic. Two implementations of one rule are duplication even when the text differs, so consolidate them in the owner, not in a helper.
-- Structure follows the module map, never a per-language template. Write idiomatic code for the language and use its standard tooling. [languages/rust.md](languages/rust.md) and [languages/cpp.md](languages/cpp.md) add rules for those languages.
+- Structure follows the module map, never a per-language template. Write idiomatic code for the language and use its standard tooling. [languages/rust.md](languages/rust.md), [languages/swift.md](languages/swift.md) and [languages/cpp.md](languages/cpp.md) add rules for those languages.
 - In an existing codebase, its established layout and naming win over these structure rules. Ownership and dependency direction still apply.
 
 ## Representations and errors
@@ -119,6 +124,7 @@ These are review signals, not automatic failures. When one could be checked mech
 
 ## Further reading
 
+- [shapes.md](shapes.md): choosing the layout for a library, a daemon or service, a mobile or desktop app, or a CLI.
 - [contracts.md](contracts.md): writing a port's `Operations`, a public API, an IPC protocol or a stored format.
 - [runtime.md](runtime.md): concurrency, long-lived resources (connections, sessions, devices, subprocesses), state machines, cancellation or a hot path.
 - [fundamentals.md](fundamentals.md): choosing a data structure, a state representation or an abstraction mechanism; defining equality or ordering; bounding loops, retries and fan-out.
