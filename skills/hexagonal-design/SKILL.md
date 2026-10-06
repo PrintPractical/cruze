@@ -94,7 +94,7 @@ Layers are dependency boundaries, not runtime hops. A port can be a plain functi
 - Don't create generic modules such as `utils`, `helpers`, `common`, `services`, `models`, `types` or `manager`. Shared behaviour belongs with the concept that owns it.
 - Duplication is semantic. Two implementations of one rule are duplication even when the text differs, so consolidate them in the owner, not in a helper.
 - Structure follows the module map, never a per-language template. Write idiomatic code for the language and use its standard tooling. [languages/rust.md](languages/rust.md), [languages/swift.md](languages/swift.md) and [languages/cpp.md](languages/cpp.md) add rules for those languages.
-- In an existing codebase, its established layout and naming win over these structure rules. Ownership and dependency direction still apply.
+- In an existing codebase, its established layout and naming win over these structure rules until the user restructures it with the improve skill. Ownership and dependency direction still apply.
 
 ## Representations and errors
 

@@ -156,10 +156,11 @@ Stepping back is editing: change an upstream document and every approval that ci
 | `cruze-triage` | Reproduces a bug, finds its root cause against the living docs, and fixes it test-first or routes it to architect or rethink |
 | `cruze-rethink` | Steps back to the level a discovery touches, keeps completed work, re-approves what went stale and records why |
 | `cruze-realign` | Brings existing code up to what a new Cruze expects: audits it against each release's notes, decides every finding with you, and schedules the fixes as prefactor changes |
+| `cruze-improve` | Restructures existing code to meet today's standards: surveys it for structure that departs from them or keeps causing friction, lets you pick any or all of the candidates, and schedules the moves as prefactor changes |
 | `cruze-next` | Says which step to run next and why |
-| `cruze-roles` | The fresh-context design reviewer, code reviewer, verifier, researcher and auditor, and how a review runs to a disposition for every finding |
+| `cruze-roles` | The fresh-context design reviewer, code reviewer, verifier, researcher, auditor and surveyor, and how a review runs to a disposition for every finding |
 | `cruze-formats` | The format of every Cruze document, with templates |
-| `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, and notes for Rust and C++ |
+| `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, layouts by kind of system, and notes for Rust, Swift and C++ |
 | `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |
 | `cruze-grilling` | Interviewing the user in rounds until decisions settle, and challenging once before deferring |
 | `cruze-domain-language` | Building the glossary and using its words in documents, IDs and code |

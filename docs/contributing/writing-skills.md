@@ -13,7 +13,7 @@ Cruze skills are read by agents, not people. Write them for the agent that reads
 
 ## Two kinds of skill
 
-- **Workflow skills** are the commands a person runs: `explore`, `envision`, `architect`, `plan`, `build`, `verify`, `land`, `triage`, `rethink`, `next`. The description is one plain sentence saying what the command does. Each one ends by naming the next step. The `next` skill works it out from `cruze status` when the path isn't fixed.
+- **Workflow skills** are the commands a person runs: `explore`, `envision`, `architect`, `plan`, `build`, `verify`, `land`, `triage`, `rethink`, `realign`, `improve`, `next`. The description is one plain sentence saying what the command does. Each one ends by naming the next step. The `next` skill works it out from `cruze status` when the path isn't fixed.
 - **Knowledge skills** hold standards: `hexagonal-design`, `behavioural-testing`, `grilling`, `domain-language`, `dependency-approval` and `research`. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by installed path, at the step that needs them, so nothing depends on a trigger firing. A knowledge skill opens with the procedure an agent follows when it applies the standard, then the rules, and puts material only some runs need (a language, runtime concerns, worked examples) in sibling files.
 
 ## Agent neutrality

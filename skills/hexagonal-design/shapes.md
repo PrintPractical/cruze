@@ -36,7 +36,7 @@ An app with screens, on a platform that hosts it.
 A program a person or a script runs and that exits.
 
 - The commands are the inbound adapter, one module per command or command group. Argument parsing and output formatting stay there, and each command calls one use case.
-- The filesystem, the network, the terminal and the clock are outbound adapters where tests need to fake them.
+- The filesystem, the network, the terminal and the clock are outbound adapters behind ports, like any other technology, so tests run the commands against fakes.
 
 ## Splitting further
 

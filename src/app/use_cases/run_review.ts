@@ -4,7 +4,7 @@ import { featureOf } from "../../domain/project/work_items.ts";
 import type { AgentRunner } from "../ports/agent_runner.ts";
 import { loadView, type ProjectDeps } from "../project_context.ts";
 
-export const ROLES = ["design-reviewer", "code-reviewer", "verifier", "researcher", "auditor"] as const;
+export const ROLES = ["design-reviewer", "code-reviewer", "verifier", "researcher", "auditor", "surveyor"] as const;
 export type Role = (typeof ROLES)[number];
 
 export interface ReviewRequest {

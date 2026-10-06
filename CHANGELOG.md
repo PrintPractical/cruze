@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The `improve` skill restructures existing code to meet today's standards. A fresh-context surveyor reads each module against the standards, the journal's deviations, rethinks and findings, and the git history, and reports candidates with evidence. You pick any or all of them, the target is designed as an architecture rethink with a design review, and the moves are scheduled as prefactor changes that keep behaviour. `cruze review surveyor` runs the new role, and the journal takes `review=improve` and `found_by=improve`.
 - A `core` layer for a module that holds a context's domain and application together. A context now starts with one core module and its adapters, and splits into `domain` and `application` only when its domain needs a boundary of its own, recorded as a decision.
 - A guide to the normal layout for a library, a daemon or service, a mobile or desktop app, and a CLI, in the `cruze-hexagonal-design` skill. Architect names the kind of system in the Overview and starts from that layout.
 - A Swift language file: few package targets, `package` and `@testable import` instead of `public` where they will do, screens and their models as inbound adapters, and package tests separate from UI tests.
