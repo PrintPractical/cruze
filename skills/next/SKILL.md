@@ -28,4 +28,4 @@ Next reads the project's state and says what to do now. The CLI works it out fro
 | `realign` | `realign`: the installed Cruze expects more of existing code than it meets |
 | `switch-branch` | Switch to the named branch, where that change is built |
 
-When the user asks about something `cruze next` didn't name, such as a bug or an idea, point them to `triage` or `explore`.
+When the user asks about something `cruze next` didn't name, point them to `triage` for a bug, `explore` for an idea, or `improve` for existing code whose structure they want to change.

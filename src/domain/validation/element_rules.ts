@@ -18,7 +18,7 @@ const REQUIRED_FACTS: Partial<Record<Kind, string[]>> = {
 const ALLOWED_VALUES: Record<string, { kinds: Kind[]; values: string[] }> = {
   Kind: { kinds: ["ENT"], values: ["aggregate", "entity", "value", "service", "policy", "event"] },
   Direction: { kinds: ["PORT"], values: ["driven", "driving"] },
-  Layer: { kinds: ["MOD"], values: ["domain", "application", "adapter", "composition"] },
+  Layer: { kinds: ["MOD"], values: ["core", "domain", "application", "adapter", "composition"] },
 };
 
 export function elementProblems(path: string, doc: MarkdownDoc, element: Element): Problem[] {

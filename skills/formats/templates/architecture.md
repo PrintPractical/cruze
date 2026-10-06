@@ -2,7 +2,7 @@
 
 ## Overview
 
-<One paragraph: what the system is, how it is used, and the architectural style.>
+<One paragraph: what the system is and what kind (a library, a daemon or service, a mobile or desktop app, a CLI, or several deliverables), how it is used, and the architectural style.>
 
 ### VIEW-context: System context
 
@@ -81,7 +81,7 @@ sequenceDiagram
 
 ### MOD-<context>.<name>: <Module title>
 - Path: `<directory or file>`
-- Layer: <domain | application | adapter | composition>
+- Layer: <core | domain | application | adapter | composition>
 
 ## Dependency rules
 

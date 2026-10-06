@@ -6,7 +6,7 @@ These add to the hexagonal design rules for Rust projects. The module map decide
 
 - `main.rs` is the composition root and stays thin. `lib.rs` and every `mod.rs` hold only module declarations, visibility and deliberate re-exports, and `lib.rs` exposes the use cases, ports and domain types that tests drive.
 - Name modules for the concept they own. Don't put domain definitions in a `mod.rs`, and don't create `domain.rs`, `services.rs`, `models.rs` or `utils.rs` catch-alls.
-- Where the layer rules need a hard boundary, a Cargo workspace with one crate per layer makes the compiler enforce it. The walking-skeleton change decides this.
+- Split crates by deliverable, such as the library, a client, a daemon and a CLI, in a Cargo workspace when there is more than one. Inside a crate, modules carry the concepts and the layers, and `cruze check` enforces the layer rules between them. A crate per layer is unusual in Rust and puts a public API between the layers: use one only when the user wants the compiler to enforce a boundary, and record it as a decision.
 
 ## Modelling
 

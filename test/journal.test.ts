@@ -51,6 +51,13 @@ describe("the journal and feedback export", () => {
     await assert.rejects(recordEvent(h.deps, "checks", { commit: "HEAD" }, CHANGE_01), rejectsWith("invalid-event"));
   });
 
+  it("records improve's decisions and the rethinks it starts", async () => {
+    const h = await exampleProject();
+    await recordEvent(h.deps, "disposition", { finding: "MOD-access.domain: one core module", disposition: "fixed", reason: "the user picked it", review: "improve", decided: "user" });
+    const entry = await recordEvent(h.deps, "rethink", { level: "architecture", kind: "discovery", summary: "one core module per context", wrong: "MOD-access.domain", found_by: "improve" });
+    assert.equal(entry["found_by"], "improve");
+  });
+
   // Ten round-2 reviews in two projects found nothing; the agent now checks fixes it made as proposed.
   it("records who checked a round 2", async () => {
     const h = await exampleProject();

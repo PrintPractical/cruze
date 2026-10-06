@@ -9,6 +9,7 @@ Each release that changes what Cruze expects of a project ships a notes file, `n
 - [0.0.4](notes/0.0.4.md)
 - [0.0.5](notes/0.0.5.md)
 - [0.0.6](notes/0.0.6.md)
+- [0.0.7](notes/0.0.7.md)
 
 ## Format
 
