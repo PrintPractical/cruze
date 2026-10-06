@@ -6,7 +6,9 @@ import { createWorkItem } from "../src/app/use_cases/new_work_item.ts";
 import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
 import { addFutureFeature, completeTask, dropFutureFeature, pruneRoadmap, recordDeviation, updateFeatureSummary } from "../src/app/use_cases/record_progress.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
+import { showStatus } from "../src/app/use_cases/project_status.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
+import { parseMarkdown } from "../src/domain/markdown.ts";
 import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, FEATURE, exampleProject } from "./support/harness.ts";
 
 const rejectsWith = (code: string) => (error: unknown) => error instanceof CruzeError && error.code === code;
@@ -17,8 +19,19 @@ describe("creating work", () => {
     const report = await createWorkItem(h.deps, { kind: "feature", slug: "remote-serial", title: "Serial behind a jump host" });
     assert.equal(report.ref, "2026-09-26-remote-serial");
     const text = h.files.files.get(report.path) ?? "";
-    assert.match(text, /^---\nid: 2026-09-26-remote-serial\ntitle: Serial behind a jump host\nroadmap: remote-serial\n---/);
+    assert.match(text, /^---\nid: 2026-09-26-remote-serial\ntitle: "Serial behind a jump host"\nroadmap: remote-serial\n---/);
     assert.match(h.files.files.get("docs/roadmap.md") ?? "", /\| remote-serial \| 2026-09-26-remote-serial \| designing \|/);
+  });
+
+  it("quotes the title in the header, so a title with a colon still parses", async () => {
+    const h = await exampleProject();
+    const title = "Consume properties: get and set";
+    const report = await createWorkItem(h.deps, { kind: "change", slug: "consume-properties", title });
+    const doc = parseMarkdown(h.files.files.get(report.path) ?? "");
+    assert.equal(doc.frontmatter?.title, title);
+    assert.equal(doc.headings[0]?.text, `Change: ${title}`);
+    await showStatus(h.deps);
+    await validate(h.deps);
   });
 
   it("never reuses an ID: a same-day clash gets a suffix", async () => {

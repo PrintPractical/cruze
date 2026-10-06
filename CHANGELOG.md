@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The design walkthrough in `architect` and `rethink` is one message: a short overview in use-case terms, then the documents for the user to read in full and approve or comment on. Before, the agent presented the design in nine parts and paused after each.
 
+### Fixed
+
+- `cruze new feature` and `cruze new change` quote the title in the YAML header. A title with a colon, such as `Consume properties: get and set`, broke the header, and `cruze status` and `cruze check` crashed until the title was quoted by hand.
+
 ## [0.0.5] - 2026-10-04
 
 Less ceremony per change, from the journals of two projects: the user agreed with 98% of review findings, round 2 rarely found a blocker still open, and small changes paid the same plan and verify cost as large ones. The user now decides what is theirs to decide, and each change carries more work. Existing projects upgrade as the README's Upgrading section says. The new size warnings apply to new work only, and a project that wants to keep deciding every review finding sets `review.decide: all`.

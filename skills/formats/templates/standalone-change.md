@@ -1,6 +1,6 @@
 ---
 id: {{id}}
-title: {{title}}
+title: {{title_quoted}}
 roadmap: <roadmap item slug, when the change is on the roadmap>
 ---
 

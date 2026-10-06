@@ -1,6 +1,6 @@
 ---
 id: {{id}}
-title: {{title}}
+title: {{title_quoted}}
 ---
 
 # Change: {{title}}
