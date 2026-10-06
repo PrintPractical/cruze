@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7] - 2026-10-06
+
+Structure that fits the kind of system. Across a Rust client library, two Rust daemons and an iPhone app, the hexagonal layers had turned into folders and build targets: the app came out as a package target per layer per context, with over a thousand `public` declarations. Layers are now roles rather than folders, a context starts as one core module with its adapters, and architect starts from the layout normal for a library, a daemon, an app or a CLI in its language. Ports and adapters are unchanged. The new `improve` skill brings existing code to these standards when you choose, one picked candidate at a time or all of them. Existing projects upgrade as the README's Upgrading section says, and every change applies to new work only.
+
 ### Added
 
 - The `improve` skill restructures existing code to meet today's standards. A fresh-context surveyor reads each module against the standards, the journal's deviations, rethinks and findings, and the git history, and reports candidates with evidence. You pick any or all of them, the target is designed as an architecture rethink with a design review, and the moves are scheduled as prefactor changes that keep behaviour. `cruze review surveyor` runs the new role, and the journal takes `review=improve` and `found_by=improve`.
@@ -159,7 +163,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.6...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/PrintPractical/cruze/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/PrintPractical/cruze/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/PrintPractical/cruze/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/PrintPractical/cruze/compare/v0.0.3...v0.0.4
