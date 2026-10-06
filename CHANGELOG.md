@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2026-10-05
+
+Less waiting per change, from the 0.0.5 journals of two projects and one project's session transcripts: a 25-minute test suite ran about four times per change, every fresh round-2 review found nothing, and most rethinks came from claims nobody had checked or from parts of the design that contradicted each other. The design walkthrough is one message now, and the full suite runs once per commit. Existing projects upgrade as the README's Upgrading section says. Every change applies to new work only, and a project with slow UI or device tests can move them to `test_full`.
+
 ### Added
 
 - `cruze journal add checks --set commit=<commit>` records the commit where the format, lint, build and full test suite passed, so a later step quotes it instead of running them again.
@@ -143,7 +147,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.5...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/PrintPractical/cruze/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/PrintPractical/cruze/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/PrintPractical/cruze/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/PrintPractical/cruze/compare/v0.0.2...v0.0.3
