@@ -10,7 +10,7 @@ It works with any agent that supports the [Agent Skills](https://agentskills.io)
 
 ## Status
 
-Version 0.0.5 is the fifth preview. It cuts the ceremony per change: reviews bring you only the findings that are yours to decide, plans are approved once their review closes, a rethink re-stamps the work it didn't change, and changes are sized to be worth their review and verify. Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the whole workflow, from explore to land, ships as workflow skills. Claude Code is the agent tested so far.
+Version 0.0.6 is the sixth preview. It cuts the waiting per change: the full test suite runs once per commit, with an optional fast tier for the task loop, the design walkthrough is one overview followed by the documents to read in full, the agent checks a review's round 2 when the fixes follow the proposals, and research checks every claim the design relies on. Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the whole workflow, from explore to land, ships as workflow skills. Claude Code is the agent tested so far.
 
 ## Why
 
@@ -35,7 +35,7 @@ The skills run `cruze` commands, so the agent needs `cruze` on its path. Install
 From a GitHub Release, without npm. Each release attaches the packed package:
 
 ```sh
-npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.5/printpractical-cruze-0.0.5.tgz
+npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.6/printpractical-cruze-0.0.6.tgz
 ```
 
 From npm, once a version is published there:
@@ -47,7 +47,7 @@ npm install -g @printpractical/cruze
 From the git repository, at a tag or `#main`. This needs git and access to the repository. npm 11 needs `--install-links` for a global git install, and the first `cruze` command builds the CLI, which takes a moment:
 
 ```sh
-npm install -g --install-links github:PrintPractical/cruze#v0.0.5
+npm install -g --install-links github:PrintPractical/cruze#v0.0.6
 ```
 
 ### 2. Set up a repository
@@ -61,7 +61,7 @@ cruze init
 When you didn't install from npm, tell `init` where Cruze came from, so the CI it writes runs the same source instead of the npm package:
 
 ```sh
-cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.5/printpractical-cruze-0.0.5.tgz
+cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.6/printpractical-cruze-0.0.6.tgz
 ```
 
 `init` asks for the project name, and which coding agent you use: `claude` for Claude Code, or `other` for any agent that reads `AGENTS.md` and `.agents/skills/`, such as Codex or OpenCode. It doesn't ask when you pass `--agent claude` or `--agent other`, or when the repository already has `CLAUDE.md` or `.claude/`. With `--yes`, or without a terminal, it sets up Claude Code. Then it creates:
