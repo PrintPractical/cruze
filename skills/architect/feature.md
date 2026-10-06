@@ -33,4 +33,6 @@ The result is a `feature.md` with a complete architecture delta and an ordered l
 
     The thresholds are the defaults under `changes:` in `.cruze/config.yaml`; a project can tune them.
 
+    Done when `cruze validate` reports no `change-too-small`, `change-too-large` or `feature-size` warning, or the user has accepted one and a `D<n>` line under the feature's `## Decisions` records why. After approval, only a rethink can split a change.
+
 Then continue with the review and walkthrough steps of the skill. When the user approves, run `cruze approve <feature>` and quote its result. The command takes the feature's full ID, such as `2026-09-25-open-console`, or its slug when no other active item shares it.

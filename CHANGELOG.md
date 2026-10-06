@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The design walkthrough in `architect` and `rethink` is one message: a short overview in use-case terms, then the documents for the user to read in full and approve or comment on. Before, the agent presented the design in nine parts and paused after each.
 - Build extends the shared test support module as part of any task that writes tests, recording it as a deviation, instead of stopping for a rethink. Before, the rule against files outside the owner's module pushed agents to write private test helpers that code review then moved.
 - Plan names the break that a test expecting a default or empty result is first seen failing against, since such a test passes against a stub.
+- Round 2 of a review is checked by the agent when every blocker was fixed exactly as the reviewer proposed, and by a fresh reviewer only when a fix differs or goes further. `cruze journal add review` takes `checked_by=agent|reviewer`. In two projects, ten fresh round-2 reviews found nothing.
+- Architect clears its size warnings before the design is approved, or records the user accepting them, and the walkthrough lists any warning still standing. The design reviewer reports an unaccepted size warning. Before, a feature was approved with two changes over the scenario limit.
 
 ### Fixed
 
