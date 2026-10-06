@@ -9,6 +9,7 @@ A task is one owner, the files it writes, and the IDs it proves. Build does them
    - The composition root comes last.
    - Put fakes just before the first task whose test needs them.
    - Each task's test can fail first and then pass, using only what earlier tasks built.
+   - A test that expects a default or empty result, such as no prompt, an empty list, `nil` or `0`, passes against a stub that returns it. Name in the task the break it is first seen failing against, such as "fails against a model that always shows the prompt".
    - When the project's lint rejects unused code, such as `cargo clippy -- -D warnings`, put each new item in the task of its first user, or in a task whose own test uses it. Each task then commits green on its own.
 3. **Write one line per task:**
 
@@ -17,7 +18,7 @@ A task is one owner, the files it writes, and the IDs it proves. Build does them
    - T7: `OpenConsole` in `src/access/app/open_console.rs`, proves UC-access.open-console, SCN-access.direct-serial
    ```
 
-   - Owner and paths in backticks. Every path is a file the architecture assigns to that owner, or a test or support file.
+   - Owner and paths in backticks. Every path is a file the architecture assigns to that owner, or a test or support file. List the test support files the task extends, such as a shared harness or fixture, so its tests reuse them.
    - A task proves the elements it builds, and each scenario whose test goes green in it.
    - A task that only sets up tooling proves the flow or scenario its checks run.
 4. **Find the callers.** For each signature, default or setting a task changes, search the code for every use of it, including tests that start the real binary or read the setting. Add each file that must change to the task. Done when no task will need a file it doesn't list.

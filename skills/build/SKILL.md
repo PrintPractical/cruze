@@ -44,10 +44,10 @@ Done for a task when its tests pass, `cruze check` passes for its files, the com
 
 The plan is design. Within a task you decide only what is local and reversible.
 
-- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a private type, or two tasks' commits swapped for a reason. Run `cruze task deviation T<n> "<what you did and why>"`.
+- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a private type, a fixture or harness added to the test support module that the task's tests need, or two tasks' commits swapped for a reason. The test support module is in every test-writing task's scope, so extend it rather than writing a private helper in a test file. Run `cruze task deviation T<n> "<what you did and why>"`.
 - **Stop and offer `rethink`** when the code needs any of these:
   - a new element, port operation or scenario;
-  - a file outside the owner's module;
+  - a file outside the owner's module, other than the test support module;
   - a change to an approved scenario's behaviour, or to its test;
   - a dependency the design doesn't name.
 

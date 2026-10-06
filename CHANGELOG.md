@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The full test suite runs once per commit. Verify quotes build's result when no code changed since it, the verifier builds the system and runs the scenarios without rerunning the suite, verify runs it once more only after code-review fixes, and land leaves it to CI when main came in without code conflicts. A project with a 25-minute suite ran it about four times per change before.
 - The design walkthrough in `architect` and `rethink` is one message: a short overview in use-case terms, then the documents for the user to read in full and approve or comment on. Before, the agent presented the design in nine parts and paused after each.
+- Build extends the shared test support module as part of any task that writes tests, recording it as a deviation, instead of stopping for a rethink. Before, the rule against files outside the owner's module pushed agents to write private test helpers that code review then moved.
+- Plan names the break that a test expecting a default or empty result is first seen failing against, since such a test passes against a stub.
 
 ### Fixed
 
