@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `cruze journal add checks --set commit=<commit>` records the commit where the format, lint, build and full test suite passed, so a later step quotes it instead of running them again.
+- `test_full` under `commands:` in `.cruze/config.yaml`, for projects with a slow tier such as UI or device tests. `test` then runs the fast tier after every task, and `test_full` runs once per change.
+
 ### Changed
 
+- The full test suite runs once per commit. Verify quotes build's result when no code changed since it, the verifier builds the system and runs the scenarios without rerunning the suite, verify runs it once more only after code-review fixes, and land leaves it to CI when main came in without code conflicts. A project with a 25-minute suite ran it about four times per change before.
 - The design walkthrough in `architect` and `rethink` is one message: a short overview in use-case terms, then the documents for the user to read in full and approve or comment on. Before, the agent presented the design in nine parts and paused after each.
+- Build extends the shared test support module as part of any task that writes tests, recording it as a deviation, instead of stopping for a rethink. Before, the rule against files outside the owner's module pushed agents to write private test helpers that code review then moved.
+- Plan names the break that a test expecting a default or empty result is first seen failing against, since such a test passes against a stub.
+- Round 2 of a review is checked by the agent when every blocker was fixed exactly as the reviewer proposed, and by a fresh reviewer only when a fix differs or goes further. `cruze journal add review` takes `checked_by=agent|reviewer`. In two projects, ten fresh round-2 reviews found nothing.
+- Architect clears its size warnings before the design is approved, or records the user accepting them, and the walkthrough lists any warning still standing. The design reviewer reports an unaccepted size warning. Before, a feature was approved with two changes over the scenario limit.
+- Research checks every claim the design or its testing approach relies on, including claims about the language, the platform's test environment and the external systems the product talks to, by running them where it can. Before, it checked only adopted libraries and tools.
+- The design reviewer checks cross-cutting rules against each other and against the layer rules, use cases that change the same state for interleavings, and at feature scope, architecture prose the delta makes untrue.
 
 ### Fixed
 

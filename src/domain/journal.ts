@@ -15,12 +15,13 @@ export const RECORDED_EVENTS: Record<string, string[]> = {
   override: ["gate", "reason"],
   bug: ["summary", "cause"],
   verification: ["result", "summary"],
+  checks: ["commit"],
 };
 
 /** Fields an event may carry beyond its required ones, checked when present. A defect rethink must say which step missed it. */
 const OPTIONAL_FIELDS: Record<string, string[]> = {
   rethink: ["missed_by"],
-  review: ["nits"],
+  review: ["nits", "checked_by"],
   disposition: ["decided"],
 };
 
@@ -34,6 +35,7 @@ export const FIELD_VALUES: Record<string, string[]> = {
   decided: ["agent", "user"],
   review: ["design", "plan", "code", "realign"],
   result: ["accepted", "sent-back"],
+  checked_by: ["agent", "reviewer"],
   found_by: STEPS,
   missed_by: STEPS,
 };
@@ -78,6 +80,9 @@ export function recordedEventProblems(event: string, fields: Record<string, stri
     const allowed = FIELD_VALUES[field];
     if (allowed !== undefined && !allowed.includes(value)) problems.push(`${field} must be one of ${allowed.join(", ")}`);
     if (COUNT_FIELDS.includes(field) && !/^\d+$/.test(value)) problems.push(`${field} must be a whole number`);
+  }
+  if (event === "checks" && fields["commit"] !== undefined && !/^[0-9a-f]{7,40}$/.test(fields["commit"])) {
+    problems.push("commit must be a commit hash, such as the output of git rev-parse --short HEAD");
   }
   if (event === "disposition" && fields["decided"] === "agent" && fields["disposition"] !== "fixed") {
     problems.push("the agent decides only fixes; the user waives, defers or rejects a finding (decided=user)");

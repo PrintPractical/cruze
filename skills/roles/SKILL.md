@@ -53,11 +53,13 @@ A review has at most two rounds. Only blockers can force the second one.
 
 ### Round 2
 
-Run round 2 only when a round-1 blocker was fixed.
+Run round 2 only when a round-1 blocker was fixed. It checks only whether those blockers are fixed, and raises nothing new.
 
-1. Run the reviewer again with its usual inputs, plus the round-1 blockers and the diff of their fixes. It may be the round-1 reviewer resumed, since that context never saw the conversation that produced the work (with `cruze review`: `--round 2 --blockers <file> --base <round-1 commit>`). It checks only whether those blockers are fixed, and raises nothing new.
-2. Record the round with `round=2`.
-3. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
+1. **Choose who checks.** When every blocker was fixed exactly as the reviewer proposed, check the fixes yourself: a fresh reviewer re-reading a fix it proposed finds nothing new. When any blocker was fixed differently from the proposal, or its fix reaches past what the finding names, run the reviewer.
+2. **Check them yourself:** read each blocker's finding against the diff of its fix, and run `cruze validate`. A blocker is fixed when the diff does what the proposal says and validate reports no new errors.
+3. **Or run the reviewer** again with its usual inputs, plus the round-1 blockers and the diff of their fixes. It may be the round-1 reviewer resumed, since that context never saw the conversation that produced the work (with `cruze review`: `--round 2 --blockers <file> --base <round-1 commit>`).
+4. Record the round with `round=2`, the blockers still open, `concerns=0`, and `checked_by=agent` or `checked_by=reviewer`.
+5. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
 
 Done when every finding has a journaled disposition, and every exception, and every blocker left open in round 2, has the user's decision.
 

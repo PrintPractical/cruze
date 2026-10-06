@@ -11,7 +11,7 @@ Write it in the glossary's terms, as what callers can do and what happens when t
 1. **What it does.** The intent in two sentences. Then one line per use case, or at feature scope per requirement: who asks for what, what they get, and the main way it fails.
 2. **What it touches.** Each new external system, and each new dependency named with its purpose and the approval behind it. Also each component you chose to build yourself, with the reason.
 3. **The slices.** The changes in order, one line each, saying what each delivers and why the first is first. At project scope, the roadmap's phases and the walking skeleton instead.
-4. **What is yours to decide.** The review findings the roles skill brings to the user, any point where a fresh implementer could still build something different, and any rule you challenged that the user overrode.
+4. **What is yours to decide.** The review findings the roles skill brings to the user, any `cruze validate` warning still standing, such as a change over its size limit, any point where a fresh implementer could still build something different, and any rule you challenged that the user overrode.
 
 ## The documents
 
