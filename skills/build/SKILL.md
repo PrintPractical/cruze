@@ -19,10 +19,11 @@ Build turns an approved plan into code, one task at a time. Each task starts wit
 3. **Read the plan and the design.** Read the change's `change.md` and its feature's `feature.md`. Read the full body of every element the change builds, and every scenario it delivers. Read `commands:` in `.cruze/config.yaml`.
 4. **Build each open task in order,** following the task loop below. Skip the tasks already ticked in `## Progress`.
 5. **Finish.** When every task is ticked:
-   - Run the full test suite, the formatter and the linter, using the project's commands.
+   - Run the format, lint and build commands and the full suite, as `.agents/skills/cruze-formats/reference/config.md` defines it under `commands`.
    - Run `cruze check` and `cruze trace`, and quote their results.
+   - When all of them pass, record the commit they ran at with `cruze journal add checks --set commit=<commit> --item <ref>`, where the commit is the output of `git rev-parse --short HEAD`. Verify quotes this instead of running the suite again.
    - Commit the progress record with a message such as `chore: record progress on <change>`.
-   - Done when all of them pass.
+   - Done when all of them pass and the checks are recorded.
 
 ## The task loop
 
@@ -31,7 +32,7 @@ For task `T<n>`:
 1. **Read it.** Note its owner, its files, the IDs it proves, and the test plan rows for those IDs.
 2. **Red.** Write the tests for the IDs it proves, at the seams the test plan names, carrying the IDs. Run them, and see them fail for the reason you expect.
 3. **Green.** Write the least code that makes them pass, in the task's files. Code that belongs to another task, or another change, waits for it, even when the next change will need it.
-4. **Check.** Run `cruze check <the task's files>`, the formatter and the linter, and fix what they report. Run the tests the task touched, and the rest of the suite when they are quick.
+4. **Check.** Run `cruze check <the task's files>`, the formatter and the linter, and fix what they report. Run the tests the task touched. When `commands:` has a `test_full`, run `test` too, since it is the fast tier. Otherwise run the rest of the suite only when it is quick.
 5. **Commit** with a Conventional Commit message naming the task, such as `feat(access): console session state machine (T2)`.
 6. **Tick it.** Run `cruze task done T<n>`, which records the commit. Its progress edit rides along in the next commit.
 

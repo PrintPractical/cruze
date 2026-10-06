@@ -41,6 +41,24 @@ describe("the journal and feedback export", () => {
     await assert.rejects(recordEvent(h.deps, "review", { review: "design", round: "1", blockers: "two", concerns: "0" }), rejectsWith("invalid-event"));
   });
 
+  // rto ran its 25-minute suite at build's finish, at verify and in the verifier, on the same commit.
+  it("records the commit where every check passed, so later steps can quote it instead of rerunning", async () => {
+    const h = await exampleProject();
+    const entry = await recordEvent(h.deps, "checks", { commit: "9db74e3" }, CHANGE_01);
+    assert.equal(entry["commit"], "9db74e3");
+    assert.deepEqual((await listEvents(h.deps, "checks", CHANGE_01)).map((e) => e["commit"]), ["9db74e3"]);
+    await assert.rejects(recordEvent(h.deps, "checks", {}, CHANGE_01), rejectsWith("invalid-event"));
+    await assert.rejects(recordEvent(h.deps, "checks", { commit: "HEAD" }, CHANGE_01), rejectsWith("invalid-event"));
+  });
+
+  // Ten round-2 reviews in two projects found nothing; the agent now checks fixes it made as proposed.
+  it("records who checked a round 2", async () => {
+    const h = await exampleProject();
+    const round2 = { review: "plan", round: "2", blockers: "0", concerns: "0" };
+    assert.equal((await recordEvent(h.deps, "review", { ...round2, checked_by: "agent" }))["checked_by"], "agent");
+    await assert.rejects(recordEvent(h.deps, "review", { ...round2, checked_by: "me" }), rejectsWith("invalid-event"));
+  });
+
   // A project listed one change's dispositions with --item and got every disposition in the project.
   it("lists one change's entries, or a feature's with its changes'", async () => {
     const h = await exampleProject();

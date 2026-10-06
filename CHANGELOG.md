@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `cruze journal add checks --set commit=<commit>` records the commit where the format, lint, build and full test suite passed, so a later step quotes it instead of running them again.
+- `test_full` under `commands:` in `.cruze/config.yaml`, for projects with a slow tier such as UI or device tests. `test` then runs the fast tier after every task, and `test_full` runs once per change.
+
 ### Changed
 
+- The full test suite runs once per commit. Verify quotes build's result when no code changed since it, the verifier builds the system and runs the scenarios without rerunning the suite, verify runs it once more only after code-review fixes, and land leaves it to CI when main came in without code conflicts. A project with a 25-minute suite ran it about four times per change before.
 - The design walkthrough in `architect` and `rethink` is one message: a short overview in use-case terms, then the documents for the user to read in full and approve or comment on. Before, the agent presented the design in nine parts and paused after each.
 
 ### Fixed
