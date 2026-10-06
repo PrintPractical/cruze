@@ -66,7 +66,7 @@ function projectStep(view: ProjectView): NextStep | null {
     {
       path: PATHS.architecture,
       missing: { step: "architect", reason: "the project has no architecture yet" },
-      unapproved: { step: "architect", reason: "finish the architecture, walk through it and approve it" },
+      unapproved: { step: "architect", reason: "finish the architecture, review it and approve it" },
       changed: { step: "rethink", target: "architecture", reason: "the architecture changed since its approval" },
     },
     {
@@ -89,7 +89,7 @@ function itemSteps(view: ProjectView, item: WorkItem, branch: string | null): Ne
   if (item.kind === "standalone") return [changeStep(view, item, branch)];
   const state = evaluateApproval(view, item.path);
   if (readChangesTable(item.doc).length === 0) return [{ step: "architect", target: item.ref, reason: "the feature has no design or changes yet" }];
-  if (state.state === "unapproved") return [{ step: "architect", target: item.ref, reason: "review the feature's design, walk through it and approve it" }];
+  if (state.state === "unapproved") return [{ step: "architect", target: item.ref, reason: "review the feature's design and approve it" }];
   if (state.state !== "approved") return [{ step: "rethink", target: item.ref, reason: `the feature changed since its approval${state.changed.length > 0 ? ` (${state.changed.join(", ")})` : ""}` }];
   const changes = changesOf(view.items, item);
   const landed = new Set(changes.filter((c) => readProgress(c.doc).landed !== undefined).map((c) => c.folderName));
