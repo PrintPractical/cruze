@@ -39,7 +39,7 @@ A review has at most two rounds. Only blockers can force the second one.
    - You would fix it differently from the reviewer's proposed fix.
 
    Every other finding is yours, blockers included: you fix it as the reviewer proposes. When `review.decide` in `.cruze/config.yaml` is `all`, every finding is an exception. Nits are a count, not findings: when a report lists any, they get no disposition and you don't bring them to the user.
-4. **Present them in one message.** First each exception, with your recommended disposition and why:
+4. **Present them in one message,** written to be read cold and illustrated as `.agents/skills/cruze-grilling/illustrating.md` says. First each exception: what goes wrong, shown as the reviewer's failure scenario played out (the interaction, the code or the diagram), what the fix changes, shown before and after, and your recommended disposition and why:
    - `fixed`: you will change the work as the finding proposes.
    - `waived`: the finding is right, but the user accepts the risk.
    - `deferred`: it belongs to later work. When it is future scope, add it with `cruze features add <slug> --summary <text> --goals <ids>`.

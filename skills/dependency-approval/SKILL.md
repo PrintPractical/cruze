@@ -9,7 +9,7 @@ Every new dependency needs the user's explicit approval before it is declared or
 
 ## Asking
 
-1. Establish the need: the capability, and what the design looks like with the dependency and without it, using the standard library and the project's already-approved dependencies.
+1. Establish the need: the capability, and what the design looks like with the dependency and without it, using the standard library and the project's already-approved dependencies. Show both as short code sketches, following `.agents/skills/cruze-grilling/illustrating.md`.
 2. Choose a recommendation, following `.agents/skills/cruze-research/SKILL.md`, which also says where versions come from.
 3. Say where it will sit: the module that owns it, and the port that keeps it out of the core when it is infrastructure.
 4. Name the realistic alternatives, including writing it yourself and what owning that code would cost. Never offer a hand-written alternative for cryptography, TLS or a security protocol.
