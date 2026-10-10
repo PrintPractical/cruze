@@ -16,6 +16,7 @@ From the 0.0.7 journals of two projects, an iPhone app and a Rust daemon: 39 lan
 - The design reviewer checks that every type, trait, macro and framework the design names comes from a dependency that each crate or target using it declares, test support included, and that the import rules allow it.
 - Plans name the break a test is first seen failing against as the wrong behaviour, and build may use any break that compiles and turns the same assertion red. Each test goes in the task that builds what it checks, and a task that adds a module, file or dependency lists the file that declares it.
 - Build runs `cruze check --ci`, the same check verify and CI run. Before, a budget warning passed build and failed verify.
+- Questions show what each option looks like. Each grilling question, review exception and design walkthrough comes with a plain-text diagram, a code sketch in the project's language, or the exact interaction a user would see, using the design's own names. Each round opens with where things stand and spells out the IDs it mentions, so it reads cold after time on other work, and a round holds 3 to 5 questions. A shape the user picks from a sketch is written into the design, so build produces what they saw.
 - Review nits are a count only: they get no disposition and aren't brought to the user. Reviewers may list more concerns for a feature with a large spec delta, one per 5 scenarios.
 
 ### Fixed

@@ -18,6 +18,6 @@ The result is a feature folder whose `feature.md` holds the intent, the settled 
    - Name every ID with glossary terms. An ID is never reused.
    - Done when every requirement has a scenario for its main case and one for each failure a user can meet.
 8. **Leave the design to architect.** Set `## Architecture delta` to `None.` and leave the Changes table with its header row only. Remove the remaining template guides.
-9. **Confirm.** Summarize the intent and each requirement with its scenarios, in plain words, and ask the user to confirm them. Apply any corrections.
+9. **Confirm.** Summarize the intent and each requirement with its scenarios, in plain words, showing each requirement's main scenario as the user would see it, and ask the user to confirm them. Apply any corrections.
 
 Done when the user has confirmed, `cruze validate` reports no errors for the feature, only its `not-designed` warning, and the feature is committed.

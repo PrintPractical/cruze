@@ -22,14 +22,14 @@ Realign is different. It applies what each release's notes expect of existing co
 5. **List the candidates** in one message, numbered, merging candidates that share a cause across modules. For each, give:
    - the problem in one sentence, and its evidence;
    - the standard it departs from, or the friction it causes;
-   - the target shape;
+   - the target shape, sketched beside today's as `.agents/skills/cruze-grilling/illustrating.md` says;
    - its size in prefactor changes, and its risk.
 
    Recommend which to take and why, then ask the user to pick any or all of them.
 6. **Record each decision:** `cruze journal add disposition --set review=improve --set finding="<module or area>: <summary>" --set disposition=<fixed|waived|deferred> --set reason="<reason>" --set decided=user`. A picked candidate is `fixed`. The rest are `waived`, with the user's reason, or `deferred`. A recorded waiver is never raised again.
 7. **Design the target** for every picked candidate together, as a rethink at architecture level, following `.agents/skills/cruze-rethink/SKILL.md` with `kind=discovery` and `found_by=improve`:
    - Amend `docs/architecture.md`: the module map and layers, the moved elements' `Module` and `File` facts, the `layers:` in `.cruze/config.yaml`, and a `D<n>` or an ADR for each structural decision. Change no requirement, scenario or port contract unless the user decided that in step 5.
-   - When a candidate changes an interface, such as a port or a module's public API, sketch two or three shapes, compare them, and recommend one before writing it.
+   - When a candidate changes an interface, such as a port or a module's public API, sketch two or three shapes as code, compare them, and recommend one before writing it.
    - Before the rethink's walkthrough, run the design review from the roles skill on the diff, with `review=design`.
    - Approve it as the rethink's architecture level says, with `--replan` for each built element that moves.
 8. **Schedule the moves.** Group the replanned elements into prefactor changes, as "A prefactor" in `.agents/skills/cruze-architect/tweak.md` describes, each sized as step 12 of `.agents/skills/cruze-architect/feature.md` says.

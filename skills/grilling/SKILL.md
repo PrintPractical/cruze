@@ -1,6 +1,6 @@
 ---
 name: cruze-grilling
-description: How to interview the user until design decisions are settled. Questions go in rounds over a tree of decisions, facts are looked up rather than asked, each question carries a recommendation, and challenges the user overrides are recorded. Use when a design step needs decisions from the user, when shaping an idea, vision, feature, architecture or plan with them, when the user steers toward something that breaks a rule, or when the user asks to be grilled or to stress-test a plan.
+description: How to interview the user until design decisions are settled. Questions go in rounds over a tree of decisions, facts are looked up rather than asked, each question carries a recommendation and shows what each option looks like, and challenges the user overrides are recorded. Use when a design step needs decisions from the user, when shaping an idea, vision, feature, architecture or plan with them, when the user steers toward something that breaks a rule, or when the user asks to be grilled or to stress-test a plan, and when showing the user review findings or a design to decide on.
 ---
 
 # Grilling
@@ -12,25 +12,37 @@ Interview the user until you both understand the design the same way. Decisions 
 1. List the open decisions this step must settle, as a tree in which each decision hangs off the ones it depends on. Take them from the sections of the document the step writes and from what the user has already said. Done when every section the step writes has its decisions listed.
 2. Settle the facts yourself. Anything the repository, the living docs, a `cruze` command or a primary source can answer is a fact, so look it up rather than asking. Where the agent can run a helper in parallel, send it to look while you ask about everything that doesn't depend on the answer.
 3. Find the frontier: every open decision whose prerequisites are settled. A question that depends on another open question waits for a later round.
-4. Ask the frontier as one round, in the format below. Every question carries your recommended answer and the reason for it.
+4. Ask the frontier as one round, in the format below. Every question shows what each option looks like and carries your recommended answer and the reason for it. Read [illustrating.md](illustrating.md) before the first round.
 5. Wait for the answers. Record each settled decision as described under Recording, then recompute the frontier.
 6. Repeat until the frontier is empty: every branch visited, and nothing silently assumed.
-7. Write the sections the step produces from the settled decisions, then summarize them and ask the user to confirm that they match their understanding. Done when the user confirms. Decisions and glossary terms are recorded as they settle, and nothing is approved before the confirmation.
+7. Write the sections the step produces from the settled decisions, then summarize them, illustrated as [illustrating.md](illustrating.md) says, and ask the user to confirm that they match their understanding. Done when the user confirms. Decisions and glossary terms are recorded as they settle, and nothing is approved before the confirmation.
 
 ## A round
 
-```markdown
+````markdown
+Where we are: architect for 2026-09-25-open-console, round 2. Settled: D1 (a console session may cross jump hosts), D2 (credentials come from the vault).
+
 **Q4. Where the jump-host list lives**
 Per device in the device config, or as named hosts that devices reference. Named hosts avoid repeating a host's address and credentials across devices, but add a second lookup.
+
+```yaml
+# A: per device                    # B: named hosts (recommended)
+devices:                           jump_hosts:
+  core-sw-01:                        lab-gw: { address: 10.0.0.5 }
+    jump: { address: 10.0.0.5 }    devices:
+  core-sw-02:                        core-sw-01: { jump: lab-gw }
+    jump: { address: 10.0.0.5 }      core-sw-02: { jump: lab-gw }
+```
+
 Recommended: named hosts, because the lab config already shares two jump hosts across 30 devices.
 
 **Q5. What a refused second hop reports**
 ...
-```
+````
 
 - Number questions across the whole session, not per round, so an answer such as "Q7: yes" is never ambiguous.
-- Keep a round to what the user can answer in one reply, about 3 to 7 questions. When the frontier is bigger, ask first the questions that others depend on.
-- Ask about behaviour and trade-offs in the user's terms and the glossary's words, not about implementation mechanics.
+- Keep a round to what the user can answer in one reply, about 3 to 5 questions. When the frontier is bigger, ask first the questions that others depend on.
+- Ask about behaviour and trade-offs in the user's terms and the glossary's words, not about implementation mechanics. Where the trade-off is in the code's shape, show the shape.
 - When the user answers "you decide" or "I don't know", take your recommendation and record it with "(recommended; the user deferred)".
 - When an answer contradicts an earlier decision, point to that decision and ask which one stands.
 
