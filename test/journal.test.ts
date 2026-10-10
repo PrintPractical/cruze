@@ -81,4 +81,18 @@ describe("the journal and feedback export", () => {
     assert.deepEqual(await findings(), ["project-wide", "feature finding", "change finding"]);
     await assert.rejects(listEvents(h.deps, "disposition", "no-such-item"), rejectsWith("not-found"));
   });
+
+  // Reviewers in two projects listed every disposition ever recorded, about 36k tokens a time, 97 and 101 times.
+  it("lists the project's and the work in flight's entries by default, and landed work's only with all", async () => {
+    const h = await exampleProject();
+    const disposition = (finding: string) => ({ finding, disposition: "fixed", reason: "done", review: "code" });
+    await recordEvent(h.deps, "disposition", disposition("landed finding"), "2026-09-24-walking-skeleton");
+    await recordEvent(h.deps, "disposition", disposition("project-wide"));
+    await recordEvent(h.deps, "disposition", disposition("in flight"), CHANGE_01);
+
+    const findings = async (all?: boolean) => (await listEvents(h.deps, "disposition", undefined, all)).map((e) => e["finding"]);
+    assert.deepEqual(await findings(), ["project-wide", "in flight"]);
+    assert.deepEqual(await findings(true), ["landed finding", "project-wide", "in flight"]);
+    assert.deepEqual((await listEvents(h.deps, "disposition", "2026-09-24-walking-skeleton")).map((e) => e["finding"]), ["landed finding"]);
+  });
 });

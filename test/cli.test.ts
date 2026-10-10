@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -74,9 +74,33 @@ describe("the cruze command", () => {
     assert.equal(cruze(repo, "approve", "vision").code, 0);
     const status = JSON.parse(cruze(repo, "status").stdout);
     assert.equal(status.documents[0].state, "approved");
+    assert.equal(status.documents[0].record, undefined, "status carries no hashes: agents read it often");
+    assert.match(status.documents[0].approvedAt, /^\d{4}-/);
     const gate = cruze(repo, "status", "--gate", "build", "--text");
     assert.equal(gate.code, 1);
     assert.match(gate.stdout, /Build gate blocked/);
+    const shown = cruze(repo, "show", "open-console/local-serial", "--text");
+    assert.equal(shown.code, 0, shown.stderr);
+    assert.match(shown.stdout, /^# 2026-09-25-open-console\/01-local-serial \(feature 2026-09-25-open-console\)/);
+    assert.match(shown.stdout, /### ADDED ENT-access.escape-detector/);
+    assert.match(shown.stdout, /## Cited, not shown\n\n- /);
+    assert.match(cruze(repo, "next", "--text").stdout, /Run it in a new session/);
+  });
+
+  // Agents pipe listings into head and grep; a listing larger than the pipe buffer ended in a 16-line Node stack trace.
+  it("stops quietly when its reader closes the pipe early", async () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    const entry = JSON.stringify({ at: "2026-10-10T00:00:00.000Z", event: "disposition", by: "a", finding: "x".repeat(200), disposition: "fixed", reason: "y", review: "code" });
+    writeFileSync(join(repo, ".cruze/journal.jsonl"), `${entry}\n`.repeat(2000));
+    const child = spawn(process.execPath, [MAIN, "journal", "list", "--json"], { cwd: repo, stdio: ["ignore", "pipe", "pipe"] });
+    let stderr = "";
+    child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString()));
+    // Close the read end before the child writes, so its write of 600 KB meets a closed pipe for certain.
+    child.stdout.destroy();
+    const code = await new Promise<number | null>((resolve) => child.on("close", resolve));
+    assert.equal(stderr, "");
+    assert.equal(code, 0);
   });
 
   it("exits with 2 and shows usage for an unknown command", () => {

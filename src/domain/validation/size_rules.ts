@@ -12,17 +12,25 @@ export function changeLimits(view: ProjectView): ChangeLimits {
   return view.config?.config?.changes ?? DEFAULT_CHANGE_LIMITS;
 }
 
+/** The rules a size warning comes from. An item stays outside the band only with the user's recorded acceptance. */
+export const SIZE_RULES = ["feature-size", "change-too-small", "change-too-large", "plan-too-large"];
+
+/** Whether the user accepted this feature or change outside the band, under `changes.exceptions`. */
+export function sizeAccepted(view: ProjectView, ref: string): boolean {
+  return changeLimits(view).exceptions.some((exception) => exception.item === ref);
+}
+
 /** A feature's changes not yet landed that fall outside the size band. A feature of one change has nothing to merge into. */
-export function changeRowSizeProblems(view: ProjectView, path: string, rows: ChangeRow[], landed: Set<string>): Problem[] {
+export function changeRowSizeProblems(view: ProjectView, feature: { path: string; ref: string }, rows: ChangeRow[], landed: Set<string>): Problem[] {
   const limits = changeLimits(view);
   const problems: Problem[] = [];
-  for (const row of rows.filter((r) => !landed.has(r.change))) {
+  for (const row of rows.filter((r) => !landed.has(r.change) && !sizeAccepted(view, `${feature.ref}/${r.change}`))) {
     if (rows.length > 1 && row.builds.length < limits.minBuilds) {
-      problems.push(warning(path, row.line, "change-too-small", `${row.change} builds ${row.builds.length} element(s), under ${limits.minBuilds}; merge it into the change it continues, since each change pays for its own plan, review and verify`));
+      problems.push(warning(feature.path, row.line, "change-too-small", `${row.change} builds ${row.builds.length} element(s), under ${limits.minBuilds}; merge it into the change it continues, since each change pays for its own plan, review and verify`));
     }
     const scenarios = row.delivers.filter((id) => kindOf(id) === "SCN").length;
     if (scenarios > limits.maxScenarios) {
-      problems.push(warning(path, row.line, "change-too-large", `${row.change} delivers ${scenarios} scenarios, over ${limits.maxScenarios}; split it, since one verifier run has to go through them all`));
+      problems.push(warning(feature.path, row.line, "change-too-large", `${row.change} delivers ${scenarios} scenarios, over ${limits.maxScenarios}; split it, since one verifier run has to go through them all`));
     }
   }
   return problems;
@@ -31,6 +39,7 @@ export function changeRowSizeProblems(view: ProjectView, path: string, rows: Cha
 /** A plan with more tasks than one code review and one verify can hold. */
 export function planSizeProblems(view: ProjectView, path: string, tasks: number): Problem[] {
   const { maxTasks } = changeLimits(view);
-  if (tasks <= maxTasks) return [];
+  const ref = view.items.find((item) => item.path === path)?.ref ?? path;
+  if (tasks <= maxTasks || sizeAccepted(view, ref)) return [];
   return [warning(path, undefined, "plan-too-large", `the plan has ${tasks} tasks, over ${maxTasks}; split the change through rethink at feature level`)];
 }

@@ -27,3 +27,5 @@ Envision decides the what: the problem, who has it, and the behaviour that solve
 
 - After project scope: run `architect` at project scope.
 - After feature scope: run `architect "<feature>"`.
+
+Start it in a new session, so its context starts empty.

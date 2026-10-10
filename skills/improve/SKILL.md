@@ -48,4 +48,4 @@ Done when every candidate has a journaled disposition, the target architecture i
 
 ## Next step
 
-`plan` for the first prefactor change. When the user picked nothing, `next`.
+`plan` for the first prefactor change. When the user picked nothing, `next`. Start it in a new session, so its context starts empty.

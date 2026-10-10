@@ -16,7 +16,7 @@ Build turns an approved plan into code, one task at a time. Each task starts wit
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-dependency-approval/SKILL.md`
-3. **Read the plan and the design.** Read the change's `change.md` and its feature's `feature.md`. Read the full body of every element the change builds, and every scenario it delivers. Read `commands:` in `.cruze/config.yaml`.
+3. **Read the plan and the design.** Read the change's `change.md`. Run `cruze show <ref>` and read its output: the full body of every element the change builds, every scenario it delivers, and the settled decisions. Read an element it lists as cited only when the task calls it, from the place it names, never `feature.md` or `docs/architecture.md` whole. Read `commands:` in `.cruze/config.yaml`.
 4. **Build each open task in order,** following the task loop below. Skip the tasks already ticked in `## Progress`.
 5. **Finish.** When every task is ticked:
    - Run the format, lint and build commands and the full suite, as `.agents/skills/cruze-formats/reference/config.md` defines it under `commands`.
@@ -49,7 +49,8 @@ The plan is design. Within a task you decide only what is local and reversible.
   - a new element, port operation or scenario;
   - a file outside the owner's module, other than the test support module;
   - a change to an approved scenario's behaviour, or to its test;
-  - a dependency, or a feature of an approved dependency, that the design doesn't name. Ask for it as `.agents/skills/cruze-dependency-approval/SKILL.md` says, and never write around it with hand-written code or a shell command.
+  - a dependency, or a feature of an approved dependency, that the design doesn't name. Ask for it as `.agents/skills/cruze-dependency-approval/SKILL.md` says, and never write around it with hand-written code or a shell command;
+  - a limit, timeout, buffer size, message or error case the design doesn't give. Picking one in code hides a gap in the design: the user decides it, at feature level. Two projects settled 35 of them as deviations.
 
   Explain what you found, with the evidence, and don't work around it. Completed tasks keep their commits.
 - Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`.
@@ -60,4 +61,4 @@ Never weaken, skip or delete a behaviour, contract or smoke test for an approved
 
 ## Next step
 
-`verify`, once every task is ticked and the finishing checks pass.
+`verify`, once every task is ticked and the finishing checks pass. Start it in a new session, so its context starts empty: one session that ran plan, build, verify and land reached 745k tokens.

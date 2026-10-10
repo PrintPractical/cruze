@@ -56,4 +56,4 @@ Landed work is history, so rethink never edits an archived folder.
 
 ## Next step
 
-Run `cruze next`, and name what it says.
+Run `cruze next`, and name what it says. Start it in a new session, so its context starts empty.

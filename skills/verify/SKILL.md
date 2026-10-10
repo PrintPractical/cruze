@@ -16,7 +16,7 @@ Verify answers one question: does this change work when someone uses it? Green t
    - When one fails, fix the code in a commit and run them again. When a fix needs design, stop and offer `rethink`.
 3. **Check the dependencies.** Follow "Checking" in `.agents/skills/cruze-dependency-approval/SKILL.md` against the base commit. An unrecorded dependency is a blocker.
 4. **Run the verifier.** Run the verifier role from `.agents/skills/cruze-roles/SKILL.md` for the change, with the mechanical checks' results and the commit they ran at. It must be able to build and run the system. When it runs through `cruze review`, check that `review.command` in `.cruze/config.yaml` allows the project's build and run commands, and add them with the user's agreement. Done when you have its report, with a result for every delivered scenario.
-5. **Review the code.** Run the review in the roles skill with the code reviewer, `review=code`, `--item <ref>` and the base commit. Fix each finding whose disposition is `fixed` in a commit, running the tests each fix touches, and `test` when `commands:` has a `test_full`. Then check the fixes in round 2.
+5. **Review the code.** Run the review in the roles skill with the code reviewer, `review=code`, `--item <ref>` and the base commit. Fix each finding whose disposition is `fixed` in a commit, running the tests each fix touches, and `test` when `commands:` has a `test_full`. Then check the fixes yourself, as round 2 in the roles skill says.
 6. **Write the manual test script** as `manual-test.md` in the change folder, following [manual-test.md](manual-test.md). Commit it.
 7. **Check the fixes once.** When code changed since the last `checks` entry, run the format, lint and build commands and the full suite once more, and record them as in step 2. Done when the last `checks` entry is at a commit with no code changes since.
 8. **Report.** Show the user four things:
@@ -41,3 +41,5 @@ Done when the decision is recorded.
 
 - Accepted: `land`.
 - Sent back: `build` for reopened tasks, or `rethink` for design.
+
+Start it in a new session, so its context starts empty.

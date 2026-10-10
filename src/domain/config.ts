@@ -38,9 +38,11 @@ export interface ChangeLimits {
   maxScenarios: number;
   /** A plan with more tasks than this splits. */
   maxTasks: number;
+  /** Features and changes the user accepted outside the band, by ref, each with the reason. */
+  exceptions: Array<{ item: string; reason: string }>;
 }
 
-export const DEFAULT_CHANGE_LIMITS: ChangeLimits = { minBuilds: 3, maxScenarios: 30, maxTasks: 25 };
+export const DEFAULT_CHANGE_LIMITS: ChangeLimits = { minBuilds: 3, maxScenarios: 30, maxTasks: 25, exceptions: [] };
 
 export interface Layer {
   name: string;
@@ -120,6 +122,14 @@ export function parseConfig(text: string): ConfigResult {
     minBuilds: positiveInt(limits["min_builds"], "changes.min_builds", problems) ?? DEFAULT_CHANGE_LIMITS.minBuilds,
     maxScenarios: positiveInt(limits["max_scenarios"], "changes.max_scenarios", problems) ?? DEFAULT_CHANGE_LIMITS.maxScenarios,
     maxTasks: positiveInt(limits["max_tasks"], "changes.max_tasks", problems) ?? DEFAULT_CHANGE_LIMITS.maxTasks,
+    exceptions: (Array.isArray(limits["exceptions"]) ? limits["exceptions"] : []).flatMap((entry: unknown, i: number) => {
+      const record = asRecord(entry);
+      if (typeof record?.["item"] !== "string" || typeof record["reason"] !== "string" || record["reason"].trim() === "") {
+        problems.push(`changes.exceptions[${i}] needs an item and a non-empty reason`);
+        return [];
+      }
+      return [{ item: record["item"], reason: record["reason"] }];
+    }),
   };
 
   const config: CruzeConfig = {

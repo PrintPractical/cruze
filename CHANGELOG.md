@@ -7,10 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-From the 0.0.7 journals of two projects, an iPhone app and a Rust daemon: 39 landed changes, 17 defect rethinks and 182 deviations. Code was being bent to fit file budgets, designs avoided dependencies even where the clean design needed one, and a few checks ran too late or not at all.
+From the 0.0.7 journals of two projects, an iPhone app and a Rust daemon: 39 landed changes, 17 defect rethinks and 182 deviations. Code was being bent to fit file budgets, designs avoided dependencies even where the clean design needed one, and a few checks ran too late or not at all. Their session transcripts showed where the time went: one session ran plan, build, verify and land and reached 745k tokens of context, the median turn read over 300k, a 40k-word architecture was read whole about 150 times per project, and every round 2 of every review found nothing.
+
+### Added
+
+- `cruze show <ref>` prints the design a change builds, or a feature's whole delta: each element's full body from the delta or the living docs, the delivered scenarios, the elements they cite with where each sits, the settled decisions and the item's dispositions. Plan, build, the reviewers and the verifier read it instead of `docs/architecture.md` and `feature.md` whole.
+- `changes.exceptions` in `.cruze/config.yaml` records the user accepting a feature or change outside the size band, with the reason. The item's warning stops, and `cruze approve` refuses an item whose size warning still stands (`size-unaccepted`) until it is listed or split. Before, three accepted changes warned on every validate run for good, and a 28-task change was approved over its warning and went on to 26 deviations.
+- Graded eval runs, for maintainers: `node evals/run.ts [case...]` runs an eval case's `## Run` prompt headlessly on a copy of the console-access fixture, grades the result against the case's `## Expected` and `## Check` with a second headless run, and reports pass, fail or manual per case. Before, 43 eval cases pinned Cruze changes to their evidence and nothing could execute one.
 
 ### Changed
 
+- Every step runs in a new session. Each workflow skill's next step, `cruze next` and the `AGENTS.md` template say so, so a step's context holds what it reads and nothing else.
+- `cruze journal list` lists the project's and the work in flight's entries, and landed work's with `--all`. Reviewers read the item's ledger with `--item <ref>`. Before, reviewers in two projects listed every disposition ever recorded, about 36k tokens a time, a hundred times each.
+- `cruze status` JSON carries each approval's time, approver and basis instead of its hashes, which were most of each read.
+- Round 2 of a review is checked by the agent. A fresh reviewer no longer re-reads the fixes: in 49 recorded rounds across two projects, none found a blocker still open.
+- The verifier drives only the scenarios whose test-plan seam is an inbound adapter, a screen or a real adapter, quotes the behaviour test for the rest, and never idles through a timer or a scheduled notification. One app project's verifier ran 31 minutes a change, mostly sleeping, for one defect in 28 runs.
+- The design reviewer checks each use case and port operation for the values build would otherwise have to pick: errors, timeouts, limits, transitions and the owner of each message. Build stops for a rethink when the design gives none. Two projects settled 35 of them as deviations.
+- Plan finds the owner of each rule several tasks apply and names it as a callee, and puts an accessor, variant or type in the task whose code first handles it. The plan reviewer checks both. Two projects wrote 20 rules twice and built 13 items in a task other than the planned one.
+- The code reviewer reads the change's deviations and reports as a blocker any that needed a rethink. Two projects recorded 13 such deviations.
 - File budgets no longer shape code. A Rust file's `#[cfg(test)]` modules don't count toward `check.max_lines` or `check.max_types`, so domain tests stay inline. A file over budget with one responsibility gets a `check.exceptions` entry instead of a type alias, a string error or a function moved away from its owner, and the code reviewer reports code bent to fit a budget.
 - Dependencies are weighed by the design they produce. The dependency-approval skill recommends the cleanest, most idiomatic option, says that avoiding a dependency is never a reason on its own, and treats a crate the idiom needs, such as one for a derive macro, as part of the idiom. Build asks for a missing dependency or feature instead of working around it, and both reviewers report workarounds.
 - The design reviewer checks that every type, trait, macro and framework the design names comes from a dependency that each crate or target using it declares, test support included, and that the import rules allow it.
@@ -21,6 +35,7 @@ From the 0.0.7 journals of two projects, an iPhone app and a Rust daemon: 39 lan
 
 ### Fixed
 
+- `cruze <command> | head` ends quietly when the reader closes the pipe early. Before, a listing larger than the pipe buffer ended in a Node stack trace.
 - The build gate refuses to start a change until every change in its `Depends on` has landed on the branch.
 - `cruze check` counts the modules that work in progress adds as part of the module map, so their files no longer warn `outside-module-map`, or fail `--ci`, until land.
 - `cruze validate` reports a module `Path` written as a glob (`module-path-glob`). Before, a glob matched no file.

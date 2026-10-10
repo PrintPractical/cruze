@@ -18,4 +18,22 @@ It prints the named files and the ones never loaded, and exits 1 when any is mis
 
 ## Graded runs
 
-Fixture projects and graded runs arrive with the workflow skills, and are written from real runs in the dogfooding phase.
+An eval case in `cases/` with a `## Run` section (format in `.agents/skills/cruze-retro/eval-cases.md`) runs headlessly and is graded. For each case, the runner copies the fixture project into a temporary directory and commits it, installs the skills from source there with a `cruze` shim that runs `src/main.ts`, runs the case's setup commands and commits again, then gives the prompt to the agent (`claude -p`, with the case's tools and `--permission-mode acceptEdits`). A second headless run grades the result against the case's `## Expected` and `## Check`, from the agent's output, the copy's `git status` and `git diff`, and its journal (`cruze journal list --all --json`), and ends with `VERDICT: pass` or `VERDICT: fail: <reason>`.
+
+One case:
+
+```sh
+node evals/run.ts evals/cases/2026-09-28-plan-lists-callers.md
+```
+
+All cases:
+
+```sh
+node evals/run.ts
+```
+
+Options: `--agent <command>` (default `claude`; it must take `-p <prompt>`), `--fixture <dir>` (default `examples/console-access`), `--out <report.json>` to write the report to a file as well, and `--keep` to keep every temporary copy.
+
+The report is JSON on stdout: one entry per case with its `status` (`pass`, `fail`, `manual` or `error`), the grader's `reason` for a fail or what went wrong for an error, and the `workdir` of a kept copy, plus the counts. It exits 1 when a case failed or errored. A failed or errored case's copy is kept at `workdir` for inspection; a passed one's is deleted unless `--keep`. A case without `## Run` is reported as `manual` and counts against nothing.
+
+Each case costs one or two headless agent runs: the agent's, then the grader's when the agent's run succeeded. An agent run is limited to 30 minutes and the grader to 10. Run one case while writing it, and the whole set before a release.

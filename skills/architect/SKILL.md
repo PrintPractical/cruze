@@ -41,3 +41,5 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 - Project scope: `plan` for the walking-skeleton change.
 - Feature scope: `plan` for the feature's first change.
 - Tweak scope: `plan` for the standalone change.
+
+Start it in a new session, so its context starts empty.

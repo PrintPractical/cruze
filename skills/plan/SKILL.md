@@ -19,14 +19,14 @@ Plan turns one designed change into work an implementer can do without guessing:
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-formats/reference/work-items.md`
-6. **Read the design it builds.** Read the full body of every element in the scope, from the feature's delta or `docs/architecture.md`, and every scenario it delivers.
+6. **Read the design it builds.** Run `cruze show <ref>` and read its output: the full body of every element in the scope, every scenario it delivers, the settled decisions and the ledger. Read an element it lists as cited only when a task will call it, from the place it names. Don't read `docs/architecture.md` or `feature.md` whole: two projects read a 40k-word architecture about 150 times each.
 7. **Check for overlap.** Run `cruze status --overlap --change <ref>`. For each change on another branch that touches the same elements, tell the user which elements are shared and which change should land first. Record the answer under `## Risks`.
 8. **Write the test plan.** Follow [test-plan.md](test-plan.md). Done when every delivered scenario has a `behaviour` row and every port a built adapter implements has a `contract` row.
 9. **Write the tasks.** Follow [tasks.md](tasks.md). Done when every scope ID is proved by a task and every task line matches the grammar.
 10. **Record decisions and risks.** Put task-level choices you made under `## Settled decisions`. Under `## Risks`, name the riskiest task and how its test catches the failure. Remove every template guide.
 11. **Validate.** Run `cruze validate`. Done when it reports no errors for the change.
 12. **Review the plan.** Commit the plan, then run the review in `.agents/skills/cruze-roles/SKILL.md` with the design reviewer and its plan rubric, `review=plan`, and `--item <ref>`.
-13. **Approve.** Run `cruze approve <ref> --by-agent` on this branch and quote its result. The plan carries no design of its own, so once its review has closed, with no blocker open and a disposition for every finding, you approve it for the user. The approval binds the change to the branch. When it refuses with `plan-review-open`, do what it names. A blocker still open after round 2 goes to the user, and once they decide it, they approve the plan themselves with `cruze approve <ref>`.
+13. **Approve.** Run `cruze approve <ref> --by-agent` on this branch and quote its result. The plan carries no design of its own, so once its review has closed, with no blocker open and a disposition for every finding, you approve it for the user. The approval binds the change to the branch. When it refuses with `plan-review-open`, do what it names. When it refuses with `size-unaccepted`, the plan has more tasks than `changes.max_tasks`: split the change through `rethink` at feature level, or, when the user accepts the size, list the change under `changes.exceptions` in `.cruze/config.yaml` with their reason and approve again. A blocker still open after round 2 goes to the user, and once they decide it, they approve the plan themselves with `cruze approve <ref>`.
 14. **Commit** with a message such as `docs: plan <change>`.
 
 ## When the plan needs design
@@ -49,4 +49,4 @@ The walking-skeleton change also makes CI and the project's tooling real. Its pl
 
 ## Next step
 
-Show the user the test plan table, the tasks in order and the risks, and say the plan is approved. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch.
+Show the user the test plan table, the tasks in order and the risks, and say the plan is approved. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch, in a new session so its context starts empty.

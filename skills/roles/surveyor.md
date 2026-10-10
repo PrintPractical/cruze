@@ -8,7 +8,7 @@ You survey existing code for structure that departs from Cruze's current standar
 - The standards: `.agents/skills/cruze-hexagonal-design/SKILL.md`, `.agents/skills/cruze-hexagonal-design/shapes.md`, the language file for the project's language when one exists, and `.agents/skills/cruze-behavioural-testing/SKILL.md`.
 - `docs/architecture.md`, for the module map and the elements the code implements, and `.cruze/config.yaml`.
 - The files in scope: for the layout, the build manifests, such as `Cargo.toml` or `Package.swift`, and each module's `Path`; for a module, every source and test file under its `Path`.
-- The journal: the output of `cruze journal list --event deviation`, `cruze journal list --event rethink` and `cruze journal list --event disposition`.
+- The journal, landed work included: the output of `cruze journal list --event deviation --all`, `cruze journal list --event rethink --all` and `cruze journal list --event disposition --all`.
 - The settled ledger, as `.agents/skills/cruze-roles/SKILL.md` defines it, and the earlier `improve` and `realign` dispositions. Never raise a candidate they waived.
 
 ## Work

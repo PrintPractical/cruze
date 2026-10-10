@@ -11,7 +11,7 @@ import { deltaProblems } from "./delta_rules.ts";
 import { malformedIdHeadings, lineOf } from "./living_rules.ts";
 import { changePlanProblems } from "./plan_rules.ts";
 import { error, warning, type Problem } from "./problem.ts";
-import { changeRowSizeProblems } from "./size_rules.ts";
+import { changeRowSizeProblems, sizeAccepted } from "./size_rules.ts";
 
 const REQUIRED_SECTIONS: Record<WorkItem["kind"], string[]> = {
   feature: ["Intent", "Spec delta", "Architecture delta", "Changes"],
@@ -73,10 +73,10 @@ function featureScopeProblems(view: ProjectView, feature: WorkItem, delta: Delta
   );
   const names = rows.map((row) => row.change);
   const extra = rows[MAX_CHANGES];
-  if (extra !== undefined) {
+  if (extra !== undefined && !sizeAccepted(view, feature.ref)) {
     problems.push(warning(feature.path, extra.line, "feature-size", `the feature has ${rows.length} changes, over ${MAX_CHANGES}; split it into features a single design review can hold`));
   }
-  problems.push(...changeRowSizeProblems(view, feature.path, rows, landedChanges));
+  problems.push(...changeRowSizeProblems(view, feature, rows, landedChanges));
   for (const row of rows) {
     if (!/^\d\d-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.change)) problems.push(error(feature.path, row.line, "change-name", `change "${row.change}" must be named NN-slug`));
     if (names.indexOf(row.change) !== names.lastIndexOf(row.change)) problems.push(error(feature.path, row.line, "change-name", `change ${row.change} is listed twice`));
