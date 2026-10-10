@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { checkCode, traceTests } from "../src/app/use_cases/check_code.ts";
-import { BRANCH_01, CHANGE_01, exampleProject, setVersions, type Harness } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, FEATURE_PATH, edit, exampleProject, setVersions, type Harness } from "./support/harness.ts";
 
 /** A consolectl source tree that follows the example's layer rules. */
 function writeSources(h: Harness, overrides: Record<string, string> = {}): void {
@@ -47,6 +47,18 @@ describe("checking source code", () => {
     assert.deepEqual(report.findings.map((f) => f.message), ["inventory-app may not import access-domain (src/access/domain/console_session.rs)"]);
   });
 
+  // Ork: inline domain tests took new files past 250 lines, so they were moved to tests/ and limited to the public API.
+  it("leaves a Rust file's inline test modules out of its budgets", async () => {
+    const h = await exampleProject();
+    const tests = `#[cfg(test)]\nmod tests {\n    use super::*;\n${"    #[test]\n    fn case() {}\n".repeat(60)}    struct Probe;\n}\n`;
+    writeSources(h, {
+      "src/inventory/domain/hop.rs": `${"// line\n".repeat(200)}${tests}`,
+      "src/inventory/domain/console_path.rs": `${"// line\n".repeat(251)}${tests}`,
+    });
+    const report = await checkCode(h.deps, { ci: true });
+    assert.deepEqual(report.findings.map((f) => [f.path, f.message]), [["src/inventory/domain/console_path.rs", "251 lines, not counting its inline tests, over the budget of 250; split it by responsibility"]]);
+  });
+
   it("warns on budgets locally and fails them in CI, except for files listed with a reason", async () => {
     const h = await exampleProject();
     const long = `${"// line\n".repeat(260)}`;
@@ -63,6 +75,15 @@ describe("checking source code", () => {
     writeSources(h, { "src/helpers.rs": "pub fn help() {}\n" });
     const report = await checkCode(h.deps, { ci: false });
     assert.ok(report.findings.some((f) => f.path === "src/helpers.rs" && f.rule === "outside-module-map"));
+  });
+
+  // Ork: files of a module the feature adds failed `cruze check --ci` in verify, because land hadn't merged the module yet.
+  it("counts a module that work in progress adds as part of the module map", async () => {
+    const h = await exampleProject();
+    writeSources(h, { "src/access/recording/session_log.rs": "pub struct SessionLog;\n" });
+    edit(h.files, FEATURE_PATH, "## Architecture delta\n", "## Architecture delta\n\n### ADDED MOD-access.recording: Session recording\n- Path: `src/access/recording/`\n- Layer: adapter\n");
+    const report = await checkCode(h.deps, { ci: true });
+    assert.deepEqual(report.findings.filter((f) => f.rule === "outside-module-map"), []);
   });
 
   // mw-configuration-service: tests that outgrew their module went to src/<module>/tests.rs in half the crates, tests/ in the rest.

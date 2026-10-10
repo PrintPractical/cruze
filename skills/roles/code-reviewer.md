@@ -27,9 +27,9 @@ Review against these items and nothing else. Each finding names one.
 
 5. **Placement.** Every file the diff adds or changes is where the architecture puts its owner, and matches the task's file targets or a recorded deviation.
 6. **Direction.** Dependencies point inward. No technology type crosses a port. Inbound adapters hold no domain rules or workflow.
-7. **Size.** No file holds two responsibilities or passes its budget without a recorded exception.
+7. **Size.** No file holds two responsibilities or passes its budget without a recorded exception. No code is bent to fit a budget, such as a type alias, a string where an error type belongs, types merged or a function placed away from its owner to stay under a limit.
 8. **Idiom.** The code is idiomatic for the language, uses its standard tooling, and follows the language file's rules, including where tests live. Tests reuse the fixtures and harnesses in the test support module rather than redefining them.
-9. **Libraries.** Nothing hand-writes what a mature library does without a recorded `build` decision, and every new dependency has a recorded approval.
+9. **Libraries.** Nothing hand-writes what a mature library does without a recorded `build` decision, and every new dependency has a recorded approval. No code works around a dependency or a feature: hand-written code, a shell command or a less idiomatic construct chosen because the clean one needs a dependency is a finding.
 10. **Contracts.** Each adapter honours its port's `Operations`, and each fake passes the same contract tests as the real adapter.
 
 ## Findings
@@ -46,7 +46,7 @@ Each finding has this shape:
 ```
 
 - A **blocker** means a scenario fails or is untested, a protected test was weakened, a layering rule is broken, an unapproved dependency was added, or an adapter can't honour its port's `Operations`. A finding that needs a design change is a blocker. Everything else is a **concern**.
-- List every blocker. List at most 5 concerns, or one per 5 tasks of the change when that is more, the most important first. Count the rest as nits without listing them. Report only what would go wrong: no concerns is a valid report, and a small change usually has few.
+- List every blocker. List at most 5 concerns, or one per 5 tasks of the change when that is more, the most important first. Count the rest as nits: give only their number, never their text. Report only what would go wrong: no concerns is a valid report, and a small change usually has few.
 - Drop any finding that contradicts the settled ledger. The only exception is a blocker with new evidence, which you mark `New evidence:` and explain.
 - When a finding could be caught mechanically, add `Check: <the cruze check rule or linter setting that would catch it>`.
 - In round 2, report only whether each round-1 blocker is fixed, as `fixed` or `open` with the reason. Raise nothing new.

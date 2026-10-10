@@ -60,6 +60,6 @@ The full new requirement text.
 
 - `ADDED CAPABILITY` creates a new spec file, with its title and purpose paragraph. It is only needed for a capability that has no file yet.
 - `ADDED` introduces a new requirement with all its scenarios.
-- `MODIFIED` replaces a requirement's whole block, including every scenario it keeps. A scenario left out is removed.
+- `MODIFIED` replaces a requirement's whole block, including every scenario it keeps. A scenario left out is removed, so no part of the work may cite it by ID (`cites-dropped`); describe it in words.
 - `REMOVED` retires a requirement and its scenarios, and needs a `Reason` and a `Migration`.
 - `land` shifts heading levels to fit the spec file and keeps the managed status of scenarios that were already built.

@@ -6,6 +6,7 @@ import { FIRST_RELEASE, isPending } from "../../domain/versions/rule_versions.ts
 import type { CruzeConfig } from "../../domain/config.ts";
 import type { ProjectView } from "../../domain/project/project_view.ts";
 import { resolveChange } from "../../domain/project/artifact_ref.ts";
+import { readDelta } from "../../domain/project/deltas.ts";
 import { activeChange } from "../../domain/status/work_status.ts";
 import { traceScenarios, type TraceReport } from "../../domain/trace.ts";
 import { loadView, type ProjectDeps } from "../project_context.ts";
@@ -88,8 +89,14 @@ function globBase(glob: string): string {
   return fixed.join("/");
 }
 
+/**
+ * Every module's Path: the living docs' modules, and the modules that work in progress adds or
+ * changes in its architecture delta, since their files are written before land merges them.
+ */
 function modulePaths(view: ProjectView): string[] {
-  return [...view.living.elements.values()]
-    .filter((e) => e.id.startsWith("MOD-"))
-    .flatMap((e) => (factsOf(e.doc, e.element).get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? "")));
+  const living = [...view.living.elements.values()].filter((e) => e.id.startsWith("MOD-")).map((e) => ({ doc: e.doc, element: e.element }));
+  const inFlight = view.items
+    .filter((item) => item.kind !== "change" && !item.archived)
+    .flatMap((item) => readDelta(item.doc).entries.filter((entry) => entry.element.id.startsWith("MOD-") && entry.element.op !== "REMOVED").map((entry) => ({ doc: item.doc, element: entry.element })));
+  return [...living, ...inFlight].flatMap(({ doc, element }) => (factsOf(doc, element).get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? "")));
 }

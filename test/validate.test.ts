@@ -105,6 +105,14 @@ describe("validating a project", () => {
     { name: "a leftover template guide", path: "docs/vision.md", from: "## Non-goals\n", to: "## Non-goals\n\n- <What the product deliberately doesn't do.>\n", rule: "template-leftover" },
     { name: "a roadmap blocking cycle", path: "docs/roadmap.md", from: "| walking-skeleton | change | GOAL-paths-in-config | |", to: "| walking-skeleton | change | GOAL-paths-in-config | open-console |", rule: "roadmap-cycle" },
     { name: "a frontmatter ID that isn't the folder name", path: FEATURE_PATH, from: "id: 2026-09-25-open-console", to: "id: open-console", rule: "frontmatter" },
+    { name: "a module Path written as a glob", path: "docs/architecture.md", from: "- Path: `src/access/adapters/`", to: "- Path: `src/access/adapters/**`", rule: "module-path-glob" },
+    {
+      name: "a citation of a scenario that a modified requirement drops",
+      path: FEATURE_PATH,
+      from: "## Spec delta\n",
+      to: "## Spec delta\n\n### MODIFIED REQ-inventory.list-devices: List configured devices\nThe CLI SHALL list every configured device in name order, and say when none is configured instead of SCN-inventory.no-config's message.\n\n#### SCN-inventory.list-configured: Devices with different console paths\n- GIVEN the configuration defines `lab-router`\n- WHEN the user runs `consolectl list`\n- THEN the output has one line\n",
+      rule: "cites-dropped",
+    },
     { name: "an invalid config value", path: ".cruze/config.yaml", from: "max_lines: 250", to: "max_lines: -1", rule: "config" },
   ];
   for (const c of cases) {

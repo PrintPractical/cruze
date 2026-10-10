@@ -20,7 +20,7 @@ Build turns an approved plan into code, one task at a time. Each task starts wit
 4. **Build each open task in order,** following the task loop below. Skip the tasks already ticked in `## Progress`.
 5. **Finish.** When every task is ticked:
    - Run the format, lint and build commands and the full suite, as `.agents/skills/cruze-formats/reference/config.md` defines it under `commands`.
-   - Run `cruze check` and `cruze trace`, and quote their results.
+   - Run `cruze check --ci` and `cruze trace`, and quote their results.
    - When all of them pass, record the commit they ran at with `cruze journal add checks --set commit=<commit> --item <ref>`, where the commit is the output of `git rev-parse --short HEAD`. Verify quotes this instead of running the suite again.
    - Commit the progress record with a message such as `chore: record progress on <change>`.
    - Done when all of them pass and the checks are recorded.
@@ -30,26 +30,26 @@ Build turns an approved plan into code, one task at a time. Each task starts wit
 For task `T<n>`:
 
 1. **Read it.** Note its owner, its files, the IDs it proves, and the test plan rows for those IDs.
-2. **Red.** Write the tests for the IDs it proves, at the seams the test plan names, carrying the IDs. Run them, and see them fail for the reason you expect.
+2. **Red.** Write the tests for the IDs it proves, at the seams the test plan names, carrying the IDs. Run them, and see them fail for the reason you expect. When the task names a break, use it, or any break that compiles and turns the same assertion red.
 3. **Green.** Write the least code that makes them pass, in the task's files. Code that belongs to another task, or another change, waits for it, even when the next change will need it.
-4. **Check.** Run `cruze check <the task's files>`, the formatter and the linter, and fix what they report. Run the tests the task touched. When `commands:` has a `test_full`, run `test` too, since it is the fast tier. Otherwise run the rest of the suite only when it is quick.
+4. **Check.** Run `cruze check --ci <the task's files>`, the formatter and the linter, and fix what they report. Meet a budget as the budget rule in `.agents/skills/cruze-hexagonal-design/SKILL.md` says, never by bending the code. Run the tests the task touched. When `commands:` has a `test_full`, run `test` too, since it is the fast tier. Otherwise run the rest of the suite only when it is quick.
 5. **Commit** with a Conventional Commit message naming the task, such as `feat(access): console session state machine (T2)`.
 6. **Tick it.** Run `cruze task done T<n>`, which records the commit. Its progress edit rides along in the next commit.
 
 A task with no behaviour of its own, such as a package manifest or a plain data type, has no red step. Build it, check it, commit it and tick it, and the first task whose test uses it covers it.
 
-Done for a task when its tests pass, `cruze check` passes for its files, the commit exists and the task is ticked.
+Done for a task when its tests pass, `cruze check --ci` passes for its files, the commit exists and the task is ticked.
 
 ## Deviations
 
 The plan is design. Within a task you decide only what is local and reversible.
 
-- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a private type, a fixture or harness added to the test support module that the task's tests need, or two tasks' commits swapped for a reason. The test support module is in every test-writing task's scope, so extend it rather than writing a private helper in a test file. Run `cruze task deviation T<n> "<what you did and why>"`.
+- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a new file of the owner's module that splits off a responsibility, a `check.exceptions` entry with its reason, a private type, a fixture or harness added to the test support module that the task's tests need, or two tasks' commits swapped for a reason. The test support module is in every test-writing task's scope, so extend it rather than writing a private helper in a test file. Run `cruze task deviation T<n> "<what you did and why>"`.
 - **Stop and offer `rethink`** when the code needs any of these:
   - a new element, port operation or scenario;
   - a file outside the owner's module, other than the test support module;
   - a change to an approved scenario's behaviour, or to its test;
-  - a dependency the design doesn't name.
+  - a dependency, or a feature of an approved dependency, that the design doesn't name. Ask for it as `.agents/skills/cruze-dependency-approval/SKILL.md` says, and never write around it with hand-written code or a shell command.
 
   Explain what you found, with the evidence, and don't work around it. Completed tasks keep their commits.
 - Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`.
