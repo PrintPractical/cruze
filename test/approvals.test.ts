@@ -5,7 +5,7 @@ import { checkBuildGate, showStatus } from "../src/app/use_cases/project_status.
 import { recordEvent } from "../src/app/use_cases/journal_events.ts";
 import { completeTask } from "../src/app/use_cases/record_progress.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, FEATURE, FEATURE_PATH, approveDesign, edit, exampleProject } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, CHANGE_02, CHANGE_02_TEXT, FEATURE, FEATURE_PATH, approveDesign, edit, exampleProject } from "./support/harness.ts";
 
 const rejectsWith = (code: string) => (error: unknown) => error instanceof CruzeError && error.code === code;
 
@@ -20,6 +20,18 @@ describe("approvals and the build gate", () => {
     const gate = await checkBuildGate(h.deps);
     assert.deepEqual(gate.reasons, []);
     assert.equal(gate.passed, true);
+  });
+
+  // An agent built twelve tasks of a change before the change it depended on had landed.
+  it("blocks building a change until every change it depends on has landed", async () => {
+    const h = await exampleProject();
+    await approveDesign(h.deps);
+    h.files.files.set(`.cruze/features/${FEATURE}/changes/02-ssh-hops/change.md`, CHANGE_02_TEXT);
+    h.repository.branch = "open-console-ssh";
+    await approveArtifact(h.deps, CHANGE_02);
+    const gate = await checkBuildGate(h.deps);
+    assert.equal(gate.passed, false);
+    assert.deepEqual(gate.reasons, [`${CHANGE_02} depends on 01-local-serial, which hasn't landed here; land it, then merge main into this branch`]);
   });
 
   it("refuses to approve a change before its feature", async () => {

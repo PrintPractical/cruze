@@ -90,6 +90,7 @@ Layers are dependency boundaries, not runtime hops. A port can be a plain functi
 
 - Give each responsibility its own module, grouped by domain concept, with the hexagonal roles inside. A context's core is usually one module, with each port beside the use cases that define it, and grows submodules by concept, not by layer. A file may hold a few closely related types.
 - When a file passes its budget (`check:` in `.cruze/config.yaml`, enforced by `cruze check`) or gains a second responsibility, split it into a submodule named for what it owns.
+- A budget is a prompt to look for a second responsibility, never a shape to write code to. Write the code as you would with no budget: no type alias, string where an error type belongs, merged types or function moved away from its owner to stay under a limit. When a file over budget holds one responsibility, such as the related types of one grammar, list it under `check.exceptions` with that reason.
 - Entry-point and namespace files, such as `main`, `lib.rs`, `mod.rs` and `index.ts`, hold only wiring and declarations.
 - Don't create generic modules such as `utils`, `helpers`, `common`, `services`, `models`, `types` or `manager`. Shared behaviour belongs with the concept that owns it.
 - Duplication is semantic. Two implementations of one rule are duplication even when the text differs, so consolidate them in the owner, not in a helper.

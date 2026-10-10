@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+From the 0.0.7 journals of two projects, an iPhone app and a Rust daemon: 39 landed changes, 17 defect rethinks and 182 deviations. Code was being bent to fit file budgets, designs avoided dependencies even where the clean design needed one, and a few checks ran too late or not at all.
+
+### Changed
+
+- File budgets no longer shape code. A Rust file's `#[cfg(test)]` modules don't count toward `check.max_lines` or `check.max_types`, so domain tests stay inline. A file over budget with one responsibility gets a `check.exceptions` entry instead of a type alias, a string error or a function moved away from its owner, and the code reviewer reports code bent to fit a budget.
+- Dependencies are weighed by the design they produce. The dependency-approval skill recommends the cleanest, most idiomatic option, says that avoiding a dependency is never a reason on its own, and treats a crate the idiom needs, such as one for a derive macro, as part of the idiom. Build asks for a missing dependency or feature instead of working around it, and both reviewers report workarounds.
+- The design reviewer checks that every type, trait, macro and framework the design names comes from a dependency that each crate or target using it declares, test support included, and that the import rules allow it.
+- Plans name the break a test is first seen failing against as the wrong behaviour, and build may use any break that compiles and turns the same assertion red. Each test goes in the task that builds what it checks, and a task that adds a module, file or dependency lists the file that declares it.
+- Build runs `cruze check --ci`, the same check verify and CI run. Before, a budget warning passed build and failed verify.
+- Review nits are a count only: they get no disposition and aren't brought to the user. Reviewers may list more concerns for a feature with a large spec delta, one per 5 scenarios.
+
+### Fixed
+
+- The build gate refuses to start a change until every change in its `Depends on` has landed on the branch.
+- `cruze check` counts the modules that work in progress adds as part of the module map, so their files no longer warn `outside-module-map`, or fail `--ci`, until land.
+- `cruze validate` reports a module `Path` written as a glob (`module-path-glob`). Before, a glob matched no file.
+- `cruze validate` reports a citation of a scenario that a `MODIFIED` requirement in the delta leaves out (`cites-dropped`). Before, it was caught only when land refused to merge.
+
 ## [0.0.7] - 2026-10-06
 
 Structure that fits the kind of system. Across a Rust client library, two Rust daemons and an iPhone app, the hexagonal layers had turned into folders and build targets: the app came out as a package target per layer per context, with over a thousand `public` declarations. Layers are now roles rather than folders, a context starts as one core module with its adapters, and architect starts from the layout normal for a library, a daemon, an app or a CLI in its language. Ports and adapters are unchanged. The new `improve` skill brings existing code to these standards when you choose, one picked candidate at a time or all of them. Existing projects upgrade as the README's Upgrading section says, and every change applies to new work only.

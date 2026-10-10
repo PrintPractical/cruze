@@ -41,6 +41,11 @@ export function elementProblems(path: string, doc: MarkdownDoc, element: Element
       problems.push(error(path, element.start, "fact-value", `${element.id} ${key} must be one of ${rule.values.join(", ")}`));
     }
   }
+  if (element.kind === "MOD") {
+    for (const glob of (facts.get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => m[1] ?? "")).filter((p) => /[*?[{]/.test(p))) {
+      problems.push(error(path, element.start, "module-path-glob", `${element.id} Path \`${glob}\` is a glob, which matches no file; name a directory ending in / or a single file, one per Path value`));
+    }
+  }
   const module = facts.get("Module")?.[0];
   if (module !== undefined && !findIds(module).some((id) => id.startsWith("MOD-"))) {
     problems.push(error(path, element.start, "fact-value", `${element.id} Module must name a MOD element`));

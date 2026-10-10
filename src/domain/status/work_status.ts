@@ -1,7 +1,7 @@
 import { evaluateApproval, type ApprovalStatus } from "../approvals/evaluate.ts";
 import { PATHS } from "../project/layout.ts";
 import { readDelta } from "../project/deltas.ts";
-import { readScope } from "../project/plan_parts.ts";
+import { readChangesTable, readScope } from "../project/plan_parts.ts";
 import { readProgress } from "../project/progress.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { changesOf, featureOf, type WorkItem } from "../project/work_items.ts";
@@ -80,12 +80,23 @@ export function buildGateReasons(view: ProjectView, branch: string | null): stri
   const feature = featureOf(view.items, change);
   if (feature !== undefined) required.push(feature.path);
   if (view.snapshot.has(PATHS.architecture)) required.push(PATHS.architecture);
-  return required.flatMap((path) => {
+  const approvals = required.flatMap((path) => {
     const status = evaluateApproval(view, path);
     if (status.state === "approved") return [];
     const detail = status.changed.length > 0 ? `: ${status.changed.join(", ")} changed` : status.unjournaled === true ? ": the approval has no journal entry" : "";
     return [`${path} is ${status.state}${detail}`];
   });
+  return [...approvals, ...unlandedDependencies(view, change, feature)];
+}
+
+/** The changes this change's row in its feature's Changes table depends on that haven't landed on this branch. */
+function unlandedDependencies(view: ProjectView, change: WorkItem, feature: WorkItem | undefined): string[] {
+  if (feature === undefined) return [];
+  const row = readChangesTable(feature.doc).find((r) => r.change === change.folderName);
+  const landed = new Set(changesOf(view.items, feature).filter((c) => readProgress(c.doc).landed !== undefined).map((c) => c.folderName));
+  return (row?.dependsOn ?? [])
+    .filter((dependency) => !landed.has(dependency))
+    .map((dependency) => `${change.ref} depends on ${dependency}, which hasn't landed here; land it, then merge main into this branch`);
 }
 
 /** The elements a change touches: its scope and its delta, not the elements it only cites, such as a test seam. */

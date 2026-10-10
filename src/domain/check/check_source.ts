@@ -1,5 +1,6 @@
 import type { CruzeConfig, Layer } from "../config.ts";
 import { matchesAny } from "../glob.ts";
+import { budgetedText } from "./budget_text.ts";
 import { importsOf, resolveImport } from "./imports.ts";
 import { countTypes } from "./type_count.ts";
 
@@ -50,11 +51,13 @@ export function checkSource(input: CheckInput): CheckFinding[] {
       }
     }
     const excepted = config.check.exceptions.some((exception) => exception.path === path);
-    const lines = text.split("\n").length - (text.endsWith("\n") ? 1 : 0);
+    const budgeted = budgetedText(path, text);
+    const lines = budgeted.split("\n").length - (budgeted.endsWith("\n") ? 1 : 0);
     if (!excepted && lines > config.check.maxLines) {
-      findings.push({ path, rule: "max-lines", severity: "warning", message: `${lines} lines, over the budget of ${config.check.maxLines}; split it by responsibility` });
+      const measured = budgeted === text ? "" : ", not counting its inline tests";
+      findings.push({ path, rule: "max-lines", severity: "warning", message: `${lines} lines${measured}, over the budget of ${config.check.maxLines}; split it by responsibility` });
     }
-    const types = countTypes(path, text);
+    const types = countTypes(path, budgeted);
     if (!excepted && types !== null && types > config.check.maxTypes) {
       findings.push({ path, rule: "max-types", severity: "warning", message: `${types} top-level types, over the budget of ${config.check.maxTypes}` });
     }

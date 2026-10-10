@@ -52,7 +52,7 @@ layers:
 | `tracker` | Where work items live. `markdown` is the only value in V1. |
 | `source` | Globs of the source files `cruze check` inspects. |
 | `tests` | Globs of the files `cruze trace` searches for scenario IDs. |
-| `check.max_lines` | Line budget per source file. Test files outside `source` have no budget. |
+| `check.max_lines` | Line budget per source file. Test files outside `source` have no budget, and a Rust file's `#[cfg(test)]` modules don't count. |
 | `check.max_types` | Budget of top-level types per source file. |
 | `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. `realign` adds entries whose reason ends `scheduled in <ref>`, and landing that change removes them. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |

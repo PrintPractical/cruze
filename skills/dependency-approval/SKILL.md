@@ -9,11 +9,18 @@ Every new dependency needs the user's explicit approval before it is declared or
 
 ## Asking
 
-1. Establish the need: the capability, and why the standard library and the project's already-approved dependencies don't provide it.
+1. Establish the need: the capability, and what the design looks like with the dependency and without it, using the standard library and the project's already-approved dependencies.
 2. Choose a recommendation, following `.agents/skills/cruze-research/SKILL.md`, which also says where versions come from.
 3. Say where it will sit: the module that owns it, and the port that keeps it out of the core when it is infrastructure.
 4. Name the realistic alternatives, including writing it yourself and what owning that code would cost. Never offer a hand-written alternative for cryptography, TLS or a security protocol.
 5. Ask, then wait. Nothing is declared, installed or written against it until the user answers.
+
+## Weighing
+
+- Recommend the option that gives the cleanest design: the one an experienced developer in the language would write, with the least code to own. A dependency, a new crate or package, or a feature of an approved dependency is not a cost in itself. Weigh its concrete costs: maintenance and release health, security record, licence, and build time or binary size where a stated constraint makes them matter.
+- "No new dependency" is never the reason for a choice. Name what the chosen option does better.
+- A structure the language requires for an idiom, such as a separate crate for a derive macro, is part of that idiom, not an extra cost.
+- When the clean design needs a dependency or feature nobody approved yet, ask for it. Hand-written code, a shell command or a less idiomatic construct that exists only to avoid asking is a design flaw.
 
 ```markdown
 **Dependency: `russh` for SSH hops**

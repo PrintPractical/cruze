@@ -35,7 +35,7 @@ Facts are `- Key: value` items. Keys marked required must be present; the others
 | `PORT` | `Direction` (`driven` or `driving`), `Operations`, `Module`, `File` | `Implemented by`, `Future` |
 | `ADP` | `Implements` (a driven port) or `Drives` (use cases), `Technology`, `Module`, `File` | `Adopts` (library and adopt-or-build reason), `Format` (the stored or wire format it owns, or where its schema lives) |
 | `FLOW` | `Elements`, a Mermaid `sequenceDiagram` | `Serves` (SCN IDs, once they exist), `Failure paths` |
-| `MOD` | `Path`, `Layer` (`core`, `domain`, `application`, `adapter` or `composition`) | |
+| `MOD` | `Path` (a directory ending in `/`, or one file; list several in backticks, never a glob), `Layer` (`core`, `domain`, `application`, `adapter` or `composition`) | |
 | `RULE` | one or two sentences of rule | `Enforced by` (config layer names) |
 | `XC` | prose | |
 

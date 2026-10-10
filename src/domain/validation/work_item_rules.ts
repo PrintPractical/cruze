@@ -45,6 +45,10 @@ function itemProblems(view: ProjectView, item: WorkItem): Problem[] {
   for (const cited of findIds(text).filter((cited) => !available.has(cited))) {
     problems.push(error(path, lineOf(text, cited), "unknown-id", `${cited} is cited but defined neither in the living docs nor in this work's deltas`));
   }
+  const dropped = droppedScenarios(view, delta);
+  for (const cited of findIds(text).filter((cited) => dropped.has(cited))) {
+    problems.push(error(path, lineOf(text, cited), "cites-dropped", `${cited} is cited, but ${dropped.get(cited)} in this work's delta leaves it out, so it won't exist once the work lands; describe it in words instead`));
+  }
   if (item.kind !== "change") problems.push(...deltaProblems(view, item));
   if (item.kind === "feature") problems.push(...featureScopeProblems(view, item, delta));
   // A landed change is history: its scope named what it built, which is now built.
@@ -150,4 +154,22 @@ function coverageProblems(
 function scopeIds(item: WorkItem): string[] {
   const scope = readScope(item.doc);
   return scope === null ? [] : [...scope.delivers, ...scope.builds, ...scope.removes];
+}
+
+/**
+ * Living scenarios that a MODIFIED requirement in the delta leaves out, each with that requirement.
+ * Land drops them, so a citation of one passes validation now and breaks only at land.
+ */
+function droppedScenarios(view: ProjectView, delta: Delta): Map<string, string> {
+  const dropped = new Map<string, string>();
+  for (const entry of delta.entries.filter((e) => e.element.op === "MODIFIED" && kindOf(e.element.id) === "REQ")) {
+    const living = view.living.elements.get(entry.element.id);
+    if (living === undefined) continue;
+    const kept = new Set(entry.scenarios.map((s) => s.id));
+    for (const scenario of view.living.elements.values()) {
+      const nested = scenario.doc === living.doc && scenario.element.start > living.element.start && scenario.element.start < living.element.end;
+      if (nested && kindOf(scenario.id) === "SCN" && !kept.has(scenario.id) && !delta.ids.has(scenario.id)) dropped.set(scenario.id, entry.element.id);
+    }
+  }
+  return dropped;
 }
