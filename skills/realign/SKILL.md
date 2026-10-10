@@ -32,4 +32,4 @@ Done when `cruze realign status` reports the code meeting the installed version,
 
 ## Next step
 
-`plan` for the first prefactor change. When nothing needed fixing, `next`.
+`plan` for the first prefactor change. When nothing needed fixing, `next`. Start it in a new session, so its context starts empty.

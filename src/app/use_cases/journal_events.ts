@@ -18,16 +18,19 @@ export async function recordEvent(deps: ProjectDeps, event: string, fields: Reco
   return appendJournal(deps, folder, event, { ...recorded, cruze: deps.bundle.version });
 }
 
-/** The journal, or one feature's or change's part of it: its own journal, and a feature's changes' too. */
-export async function listEvents(deps: ProjectDeps, event?: string, item?: string): Promise<JournalEntry[]> {
+/**
+ * The journal of the work in flight and the project, or of one feature or change (a feature's changes' too).
+ * Landed work's entries are history, listed only with `all`, since every entry ever recorded is too much to read.
+ */
+export async function listEvents(deps: ProjectDeps, event?: string, item?: string, all = false): Promise<JournalEntry[]> {
   const view = await loadView(deps.files);
-  let entries = view.journal;
+  let folders = [".cruze", ...view.items.filter((i) => all || !i.archived).map((i) => i.folder)];
   if (item !== undefined) {
     const resolved = resolveArtifact(view, item).item;
     if (resolved === undefined) throw new CruzeError("not-found", `"${item}" is not a feature or change`);
-    const parts = [resolved, ...view.items.filter((i) => resolved.kind === "feature" && i.featureRef === resolved.ref)];
-    entries = parts.flatMap((part) => parseJournal(view.snapshot.get(journalPath(part.folder))).entries).sort((a, b) => a.at.localeCompare(b.at));
+    folders = [resolved, ...view.items.filter((i) => resolved.kind === "feature" && i.featureRef === resolved.ref)].map((part) => part.folder);
   }
+  const entries = folders.flatMap((folder) => parseJournal(view.snapshot.get(journalPath(folder))).entries).sort((a, b) => a.at.localeCompare(b.at));
   return event === undefined ? entries : entries.filter((entry) => entry.event === event);
 }
 

@@ -4,7 +4,7 @@ Instructions for coding agents working in this repository. Cruze keeps the manag
 
 ## Workflow
 
-This project uses [Cruze](https://github.com/PrintPractical/cruze) for spec-driven development. Durable documents live in `docs/`: vision, glossary, architecture, ADRs, specs and roadmap. Work in progress lives in `.cruze/`. Read `docs/architecture.md` before changing code, once it exists. The Cruze skills run the `cruze` command; when it is missing, install it as https://github.com/PrintPractical/cruze#quick-start describes.
+This project uses [Cruze](https://github.com/PrintPractical/cruze) for spec-driven development. Durable documents live in `docs/`: vision, glossary, architecture, ADRs, specs and roadmap. Work in progress lives in `.cruze/`. Before changing code, read the design the change builds with `cruze show <change>`, once it exists. Each Cruze step runs in a new session, so its context holds what the step reads and nothing else. The Cruze skills run the `cruze` command; when it is missing, install it as https://github.com/PrintPractical/cruze#quick-start describes.
 
 ## Commands
 

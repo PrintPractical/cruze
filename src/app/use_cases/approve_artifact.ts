@@ -15,6 +15,8 @@ import { isPlanned, readChangesTable } from "../../domain/project/plan_parts.ts"
 import { readProgress } from "../../domain/project/progress.ts";
 import { approvalFolder, approvalsPath, type ProjectView } from "../../domain/project/project_view.ts";
 import { featureOf } from "../../domain/project/work_items.ts";
+import type { Problem } from "../../domain/validation/problem.ts";
+import { SIZE_RULES } from "../../domain/validation/size_rules.ts";
 import { validateProject } from "../../domain/validation/validate_project.ts";
 import { appendJournal, loadView, withFiles, type ProjectDeps } from "../project_context.ts";
 
@@ -87,11 +89,13 @@ export async function approveArtifact(deps: ProjectDeps, ref: string, options: A
   if (text !== view.snapshot.get(path)) edits.set(path, text);
   view = withFiles(view, edits);
 
-  const errors = validateProject(view).filter((p) => p.path === path && p.severity === "error");
+  const problems = validateProject(view).filter((p) => p.path === path);
+  const errors = problems.filter((p) => p.severity === "error");
   if (errors.length > 0) {
     const listing = errors.map((p) => `  ${p.path}:${p.line ?? ""} ${p.message}`).join("\n");
     throw new CruzeError("invalid", `${path} has ${errors.length} problem(s) to fix before approval:\n${listing}`);
   }
+  requireSizesAccepted(problems, path);
 
   const { hash, upstream } = fingerprint(view, path, parseMarkdown(text));
   const folder = approvalFolder(view, path);
@@ -152,6 +156,20 @@ function requireRebased(view: ProjectView, deltaIds: Set<string>, previous: Appr
       `the living text of ${moved.join(", ")} changed since the last approval, and this work's delta changes ${moved.length === 1 ? "it" : "them"}. Rewrite the delta to keep that change, then approve with ${moved.map((id) => `--rebase ${id}`).join(" ")}`,
     );
   }
+}
+
+/**
+ * A size warning stands until the work is split or the user accepts it under `changes.exceptions`.
+ * A 28-task change approved over its warning went on to 26 deviations, so approval waits for one or the other.
+ */
+function requireSizesAccepted(problems: Problem[], path: string): void {
+  const standing = problems.filter((p) => SIZE_RULES.includes(p.rule));
+  if (standing.length === 0) return;
+  const listing = standing.map((p) => `  ${p.message} [${p.rule}]`).join("\n");
+  throw new CruzeError(
+    "size-unaccepted",
+    `${path} has ${standing.length} size warning(s). Split the work through rethink, or record the user's acceptance under changes.exceptions in .cruze/config.yaml, as the item's ref and their reason:\n${listing}`,
+  );
 }
 
 function notWork(path: string): never {

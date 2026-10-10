@@ -121,6 +121,7 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config, and warns when a change falls outside the size band in `changes:` |
 | `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on. `--by-agent` approves a change for you once its plan review has closed, and `--restamp-unchanged` re-stamps work a rethink didn't change; both record that the agent gave the approval |
 | `cruze next` | Names the step to run next on this branch, and why, from computed status |
+| `cruze show <ref>` | Prints the design a change builds, or a feature's delta: each element's full body, the delivered scenarios, what they cite with where to find it, the settled decisions and the item's dispositions, so a step reads its scope instead of the whole architecture |
 | `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state |
 | `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current |
 | `cruze status --overlap` | Lists changes on other branches that touch the same elements as this branch's change |
@@ -135,7 +136,7 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze realign status` | Lists what the installed Cruze expects of existing code since its `standards:` version, with what the CLI rules find now; `--full` covers every release |
 | `cruze realign done` | Moves `standards:` up once every finding is fixed, waived or scheduled in a change named with `--change` |
 | `cruze abandon <ref>` | Archives a feature or standalone change that stops for good, with its reason, and puts a feature back on the future list |
-| `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override or bug; `cruze feedback export` bundles the journal for improving Cruze itself |
+| `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override or bug; `cruze journal list` reads the work in flight's entries, or landed work's too with `--all`; `cruze feedback export` bundles the journal for improving Cruze itself |
 
 Stepping back is editing: change an upstream document and every approval that cites a changed element shows as stale, with the element named. Re-approving is the rewind; there are no phases to reset.
 

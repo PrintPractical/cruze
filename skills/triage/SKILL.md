@@ -33,3 +33,5 @@ Triage starts from a symptom and ends with a fix, or with the right step to fix 
 - Code defect fixed: `land`, which lands bug fixes too.
 - Spec gap: `architect "<tweak>"`.
 - Design flaw: `rethink`.
+
+Start it in a new session, so its context starts empty.

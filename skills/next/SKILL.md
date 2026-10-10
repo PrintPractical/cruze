@@ -11,7 +11,7 @@ Next reads the project's state and says what to do now. The CLI works it out fro
 
 1. **Ask the CLI.** Run `cruze next` and read its JSON: the step, what it works on, the reason, and any other work that could proceed.
 2. **Add the detail.** Run `cruze status` when the reason mentions approvals, and quote the documents and elements that changed.
-3. **Answer** in three lines or fewer: the step to run, with its target, why it is next, and what else is in flight on other branches. Don't start the step unless the user asks you to.
+3. **Answer** in three lines or fewer: the step to run, with its target, why it is next, and what else is in flight on other branches. Say that the step runs in a new session, so its context starts empty. Don't start the step unless the user asks you to.
 
 ## What the steps mean
 

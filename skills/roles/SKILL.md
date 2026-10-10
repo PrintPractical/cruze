@@ -54,13 +54,11 @@ A review has at most two rounds. Only blockers can force the second one.
 
 ### Round 2
 
-Run round 2 only when a round-1 blocker was fixed. It checks only whether those blockers are fixed, and raises nothing new.
+Run round 2 only when a round-1 blocker was fixed. It checks only whether those blockers are fixed, and raises nothing new. You check them: in 49 recorded rounds across two projects, no reviewer re-reading a fix found a blocker still open, and the user sees every fix at the walkthrough, in the plan, or in verify's report.
 
-1. **Choose who checks.** When every blocker was fixed exactly as the reviewer proposed, check the fixes yourself: a fresh reviewer re-reading a fix it proposed finds nothing new. When any blocker was fixed differently from the proposal, or its fix reaches past what the finding names, run the reviewer.
-2. **Check them yourself:** read each blocker's finding against the diff of its fix, and run `cruze validate`. A blocker is fixed when the diff does what the proposal says and validate reports no new errors.
-3. **Or run the reviewer** again with its usual inputs, plus the round-1 blockers and the diff of their fixes. It may be the round-1 reviewer resumed, since that context never saw the conversation that produced the work (with `cruze review`: `--round 2 --blockers <file> --base <round-1 commit>`).
-4. Record the round with `round=2`, the blockers still open, `concerns=0`, and `checked_by=agent` or `checked_by=reviewer`.
-5. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
+1. **Check each blocker** against the diff of its fix, and run `cruze validate`. A blocker is fixed when the diff does what the proposal says and validate reports no new errors. When a fix differs from the proposal or reaches past what the finding names, say so in the message that presents it, so the user can object.
+2. Record the round with `round=2`, the blockers still open, `concerns=0` and `checked_by=agent`.
+3. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
 
 Done when every finding has a journaled disposition, and every exception, and every blocker left open in round 2, has the user's decision.
 
@@ -70,4 +68,4 @@ Reviewers read the settled ledger so they never re-raise a decision. It consists
 
 - The `## Settled decisions` of the feature or change under review.
 - The `D<n>` lines in the `## Decisions` section of `docs/architecture.md`, and the accepted ADRs in `docs/adr/`.
-- Earlier dispositions, from `cruze journal list --event disposition`.
+- Earlier dispositions of the item under review, from `cruze journal list --event disposition --item <ref>`. `cruze show <ref>` includes them. Never list the whole project's: two projects' reviewers read every disposition ever recorded, about 36k tokens a time, a hundred times each.

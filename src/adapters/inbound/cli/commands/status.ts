@@ -32,8 +32,24 @@ export async function runStatus(context: CliContext, _args: string[], options: O
     }
   }
   for (const change of report.standalone) lines.push(`${describe(`change ${change.ref}`, change.approval)}, tasks ${change.tasksDone}/${change.tasksTotal}`);
-  return { json: report, human: lines.join("\n") };
+  const json = {
+    ...report,
+    documents: report.documents.map(compact),
+    features: report.features.map((f) => ({ ...f, approval: compact(f.approval), changes: f.changes.map((c) => ({ ...c, approval: compact(c.approval) })) })),
+    standalone: report.standalone.map((c) => ({ ...c, approval: compact(c.approval) })),
+  };
+  return { json, human: lines.join("\n") };
 }
+
+/** The state without the record's hashes: an agent reads status often, and the hashes were a third of each read. */
+function compact(status: ApprovalStatus): Omit<ApprovalStatus, "record"> & { approvedAt?: string; by?: string; basis?: string } {
+  const { record, ...rest } = status;
+  if (record === undefined) return rest;
+  return { ...rest, approvedAt: record.approvedAt, by: record.by, ...(record.basis === undefined ? {} : { basis: record.basis }) };
+}
+
+/** Every step starts a new session: one session that ran plan, build, verify and land reached 745k tokens of context. */
+const FRESH_SESSION = "Run it in a new session, so its context starts empty.";
 
 const BASIS: Record<string, string> = { "plan-review": " (by the agent, after its plan review)", rethink: " (re-stamped by the agent after a rethink)" };
 
@@ -46,6 +62,6 @@ function describe(label: string, status: ApprovalStatus): string {
 export async function runNext(context: CliContext): Promise<CommandResult> {
   const report = await suggestNext(context);
   const describe = (s: { step: string; target?: string; reason: string }): string => `${s.step}${s.target === undefined ? "" : ` ${s.target}`}: ${s.reason}`;
-  const lines = [`Next: ${describe(report.next)}`, ...report.also.map((s) => `Also: ${describe(s)}`)];
-  return { json: report, human: lines.join("\n") };
+  const lines = [`Next: ${describe(report.next)}`, ...report.also.map((s) => `Also: ${describe(s)}`), FRESH_SESSION];
+  return { json: { ...report, session: FRESH_SESSION }, human: lines.join("\n") };
 }

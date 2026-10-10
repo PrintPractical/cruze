@@ -49,3 +49,5 @@ Name the first item whose blockers have all landed:
 - A feature whose requirements are settled: `architect "<feature>"`.
 - A standalone change whose design exists: `plan`.
 - A tweak without a design yet: `architect "<tweak>"`.
+
+Start it in a new session, so its context starts empty.

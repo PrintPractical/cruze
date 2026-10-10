@@ -33,6 +33,9 @@ changes:
   min_builds: 3
   max_scenarios: 30
   max_tasks: 25
+  exceptions:
+    - item: 2026-09-25-open-console/02-ssh-hops
+      reason: every scenario runs through one reconcile, which can't be split without building it twice
 
 layers:
   - name: inventory-domain
@@ -62,6 +65,7 @@ layers:
 | `changes.min_builds` | A feature's change that builds fewer elements than this gets a `change-too-small` warning: merge it into the change it continues. Default `3`. |
 | `changes.max_scenarios` | A change that delivers more scenarios than this gets a `change-too-large` warning: split it. Default `30`. |
 | `changes.max_tasks` | A plan with more tasks than this gets a `plan-too-large` warning. Default `25`. |
+| `changes.exceptions` | Features and changes the user accepted outside the band, each with the `item` (a feature's ID, `<feature>/<change>`, or a standalone change's ID) and the `reason`. The item's size warning stops. `cruze approve` refuses an item whose size warning still stands (`size-unaccepted`) until it is listed here or split. |
 
 Rules for layers:
 
