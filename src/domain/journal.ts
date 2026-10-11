@@ -16,6 +16,7 @@ export const RECORDED_EVENTS: Record<string, string[]> = {
   bug: ["summary", "cause"],
   verification: ["result", "summary"],
   checks: ["commit"],
+  lesson: ["summary", "instead", "step"],
 };
 
 /** Fields an event may carry beyond its required ones, checked when present. A defect rethink must say which step missed it. */
@@ -40,6 +41,7 @@ export const FIELD_VALUES: Record<string, string[]> = {
   checked_by: ["agent", "reviewer"],
   found_by: STEPS,
   missed_by: STEPS,
+  step: STEPS,
 };
 
 /** A defect rethink must say which step missed it, and a sent-back verification where the change goes back to. */

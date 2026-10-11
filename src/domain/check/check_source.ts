@@ -1,13 +1,14 @@
 import type { CruzeConfig, Layer } from "../config.ts";
 import { matchesAny } from "../glob.ts";
 import { budgetedText } from "./budget_text.ts";
+import { decisionCitationsInComments } from "./decision_comments.ts";
 import { importsOf, resolveImport } from "./imports.ts";
 import { countTypes } from "./type_count.ts";
 
 export interface CheckFinding {
   path: string;
   line?: number;
-  rule: "layer" | "max-lines" | "max-types" | "outside-module-map" | "no-layer" | "test-placement";
+  rule: "layer" | "max-lines" | "max-types" | "outside-module-map" | "no-layer" | "test-placement" | "decision-citation";
   message: string;
   /** Layer violations always fail; the rest fail in CI unless excepted. */
   severity: "error" | "warning";
@@ -21,6 +22,8 @@ export interface CheckInput {
   sources: ReadonlyMap<string, string>;
   /** Paths of the MOD elements in the architecture; files outside all of them are flagged. */
   modulePaths: string[];
+  /** Test files outside config.source, by path: only their comments are checked. */
+  tests?: ReadonlyMap<string, string>;
   /** Check only these files, when given; imports still resolve against every source. */
   only?: string[];
 }
@@ -67,8 +70,22 @@ export function checkSource(input: CheckInput): CheckFinding[] {
     if (modulePaths.length > 0 && !insideModuleMap(path, modulePaths)) {
       findings.push({ path, rule: "outside-module-map", severity: "warning", message: "the file is outside every module in the architecture's module map" });
     }
+    findings.push(...decisionFindings(path, text));
+  }
+  for (const [path, text] of input.tests ?? []) {
+    if (!sources.has(path) && (input.only === undefined || input.only.includes(path))) findings.push(...decisionFindings(path, text));
   }
   return findings;
+}
+
+function decisionFindings(path: string, text: string): CheckFinding[] {
+  return decisionCitationsInComments(path, text).map((citation) => ({
+    path,
+    line: citation.line + 1,
+    rule: "decision-citation",
+    severity: "warning",
+    message: `the comment cites ${citation.text}, a decision number a reader of the code can't follow; say what was decided, or cite the element or ADR that holds it`,
+  }));
 }
 
 /** Whether a module's Path covers the file: a directory path ending in `/` covers everything under it, any other names one file. */

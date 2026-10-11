@@ -4,6 +4,7 @@ import { findIds, scopeOf, STATUS_KINDS } from "../ids.ts";
 import type { MarkdownDoc } from "../markdown.ts";
 import { PATHS } from "../project/layout.ts";
 import type { ProjectView } from "../project/project_view.ts";
+import { livingDecisionProblems } from "./decision_rules.ts";
 import { elementProblems } from "./element_rules.ts";
 import { error, warning, type Problem } from "./problem.ts";
 
@@ -26,6 +27,7 @@ export function livingProblems(view: ProjectView): Problem[] {
       if (!view.living.elements.has(id)) problems.push(error(path, lineOf(text, id), "unknown-id", `${id} is cited but not defined in the living docs`));
     }
   }
+  problems.push(...livingDecisionProblems(view));
   return problems;
 }
 

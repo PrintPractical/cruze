@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `decision-citation`: `cruze validate` warns when a living doc cites a settled decision by number outside the document that records it, such as `(events D17)` in the architecture, and when a delta's element cites one that won't mean the same once it merges. `cruze check` warns on a decision number in a source or test comment. `cruze approve` refuses a feature or standalone change whose delta cites one (`decision-cited`). Features number their decisions from D1 and are archived when they finish, so one project's architecture held 347 such citations and its code 134, each pointing at a file nobody reads.
+- `cruze journal add lesson` records a repeated cause that land judges to be about Cruze's own steps rather than the project, and `cruze feedback export` now carries the lines under `## Known pitfalls` in `AGENTS.md` too.
+
+### Changed
+
+- Land adds a line under `## Known pitfalls` only for a lesson about the product itself. A lesson about how a delta, plan, task or review is written, or about the language, goes to the journal as a `lesson`, which reaches Cruze through the feedback export. In one project, 12 of 20 pitfalls were about Cruze's plans and documents, loaded into every session and never reported back.
+- Lessons from that project's pitfalls are now part of Cruze's skills: plan puts each new item, private ones included, in the task of its first production caller, lists the lockfile with a dependency and every literal a new field breaks, and confirms that the check named under `## Risks` reaches the failure. The design reviewer checks each use case against every refusal of the operations it calls, and quoted output against the code that produces it. Architect rewords every statement of a rule it retires. Fakes can stall and fail partway, race tests are seen failing on a multi-threaded runtime, and research compiles a sketch of each new call shape.
+
 ## [0.0.9] - 2026-10-11
 
 Designs that say how work flows and recovers, and gates that agree with the CLI. A day of 0.0.8 in three projects, an iPhone app, a Rust daemon and a new Rust protocol library, landed 11 changes. It cut the median context per turn by about a quarter and verify from 31 minutes to under 15, but 14 defect rethinks followed. Half were designs that never said what happens when a queue fills, a recovery fails or an async result has to find its request, and two of them sent changes back at verify. The design reviewer now checks flow control and recovery, `references:` names the specifications a design must follow, and `cruze next` names the rethink a sent-back change needs and follows the roadmap's order. File budgets are a backstop at 600 lines and 12 types, and files split by responsibility, never by length. The CLI also works from a subdirectory, checks overlap in seconds, and leaves gated Rust test modules out of the budgets. Existing projects upgrade as the README's Upgrading section says, and `cruze realign` raises the budgets, lists the project's specifications and reviews features in flight against the new rubric item.

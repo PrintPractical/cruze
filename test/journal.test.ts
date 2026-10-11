@@ -23,6 +23,15 @@ describe("the journal and feedback export", () => {
     assert.equal(bundle.entries[0]?.["item"], "2026-09-24-walking-skeleton");
   });
 
+  // Ork: 12 of its 20 known pitfalls were lessons about Cruze's plans and deltas, which never reached Cruze.
+  it("exports the project's known pitfalls, redacted, and records a lesson about a Cruze step", async () => {
+    const h = await exampleProject();
+    h.files.files.set("AGENTS.md", "# Console Access\n\n## Known pitfalls\n\n- Close Console Access links last first.\n- Name the broken callers in each task.\n\n## Other\n\n- not a pitfall\n");
+    assert.deepEqual((await exportFeedback(h.deps, true)).pitfalls, ["Close <project> links last first.", "Name the broken callers in each task."]);
+    await recordEvent(h.deps, "lesson", { summary: "tasks missed callers twice", instead: "grep every literal of a changed struct", step: "plan" });
+    await assert.rejects(recordEvent(h.deps, "lesson", { summary: "s", instead: "i", step: "lunch" }), /step must be one of/);
+  });
+
   // mw-configuration-service: every rethink wrote "X should have caught it; Y found it" as free text, and counts as strings.
   it("asks a defect rethink which step missed it, from the steps a retro counts", async () => {
     const h = await exampleProject();

@@ -4,6 +4,7 @@ import { specPath } from "../project/layout.ts";
 import { orphanDeltaElements, readDelta, type Delta } from "../project/deltas.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import type { WorkItem } from "../project/work_items.ts";
+import { deltaDecisionProblems } from "./decision_rules.ts";
 import { elementProblems } from "./element_rules.ts";
 import { error, type Problem } from "./problem.ts";
 
@@ -44,6 +45,7 @@ export function deltaProblems(view: ProjectView, item: WorkItem): Problem[] {
       problems.push(error(path, op.start, "capability-exists", `capability ${op.capability} already has ${specPath(op.capability)}`));
     }
   }
+  problems.push(...deltaDecisionProblems(view, item));
   return problems;
 }
 

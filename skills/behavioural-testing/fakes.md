@@ -4,9 +4,9 @@ A fake is a real, working implementation of a driven port that keeps its state i
 
 ## Writing a fake
 
-1. Read the port's `Operations` in `docs/architecture.md`. The fake implements every operation with the guarantees and failures listed there, and nothing more.
+1. Read the port's `Operations` in `docs/architecture.md`. The fake implements every operation with the guarantees and failures listed there, and nothing more. That includes every way the real adapter ends on its own, such as a session closed when its stream ends or its server shuts down.
 2. Keep state in plain in-memory structures: a map for a catalog, a list for recorded effects, a settable value for a clock.
-3. Give tests a way to arrange state and to inject each failure the contract lists. Use a constructor that takes the initial state, and a method such as `fail_next_with(HopError::Refused)`.
+3. Give tests a way to arrange state and to inject each failure the contract lists. Use a constructor that takes the initial state, and a method such as `fail_next_with(HopError::Refused)`. When a use case writes through the port, also let a test stall an operation, and fail one that writes several things partway through, so each partial failure and cancellation can be tested from every state it can leave.
 4. Record effects the contract makes observable, such as the order hops were closed in, so tests can assert them.
 5. Put the fake where every test can reach it, such as `tests/support/` or the language's test-only module, never in production code paths. One fake per port, shared by all tests.
 
@@ -17,7 +17,7 @@ Done when the fake passes the port's contract tests.
 A contract test states the port's contract once and runs it against every implementation.
 
 1. Write the cases as a function or suite that takes a constructor for the implementation under test.
-2. Cover each operation's success, each failure the contract names, and the state after a failure.
+2. Cover each operation's success, each failure the contract names, each way the implementation ends on its own, and the state after a failure.
 3. Run the suite against the fake in the ordinary test run.
 4. Run it against each real adapter too. When the real adapter needs something external, such as an SSH server, a serial device or a database, use a local stand-in (a test server, a pseudo-terminal, a container), and mark the run so CI can provide it.
 

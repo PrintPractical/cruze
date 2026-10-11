@@ -9,7 +9,7 @@ Every rethink, waived blocker and escaped bug in a project that uses Cruze is ev
 
 ## Steps
 
-1. **Load the bundles.** Read each bundle the maintainer gives you. Each is JSON with `format: "cruze-feedback/1"`, the `cruze` version that exported it, `redacted`, and `entries`: journal entries, each with `event`, `at` and the event's fields. Note each bundle's Cruze version, then read `CHANGELOG.md` since that version. An issue a later release already fixed is closed; say so rather than proposing it again.
+1. **Load the bundles.** Read each bundle the maintainer gives you. Each is JSON with `format: "cruze-feedback/1"`, the `cruze` version that exported it, `redacted`, `entries` (journal entries, each with `event`, `at` and the event's fields) and, from 0.0.10, `pitfalls` (the lines under `## Known pitfalls` in the project's `AGENTS.md`). Note each bundle's Cruze version, then read `CHANGELOG.md` since that version. An issue a later release already fixed is closed; say so rather than proposing it again.
 2. **Count.** Tally the entries, per bundle and in total:
    - `land`: the landed changes, the denominator for every rate below.
    - `rethink`: by `level`, by `kind` (`defect` or `discovery`), and by `found_by` and `missed_by`. Bundles from Cruze 0.0.1 have a free-text `caught_by` instead: read both steps out of its wording.
@@ -19,9 +19,11 @@ Every rethink, waived blocker and escaped bug in a project that uses Cruze is ev
    - `bug`: by `escaped`, the step that let the defect through.
    - `override`: by `gate`.
    - `deviation`, and `reopen`: tasks redone after a rethink.
+   - `lesson`: by `step`. Each is a repeated cause that land judged to be about Cruze, not the project.
+   - `pitfalls`: the lines that aren't about the project's own domain or code. Projects before 0.0.10 put every repeated lesson there.
 
    Done when you can state the defect-rethink rate and the review rounds per change.
-3. **Group by root cause.** Take each defect rethink, sent-back verification, escaped bug, waived blocker, rejected finding, repeated deviation and override, and ask which Cruze asset should have prevented it:
+3. **Group by root cause.** Take each defect rethink, sent-back verification, escaped bug, waived blocker, rejected finding, repeated deviation, override, lesson and pitfall, and ask which Cruze asset should have prevented it:
    - a step in a workflow skill (`skills/<name>/`);
    - a rule in a knowledge skill;
    - an item in a role's rubric (`skills/roles/`);

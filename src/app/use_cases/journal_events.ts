@@ -1,4 +1,5 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
+import { knownPitfalls } from "../../domain/edits/agents_file.ts";
 import { journalPath, parseJournal, recordedEventProblems, recordedFields, type JournalEntry } from "../../domain/journal.ts";
 import { resolveArtifact } from "../../domain/project/artifact_ref.ts";
 import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
@@ -40,10 +41,12 @@ export interface FeedbackExport {
   exported_at: string;
   redacted: boolean;
   entries: JournalEntry[];
+  /** The lines under `## Known pitfalls` in `AGENTS.md`: lessons that may belong in Cruze rather than the project. */
+  pitfalls: string[];
 }
 
 /**
- * Bundles the journal for the framework feedback loop. By default the project name and
+ * Bundles the journal, and the project's known pitfalls, for the framework feedback loop. By default the project name and
  * the approver's identity are redacted, since the bundle may leave the project.
  */
 export async function exportFeedback(deps: ProjectDeps, redact: boolean): Promise<FeedbackExport> {
@@ -56,5 +59,6 @@ export async function exportFeedback(deps: ProjectDeps, redact: boolean): Promis
     return value;
   };
   const entries = redact ? view.journal.map((entry) => ({ ...(scrub(entry) as JournalEntry), by: "<redacted>" })) : view.journal;
-  return { format: "cruze-feedback/1", cruze: deps.bundle.version, exported_at: deps.clock.now().toISOString(), redacted: redact, entries };
+  const pitfalls = knownPitfalls((await deps.files.readText("AGENTS.md")) ?? "").map((line) => (redact ? (scrub(line) as string) : line));
+  return { format: "cruze-feedback/1", cruze: deps.bundle.version, exported_at: deps.clock.now().toISOString(), redacted: redact, entries, pitfalls };
 }

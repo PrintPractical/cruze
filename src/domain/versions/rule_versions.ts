@@ -17,6 +17,8 @@ export const RULE_SINCE: Record<string, string> = {
   "validate:change-too-large": "0.0.5",
   "validate:plan-too-large": "0.0.5",
   "validate:module-path-glob": "0.0.8",
+  "validate:decision-citation": "0.0.10",
+  "check:decision-citation": "0.0.10",
 };
 
 /** Whether a rule arrived after the version the project's code meets, so it waits for `realign`. */

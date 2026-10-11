@@ -118,7 +118,7 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 
 | Command | What it does |
 | --- | --- |
-| `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config, and warns when a change falls outside the size band in `changes:` |
+| `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config, and warns when a change falls outside the size band in `changes:` or a document cites a decision recorded elsewhere |
 | `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on. `--by-agent` approves a change for you once its plan review has closed, and `--restamp-unchanged` re-stamps work a rethink didn't change; both record that the agent gave the approval |
 | `cruze next` | Names the step to run next on this branch, and why, from computed status |
 | `cruze show <ref>` | Prints the design a change builds, or a feature's delta: each element's full body, the delivered scenarios, what they cite with where to find it, the settled decisions and the item's dispositions, so a step reads its scope instead of the whole architecture |
@@ -130,13 +130,13 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | `cruze features <add\|update\|drop>` | Edits the feature map: adds or drops a future feature, or corrects a summary |
 | `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
 | `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
-| `cruze check` | Enforces the layer rules and the file budgets; `--ci` also fails on budget warnings |
+| `cruze check` | Enforces the layer rules and the file budgets, and warns on decision numbers in code comments; `--ci` also fails on warnings |
 | `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml`. When no command is set, or its program isn't installed, it prints the role's prompt for the agent to run in a helper of its own |
 | `cruze land` | Merges a verified change into the living docs, re-stamps the approvals the merge would make stale, fills the Commands and Layout sections of `AGENTS.md`, and archives finished work |
 | `cruze realign status` | Lists what the installed Cruze expects of existing code since its `standards:` version, with what the CLI rules find now; `--full` covers every release |
 | `cruze realign done` | Moves `standards:` up once every finding is fixed, waived or scheduled in a change named with `--change` |
 | `cruze abandon <ref>` | Archives a feature or standalone change that stops for good, with its reason, and puts a feature back on the future list |
-| `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override or bug; `cruze journal list` reads the work in flight's entries, or landed work's too with `--all`; `cruze feedback export` bundles the journal for improving Cruze itself |
+| `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override, bug or lesson; `cruze journal list` reads the work in flight's entries, or landed work's too with `--all`; `cruze feedback export` bundles the journal for improving Cruze itself |
 
 Stepping back is editing: change an upstream document and every approval that cites a changed element shows as stale, with the element named. Re-approving is the rewind; there are no phases to reset.
 
@@ -170,7 +170,7 @@ Stepping back is editing: change an upstream document and every approval that ci
 
 ## Reporting back
 
-Cruze improves from what goes wrong in real projects. Every rethink, review finding, bug and override is recorded in the project's journal. To send them back:
+Cruze improves from what goes wrong in real projects. Every rethink, review finding, bug and override is recorded in the project's journal, along with each repeated lesson about Cruze's own steps. To send them back, with the `## Known pitfalls` of `AGENTS.md`:
 
 ```sh
 cruze feedback export --out cruze-feedback.json

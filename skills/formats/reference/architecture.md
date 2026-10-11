@@ -73,7 +73,7 @@ A feature, or a standalone change, proposes architecture edits in its `## Archit
 - Reason: telnet support was dropped from the release scope
 ```
 
-- `ADDED` introduces an ID that doesn't exist yet. `MODIFIED` replaces an existing element's whole body. `REMOVED` retires an ID and needs a `Reason`.
+- `ADDED` introduces an ID that doesn't exist yet. `MODIFIED` replaces an existing element's whole body. `REMOVED` retires an ID and needs a `Reason`. Once it merges, no living doc may cite the ID, so modify each element that cites it to describe it in words.
 - The element kind decides its section. `land` appends an added element to the end of its section.
 - A delta never touches `Status`. A change's `Builds` scope decides what becomes built.
 - A delta with no operations says `None.` under its heading.

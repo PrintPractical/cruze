@@ -59,6 +59,15 @@ An ID names one element for its whole life. Other documents cite it, tests carry
 - An element cites another by writing its ID anywhere in its body. Every ID a document mentions counts as cited.
 - A cited ID must exist, either in the living docs or in a delta of the same feature or change. Design at project scope cites only what it defines; the feature that adds scenarios links them to flows and use cases through `MODIFIED` operations.
 
+## Decisions
+
+A settled decision is a bullet `D<n>: <decision> (<reason>)` in the architecture's `## Decisions`, a feature or a change. Each document numbers its own from D1, and a feature or change is archived when it finishes, so a number means something only inside the document that records it.
+
+- Cite a decision by number only inside that document. The architecture cites its own. A feature cites its own, and a change cites its own and its feature's.
+- A delta's elements merge into the living docs, so they cite only a project decision that the work's own `## Settled decisions` doesn't also number. Write what any other decision settled into the element, or record it as an ADR and cite the ADR.
+- Code comments cite no decision by number. Say what was decided, or cite the element or ADR that holds it.
+- `cruze validate` and `cruze check` report a citation that breaks these rules as `decision-citation`, and `cruze approve` refuses a feature or standalone change whose delta has one (`decision-cited`).
+
 ## Managed content
 
 The CLI owns some content so that routine bookkeeping never changes a design:
