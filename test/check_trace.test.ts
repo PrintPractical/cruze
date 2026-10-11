@@ -56,7 +56,7 @@ describe("checking source code", () => {
       "src/inventory/domain/console_path.rs": `${"// line\n".repeat(251)}${tests}`,
     });
     const report = await checkCode(h.deps, { ci: true });
-    assert.deepEqual(report.findings.map((f) => [f.path, f.message]), [["src/inventory/domain/console_path.rs", "251 lines, not counting its inline tests, over the budget of 250; split it by responsibility"]]);
+    assert.deepEqual(report.findings.map((f) => [f.path, f.message]), [["src/inventory/domain/console_path.rs", "251 lines, not counting its inline tests, over the budget of 250; split it if it holds a second responsibility, or list it under check.exceptions"]]);
   });
 
   it("warns on budgets locally and fails them in CI, except for files listed with a reason", async () => {

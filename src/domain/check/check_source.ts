@@ -55,11 +55,11 @@ export function checkSource(input: CheckInput): CheckFinding[] {
     const lines = budgeted.split("\n").length - (budgeted.endsWith("\n") ? 1 : 0);
     if (!excepted && lines > config.check.maxLines) {
       const measured = budgeted === text ? "" : ", not counting its inline tests";
-      findings.push({ path, rule: "max-lines", severity: "warning", message: `${lines} lines${measured}, over the budget of ${config.check.maxLines}; split it by responsibility` });
+      findings.push({ path, rule: "max-lines", severity: "warning", message: `${lines} lines${measured}, over the budget of ${config.check.maxLines}; split it if it holds a second responsibility, or list it under check.exceptions` });
     }
     const types = countTypes(path, budgeted);
     if (!excepted && types !== null && types > config.check.maxTypes) {
-      findings.push({ path, rule: "max-types", severity: "warning", message: `${types} top-level types, over the budget of ${config.check.maxTypes}` });
+      findings.push({ path, rule: "max-types", severity: "warning", message: `${types} top-level types, over the budget of ${config.check.maxTypes}; split it if it holds a second responsibility, or list it under check.exceptions` });
     }
     if (!excepted && isRustTestFileInSource(path)) {
       findings.push({ path, rule: "test-placement", severity: "warning", message: "Rust tests that leave their inline module go in the crate's tests/ directory, not under src/" });

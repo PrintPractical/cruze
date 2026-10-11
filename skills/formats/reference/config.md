@@ -13,8 +13,8 @@ source: ["src/**/*.rs"]
 tests: ["src/**/*.rs", "tests/**/*.rs"]
 
 check:
-  max_lines: 250
-  max_types: 5
+  max_lines: 600
+  max_types: 12
   exceptions:
     - path: src/cli/args.rs
       reason: the clap derive struct lists every flag in one place
@@ -55,8 +55,8 @@ layers:
 | `tracker` | Where work items live. `markdown` is the only value in V1. |
 | `source` | Globs of the source files `cruze check` inspects. |
 | `tests` | Globs of the files `cruze trace` searches for scenario IDs. |
-| `check.max_lines` | Line budget per source file. Test files outside `source` have no budget, and a Rust file's `#[cfg(test)]` modules don't count. |
-| `check.max_types` | Budget of top-level types per source file. |
+| `check.max_lines` | Line budget per source file, a backstop against a file that has outgrown one responsibility. `cruze init` sets `600`. Test files outside `source` have no budget, and a Rust file's `#[cfg(test)]` modules don't count. |
+| `check.max_types` | Budget of top-level types per source file. `cruze init` sets `12`. |
 | `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. `realign` adds entries whose reason ends `scheduled in <ref>`, and landing that change removes them. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. When the suite has a slow tier, such as UI, device or end-to-end tests, `test` runs only the fast tier and `test_full` runs everything. The full suite is `test_full` when it is set, and `test` otherwise. |

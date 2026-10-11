@@ -32,7 +32,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 
 - **Design for the roadmap, build for the phase.** Read the whole feature map and roadmap. When a later feature will need a seam, name it now in a `Future` fact, such as "transport will gain MQTT in phase 3, so inbound adapters stay behind `CommandSource`". Build only what the current work needs.
 - **Adopt before you build.** Before designing any component that isn't domain logic, run the researcher role from `.agents/skills/cruze-roles/SKILL.md` on it. Record every decision in `## Adopt or build`, or at project scope in the adapter's `Adopts` fact. Every new dependency goes to the user through the dependency-approval skill.
-- **Every element with code has a home.** Each `ENT`, `UC`, `PORT`, `ADP` and `FLOW` names its `Module` and `File`. Each file has one responsibility and fits the budget in `.cruze/config.yaml`.
+- **Every element with code has a home.** Each `ENT`, `UC`, `PORT`, `ADP` and `FLOW` names its `Module` and `File`. Each file has one responsibility. Never split an owner across files to keep them short.
 - **Ask, challenge and defer** as the grilling skill describes. Contexts, ports, public contracts, dependency direction and dependencies are always the user's decisions.
 - **Stepping back is normal.** When the design shows that the vision or an earlier decision is wrong, stop and say so. The vision changes through `envision`, and an approved architecture through `rethink`.
 
