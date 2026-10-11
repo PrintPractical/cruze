@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- File budgets are a backstop, not a size to design to. `cruze init` sets `check.max_lines: 600` and `check.max_types: 12`, up from 250 and 5. Plan no longer splits a file because a task would take it past a budget, only because the task would give it a second responsibility, and the code reviewer reports a file split by length alone. The tight budgets had agents break one responsibility across several files. Existing projects raise their budgets through `cruze realign`.
+
 ## [0.0.8] - 2026-10-10
 
 Less context per step, and gates that hold. From the 0.0.7 journals and transcripts of two projects, an iPhone app and a Rust daemon, 39 landed changes, 17 defect rethinks and 182 deviations showed where the time went: one session ran plan, build, verify and land and reached 745k tokens of context, the median turn read over 300k, a 40k-word architecture was read whole about 150 times per project, every round 2 of every review found nothing, code was bent to fit file budgets, designs avoided dependencies the clean design needed, and accepted size warnings never cleared. Now every step runs in a new session, plan, build and the roles read a change's scope through `cruze show` instead of the living docs whole, the ledger and `cruze status` carry only what a reader uses, and round 2 is checked by the agent. `cruze approve` refuses a size warning the user hasn't accepted in `changes.exceptions`, build waits for the changes it depends on and runs the same check as CI, and neither a file budget nor avoiding a dependency shapes code any more. Existing projects upgrade as the README's Upgrading section says, and `cruze realign` reports module paths written as globs, code bent to a budget, dependency workarounds and unrecorded size exceptions.

@@ -15,11 +15,12 @@ tracker: markdown
 source: []
 tests: []
 
-# Budgets enforced by `cruze check`. List a file under exceptions, with a
-# reason, to allow it past a budget.
+# Budgets enforced by `cruze check`: a backstop against a file that has
+# outgrown one responsibility, not a size to design to. List a file under
+# exceptions, with a reason, to allow it past a budget.
 check:
-  max_lines: 250
-  max_types: 5
+  max_lines: 600
+  max_types: 12
   exceptions: []
 
 # Layer rules, written by project-scope architecture design from the module map.
