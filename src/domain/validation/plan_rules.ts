@@ -46,7 +46,7 @@ export function changePlanProblems(
     if (kindOf(id) === "MOD") {
       const modulePaths = modulePathsOf(view, delta.doc, delta.delta, id);
       if (!taskPaths.some((p) => modulePaths.some((m) => p.startsWith(m)))) {
-        problems.push(error(path, scope.line, "unproved-scope", `${id} is in scope but no task writes inside ${modulePaths.join(" or ") || "its path"}`));
+        problems.push(error(path, scope.line, "unproved-scope", `${id} is in scope but no task writes inside ${modulePaths.join(" or ") || "its path"}; a module that owns other files, such as a build script, lists each under its Path`));
       }
     } else if (kindOf(id) === "REQ") {
       const scenarios = delta.delta.entries.find((e) => e.element.id === id)?.scenarios.map((s) => s.id) ?? [];

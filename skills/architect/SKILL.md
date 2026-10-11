@@ -33,6 +33,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 - **Design for the roadmap, build for the phase.** Read the whole feature map and roadmap. When a later feature will need a seam, name it now in a `Future` fact, such as "transport will gain MQTT in phase 3, so inbound adapters stay behind `CommandSource`". Build only what the current work needs.
 - **Adopt before you build.** Before designing any component that isn't domain logic, run the researcher role from `.agents/skills/cruze-roles/SKILL.md` on it. Record every decision in `## Adopt or build`, or at project scope in the adapter's `Adopts` fact. Every new dependency goes to the user through the dependency-approval skill.
 - **Every element with code has a home.** Each `ENT`, `UC`, `PORT`, `ADP` and `FLOW` names its `Module` and `File`. Each file has one responsibility. Never split an owner across files to keep them short.
+- **Comply with the references.** When the project must follow an external document, such as a protocol specification, it is listed under `references:` in `.cruze/config.yaml`; at project scope, ask the user whether there is one, and list it with what it governs. Read the parts each element relies on, and cite the section in the element's body, such as `RFC 4254 §5.2`, so plan, build and the reviewers can check it.
 - **Ask, challenge and defer** as the grilling skill describes. Contexts, ports, public contracts, dependency direction and dependencies are always the user's decisions.
 - **Stepping back is normal.** When the design shows that the vision or an earlier decision is wrong, stop and say so. The vision changes through `envision`, and an approved architecture through `rethink`.
 
@@ -41,5 +42,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 - Project scope: `plan` for the walking-skeleton change.
 - Feature scope: `plan` for the feature's first change.
 - Tweak scope: `plan` for the standalone change.
+
+Plan branches from main, so get the approved design onto main first, as a pull request or a merge, together with the vision or feature map it builds on. A plan branched from an unmerged design branch carries the design into the change's pull request.
 
 Start it in a new session, so its context starts empty.

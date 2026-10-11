@@ -7,9 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `references:` in `.cruze/config.yaml` lists the external documents a project's design must comply with, such as a protocol specification, each with what it governs. `cruze show` lists them, architect cites their sections in the design, and plan, build and both reviewers check against them. One project had to ask by hand for every session to read the specification it implements.
+- The design reviewer's rubric gains "Flow control and recovery": what a sender does when a queue is full and who else waits, fairness between sources, how an async result reaches its request, what happens when a recovery itself fails, what stops each loop, whether a compared value can be observed, and who may claim an exclusive resource. Half the defect rethinks in two projects on 0.0.8 were one of these, found as late as verify. Realign runs the design reviewer with the new item over features in flight.
+- `cruze journal add verification --set result=sent-back` needs `back_to=build` or `back_to=rethink`.
+
 ### Changed
 
 - File budgets are a backstop, not a size to design to. `cruze init` sets `check.max_lines: 600` and `check.max_types: 12`, up from 250 and 5. Plan no longer splits a file because a task would take it past a budget, only because the task would give it a second responsibility, and the code reviewer reports a file split by length alone. The tight budgets had agents break one responsibility across several files. Existing projects raise their budgets through `cruze realign`.
+- `cruze next` takes work in flight in the roadmap's order, and puts an item whose roadmap blockers haven't landed after them. Before, a feature designed early came ahead of the prefactors the roadmap put first.
+- `cruze show` prints a requirement delivered beside its scenarios without repeating them, and gives a change's own settled decisions apart from its feature's (`changeDecisions`), since both number from D1.
+- `cruze status --overlap` reads each other branch's work in flight in one git process and skips the archive. It took about a minute on a project with 56 branches, and now takes about two seconds.
+- An architecture-level rethink that changes an operation, port, error or `XC` rule gets a design review of the diff, and the design reviewer checks each new name against the ones the same type or caller already reaches.
+- Plan asks the user to approve a standalone change's plan, and approves a feature's change with `--by-agent` as before. The CLI refused the agent's approval of every standalone change.
+- Build reads a deviation back before recording it: one that names a value, text or outcome the design didn't give is a rethink. Two such deviations sent a change back at verify.
+- The verifier runs no test suite again for a change that delivers no scenarios, such as a prefactor, and checks it once through the system's front door.
+- A defect rethink records `missed_by=design-review` when a design review ran and its rubric covers the gap, and `realign` is listed as a step that finds rethinks.
+- Architect gets the approved design onto main before plan branches from it.
+
+### Fixed
+
+- `cruze next` names `rethink` after verify sends a change back for a design change, until the rethink is recorded. Before, it named `build` once tasks were reopened, or `verify`.
+- Every command but `init` works on the project that holds the working directory, so it runs from a subdirectory, with file arguments relative to it. Before, `cruze check` from a crate's folder failed with "fix .cruze/config.yaml first".
+- A Rust module gated on a `cfg` that needs `test`, such as `#[cfg(all(test, feature = "schema"))]`, is left out of the file budgets like `#[cfg(test)]`, also when other attributes sit between them.
+- The Layout section of `AGENTS.md` keeps a module that a rethink sets back to `planned`, since its code still exists.
+- `unproved-scope` for a module says to list each file it owns outside its directory under its `Path`, and the rethink skill says that a `- Status:` line belongs to the CLI.
 
 ## [0.0.8] - 2026-10-10
 

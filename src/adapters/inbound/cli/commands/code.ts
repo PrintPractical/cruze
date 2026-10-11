@@ -1,9 +1,10 @@
+import { posix } from "node:path";
 import { checkCode, traceTests } from "../../../../app/use_cases/check_code.ts";
 import { landChange } from "../../../../app/use_cases/land_change.ts";
 import type { CliContext, CommandResult, Options } from "../cli_context.ts";
 
 export async function runCheck(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
-  const files = [...options.file, ...args];
+  const files = [...options.file, ...args].map((file) => posix.normalize(posix.join(context.workingDirectory, file)));
   const report = await checkCode(context, { ci: options.ci, ...(files.length === 0 ? {} : { files }) });
   const lines = report.findings.map((f) => `${f.severity} ${f.path}${f.line === undefined ? "" : `:${f.line}`} ${f.message} [${f.rule}]${f.pending === true ? " (pending realign)" : ""}`);
   lines.push(`Checked ${report.checked} file(s): ${report.passed ? "passed" : "failed"}.`);

@@ -1,4 +1,5 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
+import { PATHS } from "../../domain/project/layout.ts";
 import { readProgress } from "../../domain/project/progress.ts";
 import { buildProjectView } from "../../domain/project/project_view.ts";
 import { findWorkItem, type WorkItem } from "../../domain/project/work_items.ts";
@@ -59,7 +60,9 @@ export async function findOverlaps(deps: ProjectDeps, ref?: string): Promise<{ c
   const mine = touchedIds(view, change);
   const overlaps: Overlap[] = [];
   for (const other of await deps.repository.otherBranches()) {
-    const theirs = buildProjectView(new Map([...view.snapshot].filter(([p]) => p.startsWith("docs/")).concat([...(await deps.repository.filesOnBranch(other, ".cruze"))])));
+    // Landed work is archived, so a branch's work in flight is under features/ and changes/ only.
+    const inFlight = [...(await deps.repository.filesOnBranch(other, PATHS.featuresDir)), ...(await deps.repository.filesOnBranch(other, PATHS.changesDir))];
+    const theirs = buildProjectView(new Map([...view.snapshot].filter(([p]) => p.startsWith("docs/")).concat(inFlight)));
     // Work in flight on a branch is the change bound to it that hasn't landed, there or here.
     const boundThere = theirs.items.filter((i) => {
       const bound = readProgress(i.doc).branch;

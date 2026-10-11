@@ -23,6 +23,7 @@ const OPTIONAL_FIELDS: Record<string, string[]> = {
   rethink: ["missed_by"],
   review: ["nits", "checked_by"],
   disposition: ["decided"],
+  verification: ["back_to"],
 };
 
 /** The workflow steps and checks that find or miss a problem, so a retro can count them. */
@@ -35,10 +36,20 @@ export const FIELD_VALUES: Record<string, string[]> = {
   decided: ["agent", "user"],
   review: ["design", "plan", "code", "realign", "improve"],
   result: ["accepted", "sent-back"],
+  back_to: ["build", "rethink"],
   checked_by: ["agent", "reviewer"],
   found_by: STEPS,
   missed_by: STEPS,
 };
+
+/** A defect rethink must say which step missed it, and a sent-back verification where the change goes back to. */
+function conditionallyRequired(event: string, fields: Record<string, string>): string[] {
+  if (event === "rethink" && fields["kind"] === "defect") return ["missed_by"];
+  if (event === "verification" && fields["result"] === "sent-back") return ["back_to"];
+  return [];
+}
+
+const CONDITION_NOTES: Record<string, string> = { missed_by: " for a defect", back_to: " when the change is sent back" };
 
 /** Fields recorded as numbers rather than text. */
 const COUNT_FIELDS = ["round", "blockers", "concerns", "nits"];
@@ -71,8 +82,8 @@ export function serializeEntry(entry: JournalEntry): string {
 export function recordedEventProblems(event: string, fields: Record<string, string>): string[] {
   const required = RECORDED_EVENTS[event];
   if (required === undefined) return [`unknown event "${event}"; recordable events: ${Object.keys(RECORDED_EVENTS).join(", ")}`];
-  const needed = event === "rethink" && fields["kind"] === "defect" ? [...required, "missed_by"] : required;
-  const problems = needed.filter((field) => (fields[field] ?? "").trim() === "").map((field) => `${event} needs ${field}${field === "missed_by" ? " for a defect" : ""}`);
+  const needed = [...required, ...conditionallyRequired(event, fields)];
+  const problems = needed.filter((field) => (fields[field] ?? "").trim() === "").map((field) => `${event} needs ${field}${CONDITION_NOTES[field] ?? ""}`);
   const known = [...required, ...(OPTIONAL_FIELDS[event] ?? [])];
   for (const field of known) {
     const value = fields[field];

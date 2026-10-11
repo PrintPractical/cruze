@@ -18,8 +18,8 @@
 ## Architecture
 
 1. Edit `docs/architecture.md` directly. Keep every element's ID, and write complete bodies. Write an ADR with `cruze new adr` when the decision passes the ADR test, and link it under `## Decisions`.
-2. Run `cruze validate`, then run the walkthrough of the diff only, following `.agents/skills/cruze-architect/walkthrough.md`.
-3. List the elements you changed that are already `built`, whose code must now change. When the user approves, run `cruze approve architecture`, adding `--replan <ID>` for each of them. They go back to `planned` until a change rebuilds them.
+2. Run `cruze validate`. When the amendment adds, renames or changes an operation, a port, a use case's `Errors` or an `XC` rule, run the review in `.agents/skills/cruze-roles/SKILL.md` on the diff with the design reviewer, `review=design`: a realign amendment once named a method that clashed with one the type already had, found only at plan. Then run the walkthrough of the diff only, following `.agents/skills/cruze-architect/walkthrough.md`.
+3. List the elements you changed that are already `built`, whose code must now change. When the user approves, run `cruze approve architecture`, adding `--replan <ID>` for each of them. They go back to `planned` until a change rebuilds them, and only a land sets them back to `built`. A `- Status:` line belongs to the CLI: when an element was replanned by mistake, tell the user, and let the change rebuild or re-check it.
 4. Commit the amendment, and get it onto main on its own, as a pull request or a merge. Every branch and every later change must build on it. Then merge main into the branch you were working on.
 5. Hand each replanned element to a change that rebuilds it:
    - **The current change**, when the rebuild belongs to its work. Add the element to the feature's Changes row for that change and to the change's `Builds`, then re-plan and re-approve the change.

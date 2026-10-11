@@ -15,7 +15,7 @@ Each Cruze release can expect more of a project's code and documents than the la
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-formats/reference/architecture.md`
-4. **Audit.** Run the auditor role from `.agents/skills/cruze-roles/SKILL.md` on every note with an `Ask`. In a full audit, give it the standards instead, and run one auditor per module in the module map. Check its evidence against the files. Done when every note with an `Ask` has an answer with evidence, and every note with a `Detect` has its findings from the status report.
+4. **Audit.** Run the auditor role from `.agents/skills/cruze-roles/SKILL.md` on every note with an `Ask`. A note whose `Rule` is an item of the design reviewer's rubric is about designs, not code: run the design reviewer instead, on each feature in flight, with that item only, since those designs were reviewed before the item existed. In a full audit, give it the standards instead, and run one auditor per module in the module map. Check its evidence against the files. Done when every note with an `Ask` has an answer with evidence, and every note with a `Detect` has its findings from the status report.
 5. **Decide each finding** with the user, a group at a time, with your recommendation:
    - `fixed`: a prefactor change will fix it.
    - `waived`: the project keeps its own convention, with the reason. For a `check:` finding, list the file under `check.exceptions` with that reason, which keeps CI green. For the rest, the journal holds the waiver.

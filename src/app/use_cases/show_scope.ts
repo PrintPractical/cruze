@@ -14,6 +14,8 @@ export interface Disposition {
 export interface ScopeReport extends ScopeView {
   /** The settled ledger of the item: the feature's dispositions and its changes', or a standalone change's. */
   dispositions: Disposition[];
+  /** The external documents the design must comply with, from `references:` in `.cruze/config.yaml`. */
+  references: Array<{ path: string; use: string }>;
 }
 
 /**
@@ -31,5 +33,5 @@ export async function showScope(deps: ProjectDeps, ref: string): Promise<ScopeRe
     reason: String(entry["reason"] ?? ""),
     review: String(entry["review"] ?? ""),
   }));
-  return { ...scope, dispositions };
+  return { ...scope, dispositions, references: view.config?.config?.references ?? [] };
 }

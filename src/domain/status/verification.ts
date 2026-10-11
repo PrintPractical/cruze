@@ -15,3 +15,15 @@ export function isVerified(journal: JournalEntry[], change: WorkItem): boolean {
   const verifiedHash = approvals.filter((e) => e.at < verification.at).at(-1)?.["hash"];
   return approvals.filter((e) => e.at > verification.at).every((e) => e["hash"] === verifiedHash);
 }
+
+/**
+ * Whether verify sent the change back for a rethink that hasn't been recorded yet. Tasks the
+ * agent reopens at verify would otherwise make the change look ready to build again.
+ */
+export function awaitsRethink(journal: JournalEntry[], change: WorkItem, feature: WorkItem | undefined): boolean {
+  const verification = journal.filter((e) => e.event === "verification" && e["item"] === change.ref).sort((a, b) => a.at.localeCompare(b.at)).at(-1);
+  if (verification?.["result"] !== "sent-back" || verification["back_to"] !== "rethink") return false;
+  // An architecture-level rethink records no item, and counts too.
+  const refs = new Set([change.ref, feature?.ref, undefined]);
+  return !journal.some((e) => e.event === "rethink" && e.at > verification.at && refs.has(e["item"] as string | undefined));
+}

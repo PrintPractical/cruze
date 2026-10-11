@@ -13,6 +13,8 @@ export interface CliContext extends ProjectDeps {
   runner: AgentRunner;
   /** Name of the working directory, the default project name. */
   directoryName: string;
+  /** The working directory relative to the project root, empty at the root; file arguments are relative to it. */
+  workingDirectory: string;
 }
 
 /** What a command produces: a JSON result for agents, a summary for people, and whether it passed. */
