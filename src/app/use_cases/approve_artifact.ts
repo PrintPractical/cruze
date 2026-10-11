@@ -96,6 +96,7 @@ export async function approveArtifact(deps: ProjectDeps, ref: string, options: A
     throw new CruzeError("invalid", `${path} has ${errors.length} problem(s) to fix before approval:\n${listing}`);
   }
   requireSizesAccepted(problems, path);
+  if (item !== undefined) requireNoDecisionCitations(problems, path);
 
   const { hash, upstream } = fingerprint(view, path, parseMarkdown(text));
   const folder = approvalFolder(view, path);
@@ -170,6 +171,17 @@ function requireSizesAccepted(problems: Problem[], path: string): void {
     "size-unaccepted",
     `${path} has ${standing.length} size warning(s). Split the work through rethink, or record the user's acceptance under changes.exceptions in .cruze/config.yaml, as the item's ref and their reason:\n${listing}`,
   );
+}
+
+/**
+ * A delta that cites decisions by number would merge them into the living docs, where they dangle once
+ * the work is archived. Existing docs only warn, so approval of new or redesigned work is where it stops.
+ */
+function requireNoDecisionCitations(problems: Problem[], path: string): void {
+  const standing = problems.filter((p) => p.rule === "decision-citation");
+  if (standing.length === 0) return;
+  const listing = standing.map((p) => `  ${p.path}:${p.line ?? ""} ${p.message}`).join("\n");
+  throw new CruzeError("decision-cited", `${path} cites decisions by number in its delta, which merges into the living docs:\n${listing}`);
 }
 
 function notWork(path: string): never {

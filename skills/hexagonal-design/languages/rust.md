@@ -25,12 +25,13 @@ These add to the hexagonal design rules for Rust projects. The module map decide
 - Put what differs between similar failures in fields, such as `TooLarge { subject: Subject, size: usize, limit: usize }`, rather than `BatchTooLarge`, `MutationTooLarge` and `SetTooLarge`.
 - A match arm that can only be `unreachable!`, or an `expect` on an error the caller has ruled out, means the callee returns too wide a type: narrow it.
 - `anyhow` belongs only in the composition root and binaries, where no caller inspects the error. Never return it from a port or a domain function.
-- No `unwrap`, `expect` or `panic!` for conditions that can happen in production. Tests may use them.
+- No `unwrap`, `expect` or `panic!` for conditions that can happen in production, including those a caller, the clock or a concurrent call can reach, such as an overflow from a huge timeout or a call racing `shutdown`. For each `expect`, be able to name what rules its case out. Tests may use them.
 
 ## Async and concurrency
 
 - Use Tokio when the project needs async. Keep the domain synchronous.
 - Call async functions directly. Spawn a task only when it owns a resource, runs concurrently, handles events or isolates failure, and give every long-lived task an explicit shutdown.
+- Run a test of a race on `#[tokio::test(flavor = "multi_thread")]` with the racing work spawned, since the default runtime runs one task at a time.
 - Prefer ownership and borrowing over shared synchronization. Use a channel when one task owning the state makes things simpler, and a `Mutex` when shared state is simpler. Don't build an actor only to avoid a lock.
 
 ## Dependencies and tooling

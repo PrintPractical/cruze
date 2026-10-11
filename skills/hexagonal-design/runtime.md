@@ -29,6 +29,7 @@ Every long-lived, mutable, stateful or exclusive resource has one named owner. T
 - Technical retry and backoff live in an outbound adapter. Whether an operation is safe to repeat, and the use case's deadline, are part of the core contract.
 - Never retry non-idempotent work blindly, and never stack retries at several layers.
 - Stopping a wait, dropping a future, requesting cancellation, ending a task and cancelling remotely are different events. Say which one an operation promises, what effects may remain, and how completion is observed.
+- In a use case that writes to storage, update the in-memory state right after the durable step and before any later await, so a cancelled call leaves the old state or the new one whole.
 - When a caller needs a guaranteed or fallible finish, give it an explicit `close` or `shutdown` operation. Destruction alone can't report failure.
 
 ## Cross-cutting infrastructure

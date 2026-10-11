@@ -1,4 +1,5 @@
 import { factsOf, statusOf } from "../elements.ts";
+import { findSection, parseMarkdown } from "../markdown.ts";
 import type { ProjectView } from "../project/project_view.ts";
 
 /**
@@ -17,6 +18,14 @@ export function renderAgentsFile(text: string, view: ProjectView): string {
   const modules = builtModules(view);
   if (modules.length > 0) next = replaceBlock(next, "Layout", ["Modules, from `docs/architecture.md`:", "", ...modules]);
   return next;
+}
+
+/** The lines under `## Known pitfalls`, one per pitfall, which the feedback export carries back to Cruze. */
+export function knownPitfalls(text: string): string[] {
+  const doc = parseMarkdown(text);
+  const range = findSection(doc, "Known pitfalls");
+  if (range === null) return [];
+  return doc.lines.slice(range.start, range.end).filter((line) => line.startsWith("- ")).map((line) => line.slice(2).trim());
 }
 
 /**

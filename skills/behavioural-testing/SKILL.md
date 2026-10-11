@@ -11,7 +11,7 @@ Behaviour is the contract. Every scenario in the specs becomes a test that drive
 
 1. Find the test plan rows whose Subject the task proves. Done when you know the seam, test file and kind of every test the task needs.
 2. Write one test at its seam, carrying its subject ID. Take the inputs and expected values from the scenario's GIVEN, WHEN and THEN.
-3. Run it and watch it fail for the reason you expect (red). A test that passes before the code exists proves nothing, so fix the test.
+3. Run it and watch it fail for the reason you expect (red). A test that passes before the code exists proves nothing, so fix the test. A test that guards a race or an ordering must be seen failing against code that has the flaw: run the racing work concurrently, on a multi-threaded runtime where there is one, and wait for a signal the system gives, such as a watch having opened, never for a fixed sleep.
 4. Write the least code that makes it pass (green). Then write the next test. Work in tracer bullets, one test and one slice of code at a time, never all the tests first.
 5. Done when every test plan row whose Subject the task proves has a passing test carrying that ID, and each test fails when the behaviour it checks is removed. Tasks that prove only a `UC`, `ADP` or `MOD` are proved by the rows of the scenarios and ports they serve.
 
@@ -39,13 +39,14 @@ A behaviour test drives a use case, not a single domain type, so it keeps passin
 ## Test support
 
 - Share fixtures and harnesses the way you share fakes. Keep one builder or constant for each domain value tests keep needing, such as a valid configuration or an ID from a string, and one harness per seam, such as an in-process service or the real binary started on a temporary directory. They live in the test support module the language file names.
-- Before writing a helper in a test file, look in the test support module. Use or extend what is there, and never redefine it.
+- Before writing a helper in a test file, look in the test support module and in the test binary's other files. Use or extend what is there, and never redefine it. When a second test file needs a helper, move it into the test support module then, and use it from both.
 - Split a test file by the behaviour it covers, one use case, port or flow per file. File budgets apply to source, not to tests, so never split a test file to meet one.
 
 ## Expected values
 
 - Take expected values from an independent source: the scenario's worked example, a spec, or a known-good literal. Never compute the expected value the way the code does.
 - For a failure scenario, check both the error and the state left behind. After a refused second hop, the first hop is closed.
+- Compare through the constructors and values the code already has. A test is not a caller: never add an accessor, variant or equality to production code only so a test can observe something.
 - Where a plausible wrong outcome exists, assert that it didn't happen.
 
 ## Protecting the check

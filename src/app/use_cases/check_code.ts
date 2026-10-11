@@ -27,16 +27,18 @@ export async function checkCode(deps: ProjectDeps, options: { files?: string[]; 
   const view = await loadView(deps.files);
   const config = requireConfig(view);
   const sources = await readMatching(deps.files, config.source);
+  const tests = await readMatching(deps.files, config.tests);
   for (const file of options.files ?? []) {
-    if (!sources.has(file)) {
+    if (!sources.has(file) && !tests.has(file)) {
       const text = await deps.files.readText(file);
       if (text === undefined) throw new CruzeError("not-found", `${file} does not exist`);
       if (matchesAny(file, config.source)) sources.set(file, text);
+      else if (matchesAny(file, config.tests)) tests.set(file, text);
     }
   }
-  const only = options.files?.filter((file) => sources.has(file));
+  const only = options.files?.filter((file) => sources.has(file) || tests.has(file));
   const standards = config.standards ?? FIRST_RELEASE;
-  const findings = checkSource({ config, sources, modulePaths: modulePaths(view), ...(only === undefined ? {} : { only }) }).map((f) =>
+  const findings = checkSource({ config, sources, tests, modulePaths: modulePaths(view), ...(only === undefined ? {} : { only }) }).map((f) =>
     isPending("check", f.rule, standards) ? { ...f, pending: true as const } : f,
   );
   const failing = findings.filter((f) => f.pending !== true && (f.severity === "error" || options.ci));
