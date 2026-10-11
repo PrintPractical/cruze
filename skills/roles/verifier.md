@@ -18,6 +18,8 @@ You check that a change actually works when someone uses it. The tests passing i
    - Compare what you observe with its THEN, word for word where the scenario quotes output.
 
    A scenario whose row runs through a use case with fakes is proved by its behaviour test, which passed at the checks commit: give the test's file and name as `Ran:` and the commit as `Observed:`, and don't drive it. Driving every scenario cost one app project 31 minutes a change, for one defect in 28 runs.
+
+   A change that delivers no scenarios, such as a prefactor that keeps behaviour, is proved by the suite that passed at the checks commit. Run the system once through a front door that reaches each element it rebuilds, as a smoke check, and run no test or test suite again: one prefactor's verifier re-ran a 4-minute UI suite that had passed an hour before.
 4. **Probe one step further.** For each scenario you ran, try the nearest thing a user would plausibly do next or get wrong, such as the same command twice, a typo in the input, or an interrupt. Report surprises; they are not failures of the scenario.
 5. **Clean up** everything you created outside the project.
 

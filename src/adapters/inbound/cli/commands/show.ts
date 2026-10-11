@@ -14,9 +14,14 @@ function render(report: ScopeReport): string {
   lines.push("## Elements", "", ...blocks(report.elements), "## Scenarios", "", ...blocks(report.scenarios));
   lines.push("## Cited, not shown", "");
   lines.push(...(report.cited.length === 0 ? ["None."] : report.cited.map((c) => `- ${c.id}: ${c.title} (${c.source})`)), "");
-  lines.push("## Settled decisions", "", ...(report.decisions.length === 0 ? ["None."] : report.decisions), "");
+  if (report.feature === undefined) lines.push("## Settled decisions", "", ...(report.decisions.length === 0 ? ["None."] : report.decisions), "");
+  else {
+    lines.push("## Settled decisions of the feature", "", ...(report.decisions.length === 0 ? ["None."] : report.decisions), "");
+    lines.push("## Settled decisions of the change", "", ...(report.changeDecisions.length === 0 ? ["None."] : report.changeDecisions), "");
+  }
   lines.push("## Dispositions", "");
   lines.push(...(report.dispositions.length === 0 ? ["None."] : report.dispositions.map((d) => `- [${d.disposition}, ${d.review}] ${d.finding}: ${d.reason}`)), "");
+  if (report.references.length > 0) lines.push("## References", "", ...report.references.map((r) => `- \`${r.path}\`: ${r.use}`), "");
   if (report.missing.length > 0) lines.push("## Missing", "", ...report.missing.map((id) => `- ${id} is defined nowhere`), "");
   return lines.join("\n").trimEnd();
 }

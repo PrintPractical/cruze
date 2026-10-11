@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { recordEvent } from "../src/app/use_cases/journal_events.ts";
 import { showScope } from "../src/app/use_cases/show_scope.ts";
+import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { CHANGE_01, FEATURE, FEATURE_PATH, exampleProject } from "./support/harness.ts";
+import { CHANGE_01, CHANGE_01_PATH, FEATURE, FEATURE_PATH, edit, exampleProject } from "./support/harness.ts";
 
 const rejectsWith = (code: string) => (error: unknown) => error instanceof CruzeError && error.code === code;
 
@@ -33,7 +34,30 @@ describe("showing the design a change builds", () => {
     assert.deepEqual(report.scenarios.map((s) => s.id), ["SCN-access.direct-serial", "SCN-access.detach", "SCN-access.escape-not-completed", "SCN-access.serial-busy", "SCN-access.unknown-device-suggestion"]);
     assert.match(report.scenarios[0]?.body.join("\n") ?? "", /GIVEN/);
     assert.ok(report.decisions.some((line) => line.startsWith("- D2: Each hop gets 10 seconds")));
+    assert.ok(report.changeDecisions.some((line) => line.startsWith("- D2: The session relays bytes")), "the change's D2 is apart from the feature's");
+    assert.ok(!report.decisions.some((line) => line.startsWith("- D2: The session relays bytes")));
     assert.deepEqual(report.dispositions.map((d) => [d.disposition, d.finding]), [["fixed", "Contracts: the hop connector names no timeout"]]);
+  });
+
+  // Ork: a change that delivered requirements and their scenarios printed every scenario twice, a third of 103 KB.
+  it("shows a requirement delivered beside its scenarios without repeating them", async () => {
+    const h = await exampleProject();
+    edit(h.files, CHANGE_01_PATH, "- Delivers: SCN-access.direct-serial,", "- Delivers: REQ-access.open-console, SCN-access.direct-serial,");
+    const report = await showScope(h.deps, CHANGE_01);
+    const requirement = report.scenarios.find((s) => s.id === "REQ-access.open-console")?.body.join("\n") ?? "";
+    assert.match(requirement, /^### ADDED REQ-access.open-console: Open a device console/);
+    assert.doesNotMatch(requirement, /SCN-access.direct-serial/);
+    assert.match(report.scenarios.find((s) => s.id === "SCN-access.direct-serial")?.body.join("\n") ?? "", /GIVEN/);
+  });
+
+  // usp-rs: the user had to ask that every architecture and plan session read the USP specification in third_party/.
+  it("lists the external documents the design must comply with, from the config", async () => {
+    const h = await exampleProject();
+    const config = h.files.files.get(".cruze/config.yaml") ?? "";
+    h.files.files.set(".cruze/config.yaml", `${config}\nreferences:\n  - path: third_party/rfc4254.txt\n    use: the SSH connection protocol every hop speaks\n`);
+    assert.deepEqual((await showScope(h.deps, CHANGE_01)).references, [{ path: "third_party/rfc4254.txt", use: "the SSH connection protocol every hop speaks" }]);
+    h.files.files.set(".cruze/config.yaml", `${config}\nreferences:\n  - path: third_party/rfc4254.txt\n`);
+    assert.ok((await validate(h.deps)).problems.some((p) => /references\[0\] needs a path and a non-empty use/.test(p.message)));
   });
 
   it("names what the shown elements cite without including it, so the reader fetches only what it needs", async () => {

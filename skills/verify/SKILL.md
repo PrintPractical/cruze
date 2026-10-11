@@ -25,9 +25,9 @@ Verify answers one question: does this change work when someone uses it? Green t
    - The review's outcome, with each finding's disposition.
    - The path to `manual-test.md`, with a recommendation to run it before accepting.
 9. **Ask for the decision:** "Do you accept this change, or send it back?"
-10. **Record it** with `cruze journal add verification --set result=accepted --set summary="<one line>" --item <ref>`, or `result=sent-back`. On sent-back, say what goes back:
-   - A defect in code a task already built: `cruze task reopen T<n> "<reason>"`, then `build`.
-   - A design that can't deliver the scenario: `rethink`.
+10. **Record it** with `cruze journal add verification --set result=accepted --set summary="<one line>" --item <ref>`, or `--set result=sent-back --set back_to=<build|rethink>`. On sent-back, say what goes back:
+   - A defect in code a task already built: `back_to=build`, then `cruze task reopen T<n> "<reason>"`.
+   - A design that can't deliver the scenario: `back_to=rethink`. Leave the tasks to the rethink, which reopens the ones its amendment changes, and `cruze next` names `rethink` until it is recorded.
 
 Done when the decision is recorded.
 

@@ -19,9 +19,14 @@ export function renderAgentsFile(text: string, view: ProjectView): string {
   return next;
 }
 
+/**
+ * The modules whose code exists: those built, and those a land built before a rethink set them
+ * back to `planned` for a change to rebuild, since their directories are still there.
+ */
 function builtModules(view: ProjectView): string[] {
+  const everBuilt = new Set(view.journal.filter((e) => e.event === "land").flatMap((e) => (Array.isArray(e["built"]) ? (e["built"] as unknown[]).map(String) : [])));
   return [...view.living.elements.values()]
-    .filter(({ element, doc }) => element.kind === "MOD" && statusOf(doc, element) === "built")
+    .filter(({ element, doc }) => element.kind === "MOD" && (statusOf(doc, element) === "built" || everBuilt.has(element.id)))
     .map(({ element, doc }) => {
       const facts = factsOf(doc, element);
       const paths = (facts.get("Path") ?? []).flatMap((value) => [...value.matchAll(/`([^`]+)`/g)].map((m) => `\`${m[1] ?? ""}\``));

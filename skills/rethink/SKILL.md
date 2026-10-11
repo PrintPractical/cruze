@@ -32,7 +32,7 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
      --set agent="<the agent you run in>" [--item <ref>]
    ```
 
-   `found_by` is the step that found it. A defect also needs `missed_by`, the earliest step whose job was to catch it. Both take one of `envision`, `architect`, `research`, `design-review`, `walkthrough`, `plan`, `plan-review`, `build`, `code-review`, `verify`, `land`, `improve`, `validate`, `check` or `user`.
+   `found_by` is the step that found it. A defect also needs `missed_by`, the earliest step whose job was to catch it. Both take one of `envision`, `architect`, `research`, `design-review`, `walkthrough`, `plan`, `plan-review`, `build`, `code-review`, `verify`, `land`, `realign`, `improve`, `validate`, `check` or `user`. When a design review ran over the element and an item of its rubric in `.agents/skills/cruze-roles/design-reviewer.md` covers the gap, `missed_by` is `design-review`, not `architect`: a retro reads it to know which rubric to fix.
 
 Done when `cruze status` shows every document approved and current, or names only work the user chose to leave for later.
 
@@ -43,7 +43,7 @@ Done when `cruze status` shows every document approved and current, or names onl
 | Task | A helper belongs in a different file of the same module | Nothing. Record it with `cruze task deviation` | Carry on building. This is not a rethink, so record no rethink entry |
 | Change | A test plan row or a task's file is wrong, with no design change | `change.md`: its test plan or tasks | Plan review of the diff, then re-approve the change |
 | Feature | A use case needs a second port operation; a scenario is wrong | `feature.md`: its deltas and Changes table, or a standalone `change.md`'s deltas | Design review of the diff, walkthrough of the changed parts, then re-approve the feature and its changes |
-| Architecture | An entity boundary is wrong, or a new port is needed | `docs/architecture.md` directly, plus an ADR when it passes the ADR test | Walkthrough of the diff only, then `cruze approve architecture`, with `--replan` for built elements whose code must change |
+| Architecture | An entity boundary is wrong, or a new port is needed | `docs/architecture.md` directly, plus an ADR when it passes the ADR test | Design review of the diff when it changes an operation, port, error or `XC` rule, walkthrough of the diff, then `cruze approve architecture`, with `--replan` for built elements whose code must change |
 | Vision | The release's scope was wrong, or a new goal appears | `docs/vision.md`, and `docs/roadmap.md` | Re-approve the vision and the roadmap. Decide what happens to features that served a dropped goal |
 
 ## After landing

@@ -36,8 +36,10 @@ export interface ScopeView {
   scenarios: ShownElement[];
   /** Elements the shown bodies cite but don't include, with where to read them. */
   cited: CitedElement[];
-  /** The settled decisions of the feature, then of the change. */
+  /** The settled decisions of the feature, or of a standalone change. */
   decisions: string[];
+  /** A feature's change's own settled decisions, numbered apart from the feature's. */
+  changeDecisions: string[];
   /** Scope IDs defined nowhere: the delta, the living docs or the archive. */
   missing: string[];
 }
@@ -66,7 +68,7 @@ export function scopeView(view: ProjectView, item: WorkItem): ScopeView {
       return [shown];
     });
   const elements = show(wanted.elements);
-  const scenarios = show(wanted.scenarios);
+  const scenarios = withoutRepeatedScenarios(show(wanted.scenarios));
   const shownIds = new Set([...elements, ...scenarios].map((e) => e.id));
   const cited = [...new Set([...elements, ...scenarios].flatMap((e) => findIds(e.body.join("\n"))))]
     .filter((id) => !shownIds.has(id))
@@ -74,10 +76,24 @@ export function scopeView(view: ProjectView, item: WorkItem): ScopeView {
       const found = locate(id);
       return found === undefined ? [] : [{ id, title: found.element.title, source: `${found.path}:${found.element.start + 1}` }];
     });
-  const decisions = feature === undefined ? decisionLines(item.doc) : [...decisionLines(feature.doc), ...decisionLines(item.doc)];
-  const result: ScopeView = { ref: item.ref, kind: item.kind, elements, scenarios, cited, decisions, missing };
+  const decisions = decisionLines((feature ?? item).doc);
+  const changeDecisions = feature === undefined ? [] : decisionLines(item.doc);
+  const result: ScopeView = { ref: item.ref, kind: item.kind, elements, scenarios, cited, decisions, changeDecisions, missing };
   if (feature !== undefined) result.feature = feature.ref;
   return result;
+}
+
+/**
+ * A requirement shown beside its own scenarios keeps only its own text: its body would repeat
+ * each of them, which made up a third of one change's output.
+ */
+function withoutRepeatedScenarios(shown: ShownElement[]): ShownElement[] {
+  const ids = new Set(shown.map((e) => e.id));
+  return shown.map((element) => {
+    if (!element.id.startsWith("REQ-")) return element;
+    const first = element.body.findIndex((line, i) => i > 0 && /^#{2,6} /.test(line) && findIds(line).some((id) => ids.has(id)));
+    return first === -1 ? element : { ...element, body: element.body.slice(0, first) };
+  });
 }
 
 /** A change shows what its scope builds, removes and delivers. */

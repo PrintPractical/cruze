@@ -16,7 +16,7 @@ Build turns an approved plan into code, one task at a time. Each task starts wit
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-dependency-approval/SKILL.md`
-3. **Read the plan and the design.** Read the change's `change.md`. Run `cruze show <ref>` and read its output: the full body of every element the change builds, every scenario it delivers, and the settled decisions. Read an element it lists as cited only when the task calls it, from the place it names, never `feature.md` or `docs/architecture.md` whole. Read `commands:` in `.cruze/config.yaml`.
+3. **Read the plan and the design.** Read the change's `change.md`. Run `cruze show <ref>` and read its output: the full body of every element the change builds, every scenario it delivers, and the settled decisions. Read an element it lists as cited only when the task calls it, from the place it names, never `feature.md` or `docs/architecture.md` whole. Read a reference it lists at the sections the change's elements cite. Read `commands:` in `.cruze/config.yaml`.
 4. **Build each open task in order,** following the task loop below. Skip the tasks already ticked in `## Progress`.
 5. **Finish.** When every task is ticked:
    - Run the format, lint and build commands and the full suite, as `.agents/skills/cruze-formats/reference/config.md` defines it under `commands`.
@@ -53,6 +53,7 @@ The plan is design. Within a task you decide only what is local and reversible.
   - a limit, timeout, buffer size, message or error case the design doesn't give. Picking one in code hides a gap in the design: the user decides it, at feature level. Two projects settled 35 of them as deviations.
 
   Explain what you found, with the evidence, and don't work around it. Completed tasks keep their commits.
+- **Read a deviation back before you record it.** One that says the design gives no value, text, error or outcome and names the one you chose, or that the code can't keep a promise a port or use case makes, is a rethink, not a deviation. In one change, two deviations worded that way came back as code-review blockers and sent it back at verify.
 - Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`.
 
 ## Protecting the check

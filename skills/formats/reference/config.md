@@ -37,6 +37,10 @@ changes:
     - item: 2026-09-25-open-console/02-ssh-hops
       reason: every scenario runs through one reconcile, which can't be split without building it twice
 
+references:
+  - path: third_party/rfc4254.txt
+    use: the SSH connection protocol every hop speaks; channels and their failures must follow it
+
 layers:
   - name: inventory-domain
     paths: ["src/inventory/domain/**"]
@@ -58,6 +62,7 @@ layers:
 | `check.max_lines` | Line budget per source file, a backstop against a file that has outgrown one responsibility. `cruze init` sets `600`. Test files outside `source` have no budget, and a Rust file's `#[cfg(test)]` modules don't count. |
 | `check.max_types` | Budget of top-level types per source file. `cruze init` sets `12`. |
 | `check.exceptions` | Files allowed past a budget, or Rust test files allowed under `src/` (`test-placement`), each with a `path` and a `reason`. `realign` adds entries whose reason ends `scheduled in <ref>`, and landing that change removes them. |
+| `references` | External documents the design must comply with, such as a protocol specification or a standard, each with its `path` in the repository and its `use`: what it governs. Optional. `cruze show` lists them, and architect, plan, build and the reviewers read the parts their scope relies on and cite them, such as `RFC 4254 §5.2`, in the design. |
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `commands` | The project's commands by name, such as `test` or `run`. The walking-skeleton change fills them in, and `cruze land` copies them into the Commands section of `AGENTS.md`. When the suite has a slow tier, such as UI, device or end-to-end tests, `test` runs only the fast tier and `test_full` runs everything. The full suite is `test_full` when it is set, and `test` otherwise. |
 | `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. Optional. `cruze init` sets it for Claude Code to run in print mode, allowed to read the project and run `git diff`, `git log`, `git show` and `cruze`. The verifier runs the system, so add the project's build and run commands. When it is unset, or its program isn't installed, `cruze review` hands the role's prompt back to the calling agent to run in a helper. |

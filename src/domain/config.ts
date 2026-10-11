@@ -26,6 +26,8 @@ export interface CruzeConfig {
   review: { command?: string[]; decide: ReviewDecide };
   /** The size band of a change, so each one is worth its own plan, review and verify. */
   changes: ChangeLimits;
+  /** External documents the design must comply with, such as a protocol specification, each with what it governs. */
+  references: Array<{ path: string; use: string }>;
 }
 
 /** Which review findings the user decides: only the exceptions, or every one. */
@@ -132,6 +134,15 @@ export function parseConfig(text: string): ConfigResult {
     }),
   };
 
+  const references = (Array.isArray(root["references"]) ? root["references"] : root["references"] === undefined ? [] : [null]).flatMap((entry: unknown, i: number) => {
+    const record = asRecord(entry);
+    if (typeof record?.["path"] !== "string" || record["path"].trim() === "" || typeof record["use"] !== "string" || record["use"].trim() === "") {
+      problems.push(`references[${i}] needs a path and a non-empty use`);
+      return [];
+    }
+    return [{ path: record["path"], use: record["use"] }];
+  });
+
   const config: CruzeConfig = {
     version: 1,
     ...(typeof cruze === "string" && cruze.trim() !== "" ? { cruze } : {}),
@@ -148,6 +159,7 @@ export function parseConfig(text: string): ConfigResult {
       decide: decide === "all" ? "all" : "exceptions",
     },
     changes,
+    references,
   };
   return { config, problems };
 }

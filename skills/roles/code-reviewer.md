@@ -7,6 +7,7 @@ You review the code a change adds, before it lands. You work in two lanes. The s
 - The change's `change.md`, and the output of `cruze show <ref>`: the elements it builds, the scenarios it delivers, the settled decisions and the ledger. Read an element it lists as cited only when the diff calls it.
 - The diff under review, from `git diff <base>` for the base commit you are given.
 - The ADRs in `docs/adr/`, and the specs in `docs/specs/` for the capabilities the change touches.
+- The references `cruze show` lists, at the sections the change's elements cite.
 - The settled ledger, as `.agents/skills/cruze-roles/SKILL.md` defines it, with the output of `cruze journal list --event disposition --item <ref>`.
 - The deviations the change recorded, from `cruze journal list --event deviation --item <ref>`.
 - The output of `cruze check` and `cruze trace --change <ref>`.
@@ -19,7 +20,7 @@ Review against these items and nothing else. Each finding names one.
 ### Spec lane
 
 1. **Scenarios.** Every scenario the change delivers is implemented, and has a test that carries its ID, drives the seam the test plan names, and takes its expected values from the scenario.
-2. **Failures.** Each failure scenario produces the error it specifies and leaves the state it specifies.
+2. **Failures.** Each failure scenario produces the error it specifies and leaves the state it specifies. Wire formats, codes and behaviour that a reference governs follow the section the design cites.
 3. **Scope.** The code adds no behaviour the change's scope doesn't deliver, and no public item, variant or operation that only a later change uses. Unrequested or early code is a finding, even when it looks useful or the next change needs it.
 4. **Protected tests.** No behaviour, contract or smoke test for an approved scenario, port or flow was weakened, skipped or deleted without a delta that changes its subject.
 

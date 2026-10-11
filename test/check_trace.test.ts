@@ -59,6 +59,18 @@ describe("checking source code", () => {
     assert.deepEqual(report.findings.map((f) => [f.path, f.message]), [["src/inventory/domain/console_path.rs", "251 lines, not counting its inline tests, over the budget of 250; split it if it holds a second responsibility, or list it under check.exceptions"]]);
   });
 
+  // Ork: a module gated on `all(test, feature = "schema")` counted, and the file showed 402 lines.
+  it("leaves out a module whose cfg needs test alongside other conditions, but not one that builds without test", async () => {
+    const h = await exampleProject();
+    const body = `{\n${"    fn case() {}\n".repeat(60)}}\n`;
+    writeSources(h, {
+      "src/inventory/domain/hop.rs": `${"// line\n".repeat(200)}#[cfg(all(test, feature = "schema"))]\n#[allow(dead_code)]\nmod schema_tests ${body}`,
+      "src/inventory/domain/console_path.rs": `${"// line\n".repeat(200)}#[cfg(any(test, feature = "fakes"))]\nmod fakes ${body}`,
+    });
+    const report = await checkCode(h.deps, { ci: true });
+    assert.deepEqual(report.findings.map((f) => [f.path, f.rule]), [["src/inventory/domain/console_path.rs", "max-lines"]]);
+  });
+
   it("warns on budgets locally and fails them in CI, except for files listed with a reason", async () => {
     const h = await exampleProject();
     const long = `${"// line\n".repeat(260)}`;

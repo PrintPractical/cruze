@@ -11,6 +11,7 @@ You review a design, or a change's plan, before any code exists. You find the pl
 - The living docs it builds on: `docs/vision.md`, `docs/glossary.md`, the ADRs in `docs/adr/`, the specs in `docs/specs/` that the artifact cites, and, from `docs/architecture.md`, its Overview, Dependency rules, Cross-cutting concerns and Decisions sections plus each element `cruze show` lists as cited. Read the whole architecture only at project scope.
 - The settled ledger, as `.agents/skills/cruze-roles/SKILL.md` defines it, with the output of `cruze journal list --event disposition --item <ref>`.
 - The output of `cruze validate`.
+- The references `cruze show` lists, from `references:` in `.cruze/config.yaml`: read the sections the design cites or relies on.
 - The standards: `.agents/skills/cruze-hexagonal-design/SKILL.md` and `.agents/skills/cruze-formats/SKILL.md`.
 
 ## Rubric
@@ -24,15 +25,26 @@ Review against these items and nothing else. Each finding names one.
 5. **Adopt or build.** Every component that isn't domain logic has an adopt-or-build decision with a reason, and every new dependency is named with the features the design uses. Every type, trait, macro, framework or tool the design names from outside the project comes from a dependency and feature the design approves, declared by each crate, package or target that uses it, test support included, and allowed by the import rules in `XC` and the `layers:` in `.cruze/config.yaml`. A choice whose reason is avoiding a dependency, a crate or a feature, where the idiomatic design needs one, is a concern: name the idiomatic design. Every command the design spells out, such as a CI step, is spelled as that version's `--help` or source shows it. A claim the design relies on that the research left unverified is a blocker.
 6. **Contracts.** Every new or changed port's `Operations` state what each operation guarantees, how it fails, and who owns cleanup. Check each use case and each port operation for the values build would otherwise have to pick: a named error for every failure a caller can meet, where a panic, an `expect` or "caller error" counts as missing; a number for every timeout, limit, buffer and poll interval; what a caller observes after each state transition, and what happens to queued or in-flight work at it; and one owner for every message a scenario quotes. Each one missing is a blocker: two projects settled 35 of them during build, as deviations.
 7. **Flows.** The key scenarios have a `FLOW` whose participants are all in its `Elements`, including the failure paths the scenarios need.
-8. **Consistency.** The design agrees with `docs/architecture.md`, the accepted ADRs and what earlier changes landed, or changes them explicitly through a `MODIFIED` operation or a new ADR. Its own elements agree with each other. Check every pair, not a sample:
+8. **Consistency.** The design agrees with `docs/architecture.md`, the accepted ADRs, the references and what earlier changes landed, or changes them explicitly through a `MODIFIED` operation or a new ADR. Its own elements agree with each other. Check every pair, not a sample:
    - each use case's `Output` and `Errors` against the `FLOW`s that serve it and the `XC` rules that apply to it;
    - each adapter's duties against the port it implements and the `XC` rules it follows;
    - each guarantee, such as "always fits" or "never returns", against the limits and failures that bound it;
    - each `XC` rule against the other `XC` rules, the `RULE` elements and the `layers:` in `.cruze/config.yaml`, such as a logging rule that every module logs against a build rule that forbids the logging import;
    - each pair of use cases that change the same state, for an interleaving that leaves it wrong, against the concurrency rule in `XC`;
    - at feature scope, the prose in `docs/architecture.md` the delta makes untrue, such as an Overview sentence or a `D<n>` line describing an element the delta splits or replaces.
+   - each new or renamed operation, method or builder step against the others the same type, trait or caller reaches, for two names a caller can't tell apart, such as an `events` method beside an `events` trait method the type also implements.
 9. **Slicing.** Each change is a vertical slice that delivers scenarios end to end and can land on its own. The order respects `Depends on`, and the first change proves the design end to end. Each change carries enough work to be worth its own plan review, code review and verify: changes that build one or two elements each on the same adapters or screens, in a chain, are one change split too fine. A change that one verifier run can't hold is split too coarse. A `change-too-small`, `change-too-large` or `feature-size` warning from `cruze validate` is a finding, unless a decision records the user accepting it. A change `Builds` an element only when its delivered scenarios prove the whole body; an element whose duties arrive in several changes is split into elements that each arrive whole. `Depends on` names every earlier change that builds something this change's scenarios need. At project scope, the roadmap starts with the walking skeleton, and every goal in the release is covered.
 10. **Ambiguity.** Name each point where a fresh implementer could reasonably build something different from what the user expects.
+11. **Flow control and recovery.** Follow each message, request and event from its source to its consumer through every task, channel and queue the design names, against `.agents/skills/cruze-hexagonal-design/runtime.md`. Check:
+   - each bounded queue or buffer: what a sender does when it is full, and which other work waits meanwhile. One slow peer, link, subscriber or consumer holds up only its own work unless a decision says otherwise, so one queue or one task serving several peers needs a reason. A limit meant to tell a stalled consumer from a burst says how it tells them apart;
+   - each place several sources feed one consumer: the order it takes them in, so that none starves;
+   - each asynchronous result: how it reaches the request that waits for it, including across a reconnect or a retry;
+   - each recovery, such as a reconnect, resubscribe, relist or retry: its schedule and limit, what happens when the recovery itself fails, what is lost between the failure and the recovery and how the consumer learns of it, and the order of steps that loses nothing, such as subscribing before relisting;
+   - each loop, task and retry: what stops it, and what shutdown does with the work it holds;
+   - each value the design compares with observed state: an adapter can observe it, or the difference is reported for good;
+   - each exclusive resource, such as a socket, a device or kernel state: what happens when a second instance or caller claims it.
+
+   Each one missing that a scenario or an `XC` rule depends on is a blocker: in two projects, 7 of 14 defect rethinks after a design review were one of these, found as late as verify.
 
 ## Plan rubric
 

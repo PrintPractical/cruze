@@ -128,6 +128,21 @@ describe("the cruze command", () => {
     assert.ok(elapsed < 1000, `cruze check --file took ${Math.round(elapsed)} ms`);
   });
 
+  // Ork: `cruze check` run from a crate's folder answered "fix .cruze/config.yaml first".
+  it("works on the enclosing project from a subdirectory, with file arguments relative to it", () => {
+    const repo = emptyRepo();
+    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
+    mkdirSync(join(repo, "src/inventory/domain"), { recursive: true });
+    writeFileSync(join(repo, "src/inventory/domain/hop.rs"), "pub struct Hop;\n");
+    const sub = join(repo, "src");
+    const validated = cruze(sub, "validate");
+    assert.equal(validated.code, 0, validated.stderr);
+    assert.equal(JSON.parse(validated.stdout).valid, true);
+    const checked = cruze(sub, "check", "inventory/domain/hop.rs");
+    assert.equal(checked.code, 0, checked.stderr);
+    assert.equal(JSON.parse(checked.stdout).checked, 1);
+  });
+
   // Every project on 0.0.1 had its rethinks refused once the CLI moved on, with nothing saying why.
   it("notes on stderr when the project's skills are older than the CLI, even when the command fails", () => {
     const repo = emptyRepo();

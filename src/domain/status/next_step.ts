@@ -7,7 +7,7 @@ import { readRoadmapItems, readRoadmapStatus } from "../project/roadmap.ts";
 import { changesOf, featureOf, type WorkItem } from "../project/work_items.ts";
 import { compareVersions } from "../versions/cruze_version.ts";
 import { FIRST_RELEASE } from "../versions/rule_versions.ts";
-import { isVerified } from "./verification.ts";
+import { awaitsRethink, isVerified } from "./verification.ts";
 import { activeChange } from "./work_status.ts";
 
 /** The Cruze step to run next, computed from the project's state and the current branch. */
@@ -31,7 +31,7 @@ export function nextSteps(view: ProjectView, branch: string | null): NextReport 
   const project = projectStep(view);
   if (project !== null) return { next: project, also: [] };
   const active = activeChange(view, branch);
-  const inFlight = view.items.filter((item) => !item.archived && item.kind !== "change").flatMap((item) => itemSteps(view, item, branch));
+  const inFlight = inRoadmapOrder(view, view.items.filter((item) => !item.archived && item.kind !== "change")).flatMap((item) => itemSteps(view, item, branch));
   const roadmap = roadmapStep(view);
   const realign = realignStep(view);
   const candidates = [
@@ -43,6 +43,28 @@ export function nextSteps(view: ProjectView, branch: string | null): NextReport 
   const unique = candidates.filter((c, i) => candidates.findIndex((o) => o.step === c.step && o.target === c.target) === i);
   const [next, ...also] = unique;
   return { next: next ?? { step: "roadmap", reason: "every item on the roadmap has landed; close the release and plan the next" }, also };
+}
+
+/**
+ * Work in flight in the roadmap's order, with items whose roadmap blockers haven't all landed
+ * last: a feature designed early still waits for the prefactors the user put before it.
+ */
+function inRoadmapOrder(view: ProjectView, items: WorkItem[]): WorkItem[] {
+  const text = view.snapshot.get(PATHS.roadmap);
+  if (text === undefined) return items;
+  const rows = readRoadmapStatus(text);
+  const state = new Map(rows.map((row) => [row.slug, row.state]));
+  const slugOf = new Map(rows.map((row) => [row.id, row.slug]));
+  const roadmap = readRoadmapItems(text);
+  const rank = (item: WorkItem): [number, number] => {
+    const at = roadmap.findIndex((r) => r.slug === slugOf.get(item.ref));
+    const blocked = at !== -1 && (roadmap[at]?.blockedBy ?? []).some((b) => state.get(b) !== "landed");
+    return [blocked ? 1 : 0, at === -1 ? roadmap.length : at];
+  };
+  return items
+    .map((item, i) => ({ item, key: [...rank(item), i] }))
+    .sort((a, b) => (a.key[0] ?? 0) - (b.key[0] ?? 0) || (a.key[1] ?? 0) - (b.key[1] ?? 0) || (a.key[2] ?? 0) - (b.key[2] ?? 0))
+    .map(({ item }) => item);
 }
 
 /** Realign comes when nothing else is due: the installed skills expect more than the code meets. */
@@ -117,6 +139,7 @@ function changeStep(view: ProjectView, change: WorkItem, branch: string | null):
   if (!isPlanned(change.doc)) return { step: "plan", target: change.ref, reason: "the change is designed but has no test plan or tasks yet" };
   if (state.state === "unapproved") return { step: "plan", target: change.ref, reason: "review the plan and approve it on the branch that will build it" };
   if (state.state !== "approved") return { step: "rethink", target: change.ref, reason: `the change or something it cites changed since its approval${state.changed.length > 0 ? ` (${state.changed.join(", ")})` : ""}` };
+  if (awaitsRethink(view.journal, change, feature)) return { step: "rethink", target: feature?.ref ?? change.ref, reason: `verify sent ${change.ref} back for a design change` };
   if (bound !== undefined && bound !== branch) return { step: "switch-branch", target: bound, reason: `${change.ref} is built on branch ${bound}` };
   const progress = readProgress(change.doc);
   if ([...progress.tasks.values()].some((commit) => commit === null)) return { step: "build", target: change.ref, reason: "the change has open tasks" };

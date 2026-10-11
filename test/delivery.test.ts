@@ -10,7 +10,9 @@ import { completeTask, reopenTask } from "../src/app/use_cases/record_progress.t
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
 import { renderTemplate } from "../src/domain/scaffold.ts";
-import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, CHANGE_02, CHANGE_02_TEXT, FEATURE, approveDesign, buildChange, edit, exampleProject, type Harness } from "./support/harness.ts";
+import { renderAgentsFile } from "../src/domain/edits/agents_file.ts";
+import { loadView } from "../src/app/project_context.ts";
+import { BRANCH_01, CHANGE_01, CHANGE_01_PATH, CHANGE_02, CHANGE_02_TEXT, DEVICE_TAGS, DEVICE_TAGS_TEXT, FEATURE, approveDesign, buildChange, edit, exampleProject, type Harness } from "./support/harness.ts";
 
 const rejectsWith = (code: string) => (error: unknown) => error instanceof CruzeError && error.code === code;
 const next = async (h: Harness) => (await suggestNext(h.deps)).next;
@@ -64,6 +66,18 @@ describe("the next step", () => {
     assert.equal(step.target, FEATURE);
   });
 
+  // Ork: next named a feature designed early ahead of the prefactors the roadmap put before it, three times.
+  it("puts work whose roadmap blockers haven't landed after the work that blocks it", async () => {
+    const h = await exampleProject();
+    h.files.files.set(`.cruze/features/${DEVICE_TAGS}/feature.md`, DEVICE_TAGS_TEXT);
+    edit(h.files, "docs/roadmap.md", "| open-console | feature | GOAL-one-command, GOAL-paths-in-config | walking-skeleton |", "| device-tags | feature | GOAL-one-command | walking-skeleton |\n| open-console | feature | GOAL-one-command, GOAL-paths-in-config | walking-skeleton, device-tags |");
+    edit(h.files, "docs/roadmap.md", "| open-console | 2026-09-25-open-console | building |", `| open-console | 2026-09-25-open-console | building |\n| device-tags | ${DEVICE_TAGS} | building |`);
+    await approveDesign(h.deps);
+    h.repository.branch = "main";
+    const report = await suggestNext(h.deps);
+    assert.deepEqual([report.next.target, ...report.also.map((s) => s.target)], [DEVICE_TAGS, `${FEATURE}/01-local-serial`]);
+  });
+
   it("points to the change's own branch when another branch is checked out", async () => {
     const h = await exampleProject();
     await approveDesign(h.deps);
@@ -100,8 +114,26 @@ describe("the verification gate on land", () => {
     await approveDesign(h.deps);
     await buildWithoutVerifying(h);
     await recordEvent(h.deps, "verification", { result: "accepted", summary: "ok" }, CHANGE_01);
-    await recordEvent(h.deps, "verification", { result: "sent-back", summary: "detach leaves the terminal in raw mode" }, CHANGE_01);
+    await recordEvent(h.deps, "verification", { result: "sent-back", summary: "detach leaves the terminal in raw mode", back_to: "build" }, CHANGE_01);
     await assert.rejects(landChange(h.deps, CHANGE_01), rejectsWith("not-verified"));
+  });
+
+  it("names rethink after verify sends a change back for design, even with its tasks reopened, until the rethink is recorded", async () => {
+    const h = await exampleProject();
+    await approveDesign(h.deps);
+    await buildWithoutVerifying(h);
+    await recordEvent(h.deps, "verification", { result: "sent-back", summary: "a stalled device holds up every session", back_to: "rethink" }, CHANGE_01);
+    await reopenTask(h.deps, "T1", "sessions get their own queue", { change: CHANGE_01 });
+    assert.deepEqual(await next(h), { step: "rethink", target: FEATURE, reason: `verify sent ${CHANGE_01} back for a design change` });
+    await recordEvent(h.deps, "rethink", { level: "feature", kind: "defect", summary: "each session has its own queue", wrong: "UC-access.open-console", found_by: "verify", missed_by: "design-review" }, FEATURE);
+    assert.equal((await next(h)).step, "build");
+  });
+
+  it("refuses a sent-back verification that doesn't say where the change goes back to", async () => {
+    const h = await exampleProject();
+    await approveDesign(h.deps);
+    await buildWithoutVerifying(h);
+    await assert.rejects(recordEvent(h.deps, "verification", { result: "sent-back", summary: "raw mode" }, CHANGE_01), (e: unknown) => rejectsWith("invalid-event")(e) && /back_to when the change is sent back/.test((e as Error).message));
   });
 });
 
@@ -118,6 +150,19 @@ describe("keeping AGENTS.md current", () => {
     assert.match(agents, /## Commands\n\n<!-- cruze:managed -->\n- test: `cargo test`\n- run: `cargo run -- list`\n<!-- \/cruze:managed -->/);
     assert.match(agents, /- `src\/access\/domain\/` \(domain\): Access domain/);
     assert.match(agents, /A line of my own\.\n$/);
+  });
+
+  // Ork: the layout dropped test fakes and testbed/ once a rethink set their modules back to planned.
+  it("keeps a module a land built in the layout after a rethink sets it back to planned", async () => {
+    const h = await exampleProject();
+    await approveDesign(h.deps);
+    await buildChange(h, CHANGE_01, BRANCH_01);
+    await landChange(h.deps, CHANGE_01);
+    edit(h.files, "docs/architecture.md", "any other byte releases `0x1d`", "any other byte releases `0x1d` at once");
+    await approveArtifact(h.deps, "architecture", { replan: ["MOD-access.domain"] });
+    const template = readFileSync(new URL("../templates/init/AGENTS.md", import.meta.url), "utf8");
+    const agents = renderAgentsFile(renderTemplate(template, { project_name: "Console Access" }), await loadView(h.files));
+    assert.match(agents, /- `src\/access\/domain\/` \(domain\): Access domain/);
   });
 });
 
