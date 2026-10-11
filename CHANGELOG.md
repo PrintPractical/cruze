@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.9] - 2026-10-11
+
+Designs that say how work flows and recovers, and gates that agree with the CLI. A day of 0.0.8 in three projects, an iPhone app, a Rust daemon and a new Rust protocol library, landed 11 changes. It cut the median context per turn by about a quarter and verify from 31 minutes to under 15, but 14 defect rethinks followed. Half were designs that never said what happens when a queue fills, a recovery fails or an async result has to find its request, and two of them sent changes back at verify. The design reviewer now checks flow control and recovery, `references:` names the specifications a design must follow, and `cruze next` names the rethink a sent-back change needs and follows the roadmap's order. File budgets are a backstop at 600 lines and 12 types, and files split by responsibility, never by length. The CLI also works from a subdirectory, checks overlap in seconds, and leaves gated Rust test modules out of the budgets. Existing projects upgrade as the README's Upgrading section says, and `cruze realign` raises the budgets, lists the project's specifications and reviews features in flight against the new rubric item.
+
 ### Added
 
 - `references:` in `.cruze/config.yaml` lists the external documents a project's design must comply with, such as a protocol specification, each with what it governs. `cruze show` lists them, architect cites their sections in the design, and plan, build and both reviewers check against them. One project had to ask by hand for every session to read the specification it implements.
@@ -226,7 +230,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.8...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.9...HEAD
+[0.0.9]: https://github.com/PrintPractical/cruze/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/PrintPractical/cruze/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/PrintPractical/cruze/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/PrintPractical/cruze/compare/v0.0.5...v0.0.6
