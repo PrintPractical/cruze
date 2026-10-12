@@ -24,14 +24,14 @@ const OPTIONAL_FIELDS: Record<string, string[]> = {
   rethink: ["missed_by"],
   review: ["nits", "checked_by"],
   disposition: ["decided"],
-  verification: ["back_to"],
+  verification: ["back_to", "commit"],
 };
 
 /** The workflow steps and checks that find or miss a problem, so a retro can count them. */
 export const STEPS = ["envision", "architect", "research", "design-review", "walkthrough", "plan", "plan-review", "build", "code-review", "verify", "land", "realign", "improve", "validate", "check", "user"];
 
 export const FIELD_VALUES: Record<string, string[]> = {
-  level: ["task", "change", "feature", "architecture", "vision"],
+  level: ["task", "detail", "change", "feature", "architecture", "vision"],
   kind: ["defect", "discovery"],
   disposition: ["fixed", "waived", "deferred", "rejected", "rethink"],
   decided: ["agent", "user"],
@@ -94,7 +94,7 @@ export function recordedEventProblems(event: string, fields: Record<string, stri
     if (allowed !== undefined && !allowed.includes(value)) problems.push(`${field} must be one of ${allowed.join(", ")}`);
     if (COUNT_FIELDS.includes(field) && !/^\d+$/.test(value)) problems.push(`${field} must be a whole number`);
   }
-  if (event === "checks" && fields["commit"] !== undefined && !/^[0-9a-f]{7,40}$/.test(fields["commit"])) {
+  if ((event === "checks" || event === "verification") && fields["commit"] !== undefined && !/^[0-9a-f]{7,40}$/.test(fields["commit"])) {
     problems.push("commit must be a commit hash, such as the output of git rev-parse --short HEAD");
   }
   if (event === "disposition" && fields["decided"] === "agent" && fields["disposition"] !== "fixed") {
