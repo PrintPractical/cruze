@@ -16,7 +16,7 @@ Build turns an approved plan into code, one task at a time. Each task starts wit
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-dependency-approval/SKILL.md`
-3. **Read the plan and the design.** Read the change's `change.md`. Run `cruze show <ref>` and read its output: the full body of every element the change builds, every scenario it delivers, and the settled decisions. Read an element it lists as cited only when the task calls it, from the place it names, never `feature.md` or `docs/architecture.md` whole. Read a reference it lists at the sections the change's elements cite. Read `commands:` in `.cruze/config.yaml`.
+3. **Read the plan and the design.** Read the change's `change.md`. Run `cruze show <ref>` and read its output: the full body of every element the change builds, every scenario it delivers, and the settled decisions. Read an element it lists as cited only when the task calls it, with `cruze show <ID>`, never `feature.md` or `docs/architecture.md` whole. Read a reference it lists at the sections the change's elements cite. Read `commands:` in `.cruze/config.yaml`.
 4. **Build each open task in order,** following the task loop below. Skip the tasks already ticked in `## Progress`.
 5. **Finish.** When every task is ticked:
    - Run the format, lint and build commands and the full suite, as `.agents/skills/cruze-formats/reference/config.md` defines it under `commands`.

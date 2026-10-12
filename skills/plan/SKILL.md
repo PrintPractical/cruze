@@ -19,7 +19,7 @@ Plan turns one designed change into work an implementer can do without guessing:
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-formats/reference/work-items.md`
-6. **Read the design it builds.** Run `cruze show <ref>` and read its output: the full body of every element in the scope, every scenario it delivers, the settled decisions, the ledger and the references. Read an element it lists as cited only when a task will call it, from the place it names. Don't read `docs/architecture.md` or `feature.md` whole: two projects read a 40k-word architecture about 150 times each.
+6. **Read the design it builds.** Run `cruze show <ref>` and read its output: the full body of every element in the scope, every scenario it delivers, the settled decisions, the ledger and the references. Read an element it lists as cited only when a task will call it, with `cruze show <ID>`. Don't read `docs/architecture.md` or `feature.md` whole: two projects read a 40k-word architecture about 150 times each.
 7. **Check for overlap.** Run `cruze status --overlap --change <ref>`. For each change on another branch that touches the same elements, tell the user which elements are shared and which change should land first. Record the answer under `## Risks`.
 8. **Write the test plan.** Follow [test-plan.md](test-plan.md). Done when every delivered scenario has a `behaviour` row and every port a built adapter implements has a `contract` row.
 9. **Write the tasks.** Follow [tasks.md](tasks.md). Done when every scope ID is proved by a task and every task line matches the grammar.

@@ -4,7 +4,7 @@ You review the code a change adds, before it lands. You work in two lanes. The s
 
 ## Inputs
 
-- The change's `change.md`, and the output of `cruze show <ref>`: the elements it builds, the scenarios it delivers, the settled decisions and the ledger. Read an element it lists as cited only when the diff calls it.
+- The change's `change.md`, and the output of `cruze show <ref>`: the elements it builds, the scenarios it delivers, the settled decisions and the ledger. Read an element it lists as cited only when the diff calls it, with `cruze show <ID>`.
 - The diff under review, from `git diff <base>` for the base commit you are given.
 - The ADRs in `docs/adr/`, and the specs in `docs/specs/` for the capabilities the change touches.
 - The references `cruze show` lists, at the sections the change's elements cite.

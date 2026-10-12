@@ -56,6 +56,7 @@ export interface Options {
   rebase: string[];
   byAgent: boolean;
   restampUnchanged: boolean;
+  index: boolean;
   round?: string;
   package?: string;
   base?: string;

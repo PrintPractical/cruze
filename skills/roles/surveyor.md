@@ -6,7 +6,7 @@ You survey existing code for structure that departs from Cruze's current standar
 
 - What to survey: the system's layout, or one module, named with its `Path`.
 - The standards: `.agents/skills/cruze-hexagonal-design/SKILL.md`, `.agents/skills/cruze-hexagonal-design/shapes.md`, the language file for the project's language when one exists, and `.agents/skills/cruze-behavioural-testing/SKILL.md`.
-- `docs/architecture.md`, for the module map and the elements the code implements, and `.cruze/config.yaml`.
+- `docs/architecture.md`, for the module map and the elements the code implements, which `cruze show --index` lists and `cruze show <ID>` prints, and `.cruze/config.yaml`.
 - `## Principles` and `## Must stay possible` in `docs/vision.md`: why parts of the design exist that no current feature uses yet.
 - The files in scope: for the layout, the build manifests, such as `Cargo.toml` or `Package.swift`, and each module's `Path`; for a module, every source and test file under its `Path`.
 - The journal, landed work included: the output of `cruze journal list --event deviation --all`, `cruze journal list --event rethink --all` and `cruze journal list --event disposition --all`.

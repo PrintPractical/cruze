@@ -8,7 +8,7 @@ You review a design, or a change's plan, before any code exists. You find the pl
   - Feature scope: the feature's `feature.md`, and the output of `cruze show <ref>` for the elements its delta cites, each with where it sits, and the settled ledger.
   - Project scope: `docs/architecture.md`, `.cruze/config.yaml` and `docs/roadmap.md`, plus the walking-skeleton change once it exists.
   - A plan: the change's `change.md`, the output of `cruze show <ref>`, and the output of `cruze status --overlap --change <ref>`.
-- The living docs it builds on: `docs/vision.md`, `docs/glossary.md`, the ADRs in `docs/adr/`, the specs in `docs/specs/` that the artifact cites, and, from `docs/architecture.md`, its Overview, Dependency rules, Cross-cutting concerns and Decisions sections plus each element `cruze show` lists as cited. Read the whole architecture only at project scope.
+- The living docs it builds on: `docs/vision.md`, `docs/glossary.md`, the ADRs in `docs/adr/`, the specs in `docs/specs/` that the artifact cites, and, from `docs/architecture.md`, its Overview, Dependency rules, Cross-cutting concerns and Decisions sections plus each element `cruze show` lists as cited. Read any other element with `cruze show <ID>`, and find what exists with `cruze show --index`. Read the whole architecture only at project scope.
 - The settled ledger, as `.agents/skills/cruze-roles/SKILL.md` defines it, with the output of `cruze journal list --event disposition --item <ref>`.
 - The output of `cruze validate`.
 - The references `cruze show` lists, from `references:` in `.cruze/config.yaml`: read the sections the design cites or relies on.

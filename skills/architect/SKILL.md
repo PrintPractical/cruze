@@ -15,7 +15,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
    - **Tweak scope:** the user asks for a small change to existing behaviour. When the design shows it needs any architecture change, it becomes a feature: say so and continue at feature scope.
    - Done when you can say which, and why.
 2. **Check what it builds on.** Run `cruze status`. `docs/vision.md` must be approved and current. At feature and tweak scope, `docs/architecture.md` must be approved and current as well. When a document isn't, stop and name the step that fixes it: `envision` for the vision, and `rethink` for an architecture that changed since its approval.
-3. **Read the living model.** Read `docs/vision.md`, `docs/glossary.md`, `docs/architecture.md`, the ADRs in `docs/adr/`, `docs/roadmap.md`, `.cruze/config.yaml`, and the specs and code the work touches. Read any note in `.cruze/notes/` the user points to.
+3. **Read the living model.** Read `docs/vision.md`, `docs/glossary.md`, `docs/architecture.md` as "Reading it" in `.agents/skills/cruze-formats/reference/architecture.md` says, the ADRs in `docs/adr/`, `docs/roadmap.md`, `.cruze/config.yaml`, and the specs and code the work touches. Read any note in `.cruze/notes/` the user points to.
 4. **Load the standards.** Read these, and follow them for the rest of this step:
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`
    - `.agents/skills/cruze-grilling/SKILL.md`
