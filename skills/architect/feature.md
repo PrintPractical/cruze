@@ -9,10 +9,10 @@ The result is a `feature.md` with a complete architecture delta and an ordered l
 
 ## Design the delta
 
-3. **Trace each scenario through the model.** For every scenario in the spec delta, name the inbound adapter it enters through, the use case that runs it, the domain elements that decide it, and the ports it crosses. Done when every scenario has a path, and each missing piece is a named gap.
+3. **Trace each scenario through the model.** Find the elements with `cruze show --index`, and read each one the path crosses with `cruze show <ID>`. For every scenario in the spec delta, name the inbound adapter it enters through, the use case that runs it, the domain elements that decide it, and the ports it crosses. Done when every scenario has a path, and each missing piece is a named gap.
 4. **Place each gap,** following "Placing an owner" in the hexagonal-design skill. Prefer extending an existing element when it is the right owner. Each change to the living model becomes an operation under `## Architecture delta`:
    - `ADDED` for a new element, with its full body.
-   - `MODIFIED` for an existing element, with its full new body. Copy the current body from `docs/architecture.md` and edit it, so nothing is lost by accident.
+   - `MODIFIED` for an existing element, with its full new body. Copy the current body from `cruze show <ID>` and edit it, so nothing is lost by accident.
    - `REMOVED` with a `Reason`, for an element the feature retires.
    - When the delta changes or retires a rule, find every element, ADR, decision and sentence in the living docs and this feature that states the old rule, and modify or reword each.
    - A new use of an existing port operation, such as the clock stamping a new kind of time, is a `MODIFIED` port whose `Operations` name the use, and each use case lists every port it calls under `Uses`.

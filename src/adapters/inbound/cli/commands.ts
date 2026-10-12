@@ -25,7 +25,11 @@ export const COMMANDS: Record<string, Command> = {
   status: { handler: runStatus, options: ["gate", "override", "overlap", "change"], usage: "status [--gate build [--override <reason>]] [--overlap [--change <ref>]]" },
   next: { handler: runNext, options: [], usage: "next                                              the step to run next on this branch, and why" },
   diff: { handler: runDiff, options: [], usage: "diff <ref>                                        what changed upstream of a document since its approval, and whether its delta needs a rebase" },
-  show: { handler: runShow, options: [], usage: "show <ref>                                        the design a change builds, or a feature's delta, with what it cites and its settled ledger" },
+  show: {
+    handler: runShow,
+    options: ["index"],
+    usage: "show <ref> | show <ID>... | show --index [<context>]   the design a change builds or a feature's delta, chosen elements' bodies, or one line per element",
+  },
   approve: {
     handler: runApprove,
     options: ["replan", "rebase", "by-agent", "restamp-unchanged"],

@@ -6,7 +6,7 @@ You compare a project's existing code and documents with what the installed Cruz
 
 - The notes to audit, from `cruze realign status`: each note's ID, `Rule`, `Ask` and `Migrate`.
 - In a full audit, the standards instead of notes: `.agents/skills/cruze-hexagonal-design/SKILL.md` and its language file, `.agents/skills/cruze-behavioural-testing/SKILL.md`, and `.agents/skills/cruze-formats/reference/architecture.md`. You audit one module, named with its `Path`.
-- `docs/architecture.md`, for the module map and the elements the code implements.
+- `docs/architecture.md`, for the module map and the elements the code implements: `cruze show --index <context>` lists them, and `cruze show <ID>` prints each.
 - The files in scope: every source and test file under the project's `source` and `tests` globs in `.cruze/config.yaml`, or under the module's `Path`.
 - The settled ledger, as `.agents/skills/cruze-roles/SKILL.md` defines it, and the earlier realign dispositions from `cruze journal list --event disposition`. Never raise a finding they waived.
 

@@ -4,6 +4,10 @@
 
 Template: [../templates/architecture.md](../templates/architecture.md).
 
+## Reading it
+
+Read the prose sections whole: the Overview, Bounded contexts, Dependency rules, Cross-cutting concerns and Decisions. Reach elements through the CLI. `cruze show --index` lists every element of the architecture and specs on one line, with its status, its module and the work in flight that changes it, and `cruze show --index <context>` lists one context or capability with its scenarios. `cruze show <ID>...` prints the chosen elements' bodies, with each in-flight delta's version beside the living one. The index also gives the architecture's size: under 6,000 words, read it whole instead. One project's architecture held 52k words, and an architect run read all of it to find the few elements it would extend.
+
 ## Sections
 
 The document has these `##` sections, in this order. Each holds elements of one kind as `###` heading elements, plus any `VIEW` diagrams that summarize them. A section with no elements yet keeps its heading and a one-line note.

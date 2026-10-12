@@ -54,6 +54,7 @@ export function parseCommand(argv: string[]): ParsedCommand {
         blockers: { type: "string" },
         "by-agent": { type: "boolean", default: false },
         "restamp-unchanged": { type: "boolean", default: false },
+        index: { type: "boolean", default: false },
       },
     });
   } catch (error) {
@@ -78,6 +79,7 @@ export function parseCommand(argv: string[]): ParsedCommand {
     rebase: values.rebase,
     byAgent: values["by-agent"],
     restampUnchanged: values["restamp-unchanged"],
+    index: values.index,
     ...optional("name", values.name),
     ...optional("title", values.title),
     ...optional("feature", values.feature),

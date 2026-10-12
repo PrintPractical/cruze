@@ -4,7 +4,7 @@ A fake is a real, working implementation of a driven port that keeps its state i
 
 ## Writing a fake
 
-1. Read the port's `Operations` in `docs/architecture.md`. The fake implements every operation with the guarantees and failures listed there, and nothing more. That includes every way the real adapter ends on its own, such as a session closed when its stream ends or its server shuts down.
+1. Read the port's `Operations`, with `cruze show <PORT ID>`. The fake implements every operation with the guarantees and failures listed there, and nothing more. That includes every way the real adapter ends on its own, such as a session closed when its stream ends or its server shuts down.
 2. Keep state in plain in-memory structures: a map for a catalog, a list for recorded effects, a settable value for a clock.
 3. Give tests a way to arrange state and to inject each failure the contract lists. Use a constructor that takes the initial state, and a method such as `fail_next_with(HopError::Refused)`. When a use case writes through the port, also let a test stall an operation, and fail one that writes several things partway through, so each partial failure and cancellation can be tested from every state it can leave.
 4. Record effects the contract makes observable, such as the order hops were closed in, so tests can assert them.

@@ -9,7 +9,7 @@
 
 ## Feature
 
-1. Edit the feature's `## Spec delta`, `## Architecture delta` or `## Changes`. For a standalone change, edit its own deltas and scope. Write complete bodies, as `architect` does, and keep the scope rules.
+1. Edit the feature's `## Spec delta`, `## Architecture delta` or `## Changes`. Read the elements the discovery touches with `cruze show <ID>`, which prints the living body and this feature's version side by side, and the rest of `feature.md` when the amendment reaches beyond them. For a standalone change, edit its own deltas and scope. Write complete bodies, as `architect` does, and keep the scope rules.
 2. Run `cruze validate`. Done when it reports no errors for the feature or its changes.
 3. Run the design review from the roles skill on the diff alone, with `review=design`. Run the walkthrough of the changed parts, following `.agents/skills/cruze-architect/walkthrough.md`.
 4. Re-approve the feature. For each of its changes that shows as stale, check it against the diff. When the amendment touches the change's scope, test plan or tasks, update them to match, reopen touched tasks, run the plan review on the diff, and re-approve it with `cruze approve <change> --by-agent`. When it doesn't, re-stamp the change as the skill's step 6 describes.

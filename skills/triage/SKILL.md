@@ -11,7 +11,7 @@ Triage starts from a symptom and ends with a fix, or with the right step to fix 
 
 1. **Capture the symptom.** Get the exact steps, what happened (output, error, exit code), what the user expected, and the environment. Done when you can write the steps as commands.
 2. **Reproduce it.** Run the steps against the real system. Done when you can make it fail on demand and have quoted the output. When you can't reproduce it, ask the user for what differs in their environment, and stop until you can.
-3. **Place it in the living docs.** Find the requirement and scenarios in `docs/specs/` that cover this behaviour, and the flow in `docs/architecture.md` that runs it. Then classify it:
+3. **Place it in the living docs.** Find the requirement and scenarios in `docs/specs/` that cover this behaviour, and the flow in `docs/architecture.md` that runs it, with `cruze show --index` and `cruze show <ID>`. Then classify it:
    - **Code defect:** a scenario says what should happen, and the code does something else.
    - **Spec gap:** no scenario covers this case.
    - **Design flaw:** the design as written can't deliver what the scenario says.

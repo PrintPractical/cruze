@@ -110,6 +110,20 @@ describe("the cruze command", () => {
     assert.match(stderr, /Usage: cruze/);
   });
 
+  it("shows chosen elements, or an index of all of them, and refuses a mix of a ref and IDs", () => {
+    const repo = emptyRepo();
+    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
+    const lookup = cruze(repo, "show", "PORT-access.terminal", "ADP-system.cli", "--text");
+    assert.equal(lookup.code, 0, lookup.stderr);
+    assert.match(lookup.stdout, /^<!-- docs\/architecture\.md:\d+ -->\n### PORT-access\.terminal: Terminal\n/);
+    assert.match(lookup.stdout, /### MODIFIED ADP-system\.cli: /);
+    const index = cruze(repo, "show", "--index", "access", "--text");
+    assert.equal(index.code, 0, index.stderr);
+    assert.match(index.stdout, /^# Elements\n\ndocs\/architecture\.md holds \d+ words/);
+    assert.match(index.stdout, /^- SCN-access\.direct-serial: /m);
+    assert.equal(cruze(repo, "show", "2026-09-25-open-console", "PORT-access.terminal").code, 2);
+  });
+
   it("checks one file of a 10,000-line repository in under a second, for the per-task check", () => {
     const repo = emptyRepo();
     cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
