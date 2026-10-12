@@ -1,4 +1,6 @@
 import { showElements, showIndex } from "../../../../app/use_cases/show_elements.ts";
+import { showNotes } from "../../../../app/use_cases/show_notes.ts";
+import type { Note, NotesFor } from "../../../../domain/project/notes.ts";
 import { showScope, type ScopeReport } from "../../../../app/use_cases/show_scope.ts";
 import { isId } from "../../../../domain/ids.ts";
 import type { ElementIndex } from "../../../../domain/project/element_lookup.ts";
@@ -6,6 +8,11 @@ import type { ShownElement } from "../../../../domain/project/scope_view.ts";
 import { UsageError, requireArgs, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
 export async function runShow(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
+  if (options.notes) {
+    if (args.length > 1 || options.index) throw new UsageError("--notes takes at most one target: project, a step, a feature slug or a context");
+    const report = await showNotes(context, args[0]);
+    return { json: report, human: "target" in report ? renderNotesFor(report).join("\n").trimEnd() : renderNotes(report.notes) };
+  }
   if (options.index) {
     if (args.length > 1) throw new UsageError("--index takes at most one context or capability");
     const index = await showIndex(context, args[0]);
@@ -56,6 +63,7 @@ function render(report: ScopeReport): string {
   lines.push("## Dispositions", "");
   lines.push(...(report.dispositions.length === 0 ? ["None."] : report.dispositions.map((d) => `- [${d.disposition}, ${d.review}] ${d.finding}: ${d.reason}`)), "");
   if (report.references.length > 0) lines.push("## References", "", ...report.references.map((r) => `- \`${r.path}\`: ${r.use}`), "");
+  lines.push(...renderNotesFor(report.notes));
   if (report.missing.length > 0) lines.push("## Missing", "", ...report.missing.map((id) => `- ${id} is defined nowhere`), "");
   return lines.join("\n").trimEnd();
 }
@@ -63,4 +71,26 @@ function render(report: ScopeReport): string {
 function blocks(elements: ShownElement[]): string[] {
   if (elements.length === 0) return ["None.", ""];
   return elements.flatMap((element) => [`<!-- ${element.source} -->`, ...element.body.join("\n").trimEnd().split("\n"), ""]);
+}
+
+/** The notes about a piece of work and the parts of the user's input handed to it; nothing when there are none. */
+function renderNotesFor(found: NotesFor): string[] {
+  if (found.notes.length === 0 && found.handoffs.length === 0) return [];
+  return [
+    "## Notes",
+    "",
+    ...found.notes.map((n) => `- \`${n.path}\`: ${n.title}${n.kind === undefined ? "" : ` (${n.kind})`}`),
+    ...found.handoffs.map((h) => `- ${h.part}, from ${h.source} (${h.status}, handed off in \`${h.note}\`)`),
+    "",
+  ];
+}
+
+function renderNotes(notes: Note[]): string {
+  if (notes.length === 0) return "No notes.";
+  return notes
+    .flatMap((n) => [
+      `- \`${n.path}\`: ${n.title} (${n.kind ?? "no kind"}; about ${n.about.length === 0 ? "nothing named" : n.about.join(", ")})`,
+      ...n.handoff.map((h) => `  - ${h.part} goes to ${h.goesTo} (${h.status})`),
+    ])
+    .join("\n");
 }

@@ -1,4 +1,5 @@
 import type { ProjectView } from "../project/project_view.ts";
+import { futureProblems } from "./future_rules.ts";
 import { livingProblems } from "./living_rules.ts";
 import { error, sortProblems, type Problem } from "./problem.ts";
 import { configProblems, readmeProblems, roadmapProblems, templateLeftovers } from "./project_rules.ts";
@@ -15,6 +16,7 @@ export function validateProject(view: ProjectView): Problem[] {
     ...configProblems(view),
     ...livingProblems(view),
     ...visionProblems(view),
+    ...futureProblems(view),
     ...roadmapProblems(view),
     ...workItemProblems(view),
     ...templateLeftovers(view),

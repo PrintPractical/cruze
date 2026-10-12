@@ -55,6 +55,9 @@ export function parseCommand(argv: string[]): ParsedCommand {
         "by-agent": { type: "boolean", default: false },
         "restamp-unchanged": { type: "boolean", default: false },
         index: { type: "boolean", default: false },
+        notes: { type: "boolean", default: false },
+        kind: { type: "string" },
+        about: { type: "string" },
       },
     });
   } catch (error) {
@@ -80,6 +83,7 @@ export function parseCommand(argv: string[]): ParsedCommand {
     byAgent: values["by-agent"],
     restampUnchanged: values["restamp-unchanged"],
     index: values.index,
+    notes: values.notes,
     ...optional("name", values.name),
     ...optional("title", values.title),
     ...optional("feature", values.feature),
@@ -98,6 +102,8 @@ export function parseCommand(argv: string[]): ParsedCommand {
     ...optional("package", values.package),
     ...optional("base", values.base),
     ...optional("blockers", values.blockers),
+    ...optional("kind", values.kind),
+    ...optional("about", values.about),
   };
   const given = [...new Set(tokens.flatMap((token) => (token.kind === "option" ? [token.name] : [])))];
   return { words: positionals, options, given, help: values.help, version: values.version };

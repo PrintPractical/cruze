@@ -33,7 +33,8 @@ The design reviewer's rubric for a design: the architecture at project scope, or
    Each one missing that a scenario or an `XC` rule depends on is a blocker: in two projects, 7 of 14 defect rethinks after a design review were one of these, found as late as verify.
 12. **Long-term intent.** Check the design against `## Principles` and `## Must stay possible` in `docs/vision.md`:
    - each principle: the design follows it, or the vision's row was amended for this design and approved;
-   - each `LATER` capability whose area the design touches: the design leaves the room its row names, in a `Future` fact that cites the ID, and nothing in it, such as a fixed set, a single owner or a one-way protocol, rules the capability out;
+   - each `LATER` capability, whatever its area: nothing in the design, such as a fixed set, a single owner or a one-way protocol, rules it out; and where the design touches its area, it leaves the room the row names, in a `Future` fact that cites the ID;
+   - each part of the user's input handed to this work, as the Notes section of `cruze show` lists it, or `cruze show --notes architect` at project scope: settled with the user, or the design doesn't rest on it;
    - each settled decision of the design that states long-term intent, such as "eventually" or "later": it is a `LATER` row in the vision, since the decision is archived when the work lands.
 
-   A departure from a principle with no amendment, or a `likely` capability closed off, is a blocker; a `possible` one closed off is a concern. In one project, a feature reversed a principle unnoticed, and a review that never saw the long-term plans proposed removing what they needed.
+   A departure from a principle with no amendment, a `likely` capability closed off, or a design resting on an open hand-off row, is a blocker; a `possible` one closed off is a concern.

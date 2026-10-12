@@ -7,7 +7,7 @@ The result is a feature folder whose `feature.md` holds the intent, the settled 
    - When it isn't in the roadmap's phases, ask the user whether it belongs in this release. If it does, add it by following "Adding an item" in `.agents/skills/cruze-roadmap/SKILL.md`, and re-approve the roadmap. If it doesn't, put it on the future list with `cruze features add` and stop here.
    - When its `Blocked by` items haven't landed (see the roadmap's `## Status`), tell the user. Continue only if they want to design ahead, and record that as a settled decision.
 3. **Create the folder.** When the feature has no folder yet, run `cruze new feature <slug> --title "<title>" --roadmap <slug>`, using its roadmap slug. When a folder exists, edit its `feature.md`.
-4. **Read the behaviour it touches.** Read the specs in `docs/specs/` for every capability the feature changes, so you know each requirement and scenario it builds on.
+4. **Read the behaviour it touches.** Read the specs in `docs/specs/` for every capability the feature changes, so you know each requirement and scenario it builds on. Run `cruze show --notes <slug>`, and take up the notes about this feature and the parts of the user's input handed to it, open questions included, as "Taking up a hand-off later" in [intake.md](intake.md) describes.
 5. **List the open decisions:**
    - **Intent:** the problem and outcome in the user's words, who it is for, the constraints, and what is out of scope.
    - **Requirements:** each behaviour the feature adds, changes or removes, and the capability it belongs to. It goes in an existing capability when the behaviour fits one; otherwise it starts a new capability.

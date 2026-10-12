@@ -64,12 +64,14 @@ describe("creating work", () => {
     await assert.rejects(createProjectDoc(h.deps, "vision"), rejectsWith("exists"));
   });
 
-  it("dates a note and never overwrites an earlier one with the same slug", async () => {
+  it("dates a note, says what it is about, and never overwrites an earlier one with the same slug", async () => {
     const h = await exampleProject();
-    const first = await createNote(h.deps, "ssh-libraries", "SSH libraries");
-    const second = await createNote(h.deps, "ssh-libraries", "SSH libraries, again");
+    const first = await createNote(h.deps, "ssh-libraries", "SSH libraries", "research", "open-console, access");
+    const second = await createNote(h.deps, "ssh-libraries", "SSH libraries, again", "research", "access");
     assert.deepEqual([first.path, second.path], [".cruze/notes/2026-09-26-ssh-libraries.md", ".cruze/notes/2026-09-26-ssh-libraries-2.md"]);
-    assert.match(h.files.files.get(second.path) ?? "", /^# SSH libraries, again\n/);
+    assert.equal(h.files.files.get(first.path), "# SSH libraries\n\n- Date: 2026-09-26\n- Kind: research\n- About: open-console, access\n\n");
+    await assert.rejects(createNote(h.deps, "x", "X", "memo", "project"), rejectsWith("note-kind"));
+    await assert.rejects(createNote(h.deps, "x", "X", "input", " , "), rejectsWith("note-about"));
   });
 
   it("treats a designed standalone change as not planned yet: a warning, and no approval until plan fills it", async () => {

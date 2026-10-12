@@ -73,7 +73,7 @@ Be direct and precise, peer to peer. Challenge only with a specific reason, and 
 
 ## Long-term intent
 
-The vision's `## Principles` and `## Must stay possible` hold what the product answers to beyond the work in hand. A step's own decisions are archived with its work, so long-term intent recorded there is lost. In one project, the user's "eventually" answers about policy orchestrators, tunnels and transports all went into feature decisions; a principle was reversed unnoticed, and a later review proposed removing what the user's plans needed.
+The vision's `## Principles` and `## Must stay possible` hold what the product answers to beyond the work in hand. A step's own decisions are archived with its work, so long-term intent recorded there is lost. One project's "eventually" answers all went into feature decisions, and were archived with them.
 
 - **The user names something the product may need later,** in an answer or an aside, with words such as "eventually", "in the future" or "one day": propose a `LATER` row for it, with its likelihood, why, and what no design may close off. Ask it in the round.
 - **A decision touches a capability area:** once per area, ask about what it may grow into, as `.agents/skills/cruze-envision/possibilities.md` describes, unless the vision already records it.

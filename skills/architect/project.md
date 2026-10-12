@@ -19,7 +19,7 @@ The result has four parts, reviewed together and shown at one walkthrough:
 8. **Modules (`MOD`).** Name the kind of system in the Overview, and choose the layout that is normal for that kind and the language, following `.agents/skills/cruze-hexagonal-design/shapes.md` and the language file. Give each context the fewest modules that keep its layer rules, usually one `core` module and its adapters, and give the shared CLI shell and the composition root the `system` scope. Add a `system` module in the `composition` layer for the build and CI files, such as the package manifest and `.github/workflows/`, so the tasks that write them have an owner. Every source file must fall inside some module's `Path`, including namespace files that join a context's modules, such as `src/inventory/mod.rs` or `index.ts`; list them in a `composition` module's `Path` when no other module fits. Every module gets a `Path` and a `Layer`, and every element above gets its `Module` and `File`.
 9. **Dependency rules (`RULE`).** State what may import what, in one or two sentences each.
 10. **Cross-cutting concerns (`XC`).** Cover errors, configuration, logging, concurrency and security, plus build and delivery (CI, formatting, linting). Read `.agents/skills/cruze-hexagonal-design/runtime.md` for concurrency.
-11. **Decisions.** Write an ADR, with `cruze new adr <slug> --title "<title>"`, for each decision that passes the ADR test. Record the other project decisions as `D<n>` lines under `## Decisions`.
+11. **Decisions.** Write an ADR, with `cruze new adr <slug> --title "<title>"`, for each decision that passes the ADR test. Record the other project decisions as `D<n>` lines under `## Decisions`, including each design choice handed to `architect` that the user keeps.
 12. **Overview (`VIEW-context`).** Draw the context diagram last, once the adapters and external systems are known.
 
 Done when `cruze validate` reports no errors in `docs/architecture.md`. At this stage it warns that elements have no status yet; approval adds the statuses.
@@ -34,7 +34,7 @@ Add the language's build output and tool caches to `.gitignore` now, such as `/t
 
 ## Plan the release
 
-1. **Create the roadmap.** Run `cruze new roadmap`. Agree the first release with the user: its name, and which features from the vision's feature map it delivers.
+1. **Create the roadmap.** Run `cruze new roadmap`. Agree the first release with the user: its name, and which features from the vision's feature map it delivers. Take up the delivery order handed to `roadmap`, as for any hand-off.
 2. **Order the work.** Phase 1 holds only the `walking-skeleton` change. Later phases hold the release's features. Done when the roadmap passes the rules in step 5 of `.agents/skills/cruze-roadmap/SKILL.md`.
 3. **Design the walking skeleton.** Run `cruze new change walking-skeleton --title "Walking skeleton"`. Then:
    - Size the elements it builds for the skeleton. Anything the walking skeleton lists under `Builds` is marked built when it lands, so write those elements, such as the CLI adapter or the first entity, at the size the skeleton needs. Record their planned growth in `Future` facts; later features grow them through `MODIFIED` operations.

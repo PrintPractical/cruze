@@ -27,8 +27,8 @@ export const COMMANDS: Record<string, Command> = {
   diff: { handler: runDiff, options: [], usage: "diff <ref>                                        what changed upstream of a document since its approval, and whether its delta needs a rebase" },
   show: {
     handler: runShow,
-    options: ["index"],
-    usage: "show <ref> | show <ID>... | show --index [<context>]   the design a change builds or a feature's delta, chosen elements' bodies, or one line per element",
+    options: ["index", "notes"],
+    usage: "show <ref> | show <ID>... | show --index [<context>] | show --notes [<target>]   a change's design, chosen elements, one line per element, or the notes and hand-offs for a target",
   },
   approve: {
     handler: runApprove,
@@ -37,8 +37,8 @@ export const COMMANDS: Record<string, Command> = {
   },
   new: {
     handler: runNew,
-    options: { vision: [], glossary: [], architecture: [], roadmap: [], feature: ["title", "roadmap"], change: ["title", "feature", "roadmap"], adr: ["title"], note: ["title"] },
-    usage: "new <vision|glossary|architecture|roadmap> | new <feature|change|adr|note> <slug> --title <title> [--feature <ref>] [--roadmap <slug>]",
+    options: { vision: [], glossary: [], architecture: [], roadmap: [], feature: ["title", "roadmap"], change: ["title", "feature", "roadmap"], adr: ["title"], note: ["title", "kind", "about"] },
+    usage: "new <vision|glossary|architecture|roadmap> | new <feature|change|adr> <slug> --title <title> [--feature <ref>] [--roadmap <slug>] | new note <slug> --title <title> --kind <input|intake|explore|research> --about <subjects>",
   },
   task: { handler: runTask, options: { done: ["change", "commit"], deviation: ["change"], reopen: ["change"] }, usage: "task <done|deviation|reopen> <T#> [text] [--change <ref>] [--commit <sha>]" },
   features: { handler: runFeatures, options: { add: ["summary", "goals"], update: ["summary"], drop: ["reason"] }, usage: "features <add|update|drop> <slug> [--summary <text>] [--goals <ids>] [--reason <text>]" },
