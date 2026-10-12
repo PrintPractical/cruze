@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.11] - 2026-10-12
+
+A change converges instead of looping over edge cases. One project's first change went through verify three times. The last two code reviews each found a single edge case that only hand-made input reached, and each send-back cost a full rethink, two reviews, a rebuild and another verify, about 75 minutes. Build had also recorded the user's answers on such details as deviations, which code review then sent back. A code review finding now blocks only when ordinary use reaches a failure that loses data, crashes, hangs, spins or holds up someone else's work, besides the existing hard rules. A verify after a send-back reviews only the code changed since the last verify. A missing limit, timeout, message or error case is settled with the user as a detail, inside build or verify, with the design text amended alongside the code. Existing projects upgrade as the README's Upgrading section says. Every change applies to new work only.
+
 ### Changed
 
 - The code reviewer ranks a finding as a blocker only when a scenario fails or is untested, a protected test or a layering rule is broken, an unapproved dependency was added, an adapter can't honour its port, or ordinary use reaches a failure that loses data, crashes, hangs, spins or holds up someone else's work. A gap that needs a design change is no longer a blocker by that alone: a failure only hand-made input reaches, and that harms only its sender, is a concern. In one project, two verifies in a row sent a change back over such cases, a 9 MiB `get` answer and an op name built to sit at the frame cap.
@@ -267,7 +271,9 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.9...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.11...HEAD
+[0.0.11]: https://github.com/PrintPractical/cruze/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/PrintPractical/cruze/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/PrintPractical/cruze/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/PrintPractical/cruze/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/PrintPractical/cruze/compare/v0.0.6...v0.0.7
