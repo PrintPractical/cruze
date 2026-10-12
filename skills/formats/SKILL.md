@@ -37,6 +37,8 @@ An ID names one element for its whole life. Other documents cite it, tests carry
 | Kind | Element | Lives in | Scope |
 | --- | --- | --- | --- |
 | `GOAL` | A goal of the product | vision | none |
+| `PRINCIPLE` | A rule every design follows | vision | none |
+| `LATER` | A capability that must stay possible after this release | vision | none |
 | `CTX` | Bounded context | architecture | none |
 | `ENT` | Domain concept: aggregate, entity, value object, domain service, policy or domain event | architecture | context |
 | `UC` | Use case (the application's driving API) | architecture | context |
@@ -54,7 +56,7 @@ An ID names one element for its whole life. Other documents cite it, tests carry
 ## Elements
 
 - A **heading element** is a heading whose text is exactly `<ID>: <Title>`. It extends to the next heading of the same or a higher level.
-- A **row element** is a table row whose first cell is exactly an ID. Only goals use rows.
+- A **row element** is a table row whose first cell is exactly an ID. Only the vision's goals, principles and must-stay-possible capabilities use rows.
 - Element facts are list items of the form `- Key: value`, directly in the element's body. Sub-items hold lists of values.
 - An element cites another by writing its ID anywhere in its body. Every ID a document mentions counts as cited.
 - A cited ID must exist, either in the living docs or in a delta of the same feature or change. Design at project scope cites only what it defines; the feature that adds scenarios links them to flows and use cases through `MODIFIED` operations.

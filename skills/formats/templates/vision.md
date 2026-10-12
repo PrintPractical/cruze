@@ -22,6 +22,18 @@
 
 - <Platform, language, dependency, performance, security or legal limit.>
 
+## Principles
+
+| ID | Principle | Why |
+| --- | --- | --- |
+| PRINCIPLE-<name> | <A rule every design follows, such as "state is the truth; events are hints".> | <Why it holds, in the user's words.> |
+
+## Must stay possible
+
+| ID | Capability | Likelihood | Why | Leave room for |
+| --- | --- | --- | --- | --- |
+| LATER-<name> | <A capability the product may need after this release.> | <likely or possible> | <Why the user may want it.> | <What no design may close off. Never how to build it.> |
+
 <!-- cruze:managed -->
 ## Feature map
 

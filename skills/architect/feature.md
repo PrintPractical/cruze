@@ -18,7 +18,7 @@ The result is a `feature.md` with a complete architecture delta and an ordered l
    - A new use of an existing port operation, such as the clock stamping a new kind of time, is a `MODIFIED` port whose `Operations` name the use, and each use case lists every port it calls under `Uses`.
 5. **Link behaviour to design.** Each use case that runs a requirement lists it under `Serves`. Add or modify a `FLOW` for each key scenario, with `Serves` naming its scenarios and the failure paths they need.
 6. **Research and decide.** For each new component that isn't domain logic, run the researcher role and record a row in `## Adopt or build`. Take every new dependency to the user. Then verify every claim the design relies on, following step 7 of adopt or build in `.agents/skills/cruze-research/SKILL.md`. Done when no claim in the design is unverified.
-7. **Keep later seams open.** When the feature map shows a later feature that will extend this area, record the seam in a `Future` fact, and don't build it.
+7. **Keep later seams open.** When the feature map shows a later feature that will extend this area, or the vision's `## Must stay possible` names a capability in it, record the seam in a `Future` fact, citing the `LATER` ID, and don't build it.
 8. Done when `cruze validate` reports no errors and no `decision-citation` warning in the delta itself, and every cited ID exists in the living docs or this delta.
 
 ## Split it into changes

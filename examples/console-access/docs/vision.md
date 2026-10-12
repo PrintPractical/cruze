@@ -30,6 +30,18 @@ Reaching a lab device's console means remembering which jump host it hangs off, 
 - SSH host keys are verified against `known_hosts`; unknown hosts are refused.
 - Opening a console adds no noticeable delay beyond the hops themselves.
 
+## Principles
+
+| ID | Principle | Why |
+| --- | --- | --- |
+| PRINCIPLE-config-is-truth | Every console path comes from the configuration, never from a guess or a cache | An engineer reading the configuration must see exactly how a console is reached |
+
+## Must stay possible
+
+| ID | Capability | Likelihood | Why | Leave room for |
+| --- | --- | --- | --- | --- |
+| LATER-shared-sessions | Several engineers watch one console session at once | possible | Lab devices are shared, and debugging is often done in pairs | A session's output can reach more than one terminal; nothing assumes the console belongs to one local process |
+
 <!-- cruze:managed -->
 ## Feature map
 

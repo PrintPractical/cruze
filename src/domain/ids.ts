@@ -1,8 +1,10 @@
 /** Element IDs: `<KIND>-<name>` or `<KIND>-<scope>.<name>`, named and never reused. */
 
-export const KINDS = ["GOAL", "CTX", "ENT", "UC", "PORT", "ADP", "FLOW", "MOD", "RULE", "VIEW", "XC", "REQ", "SCN", "ADR"] as const;
+export const KINDS = ["GOAL", "PRINCIPLE", "LATER", "CTX", "ENT", "UC", "PORT", "ADP", "FLOW", "MOD", "RULE", "VIEW", "XC", "REQ", "SCN", "ADR"] as const;
 export type Kind = (typeof KINDS)[number];
 
+/** Kinds of the vision's row elements: goals, the principles every design follows, and what must stay possible later. */
+export const VISION_KINDS: readonly Kind[] = ["GOAL", "PRINCIPLE", "LATER"];
 /** Kinds that describe code, and so carry a managed planned/built status. */
 export const CODE_KINDS: readonly Kind[] = ["ENT", "UC", "PORT", "ADP", "FLOW", "MOD"];
 /** Kinds whose elements carry a managed status: code kinds and scenarios. */
