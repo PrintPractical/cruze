@@ -1,4 +1,5 @@
-import { evaluateApproval } from "../approvals/evaluate.ts";
+import { evaluateApproval, type ApprovalStatus } from "../approvals/evaluate.ts";
+import { rebaseNeeded } from "../approvals/rebase.ts";
 import { PATHS } from "../project/layout.ts";
 import { isPlanned, readChangesTable } from "../project/plan_parts.ts";
 import { readProgress } from "../project/progress.ts";
@@ -7,6 +8,7 @@ import { readRoadmapItems, readRoadmapStatus } from "../project/roadmap.ts";
 import { changesOf, featureOf, type WorkItem } from "../project/work_items.ts";
 import { compareVersions } from "../versions/cruze_version.ts";
 import { FIRST_RELEASE } from "../versions/rule_versions.ts";
+import { pendingReason, pendingRethinks } from "./pending_rethink.ts";
 import { awaitsRethink, isVerified } from "./verification.ts";
 import { activeChange } from "./work_status.ts";
 
@@ -112,7 +114,9 @@ function itemSteps(view: ProjectView, item: WorkItem, branch: string | null): Ne
   const state = evaluateApproval(view, item.path);
   if (readChangesTable(item.doc).length === 0) return [{ step: "architect", target: item.ref, reason: "the feature has no design or changes yet" }];
   if (state.state === "unapproved") return [{ step: "architect", target: item.ref, reason: "review the feature's design and approve it" }];
-  if (state.state !== "approved") return [{ step: "rethink", target: item.ref, reason: `the feature changed since its approval${state.changed.length > 0 ? ` (${state.changed.join(", ")})` : ""}` }];
+  if (state.state !== "approved") return [{ step: "rethink", target: item.ref, reason: staleReason(view, item, "the feature", state) }];
+  const pending = pendingRethinks(view.journal, item);
+  if (pending.length > 0) return [{ step: "rethink", target: item.ref, reason: pendingReason(item, pending) }];
   const changes = changesOf(view.items, item);
   const landed = new Set(changes.filter((c) => readProgress(c.doc).landed !== undefined).map((c) => c.folderName));
   const steps: NextStep[] = [];
@@ -131,20 +135,38 @@ function changeStep(view: ProjectView, change: WorkItem, branch: string | null):
   const feature = featureOf(view.items, change);
   const featureState = feature === undefined ? undefined : evaluateApproval(view, feature.path);
   if (feature !== undefined && featureState !== undefined && featureState.state !== "approved") {
-    const why = featureState.changed.length > 0 ? ` (${featureState.changed.join(", ")})` : "";
-    return { step: "rethink", target: feature.ref, reason: `the feature of ${change.ref} changed since its approval${why}` };
+    return { step: "rethink", target: feature.ref, reason: staleReason(view, feature, `the feature of ${change.ref}`, featureState) };
+  }
+  for (const part of [feature, change]) {
+    const pending = part === undefined ? [] : pendingRethinks(view.journal, part);
+    if (part !== undefined && pending.length > 0) return { step: "rethink", target: part.ref, reason: pendingReason(part, pending) };
   }
   const bound = readProgress(change.doc).branch;
   const state = evaluateApproval(view, change.path);
   if (!isPlanned(change.doc)) return { step: "plan", target: change.ref, reason: "the change is designed but has no test plan or tasks yet" };
   if (state.state === "unapproved") return { step: "plan", target: change.ref, reason: "review the plan and approve it on the branch that will build it" };
-  if (state.state !== "approved") return { step: "rethink", target: change.ref, reason: `the change or something it cites changed since its approval${state.changed.length > 0 ? ` (${state.changed.join(", ")})` : ""}` };
+  if (state.state !== "approved") return { step: "rethink", target: change.ref, reason: staleReason(view, change, "the change", state) };
   if (awaitsRethink(view.journal, change, feature)) return { step: "rethink", target: feature?.ref ?? change.ref, reason: `verify sent ${change.ref} back for a design change` };
   if (bound !== undefined && bound !== branch) return { step: "switch-branch", target: bound, reason: `${change.ref} is built on branch ${bound}` };
   const progress = readProgress(change.doc);
   if ([...progress.tasks.values()].some((commit) => commit === null)) return { step: "build", target: change.ref, reason: "the change has open tasks" };
   if (!isVerified(view.journal, change)) return { step: "verify", target: change.ref, reason: "every task is done; verify the change" };
   return { step: "land", target: change.ref, reason: "the change is verified and accepted" };
+}
+
+/**
+ * Why work went stale, and what the rethink will take: a rebase when its delta still changes an
+ * element whose living text moved, or only a check of the diff and a re-stamp when nothing it cites
+ * asks anything of its own text. One project expected a re-stamp and met rebase-required.
+ */
+function staleReason(view: ProjectView, item: WorkItem, label: string, state: ApprovalStatus): string {
+  if (state.state === "edited") return `${label} changed since its approval`;
+  const changed = state.changed.join(", ");
+  const rebase = rebaseNeeded(view, item);
+  const then = rebase.length > 0
+    ? `its delta changes ${rebase.join(", ")}, so rebase it, as cruze diff ${item.ref} shows`
+    : `read cruze diff ${item.ref}, and re-stamp it when the work still holds`;
+  return `something ${label} cites changed since its approval (${changed}); ${then}`;
 }
 
 /** The first roadmap item that hasn't started and whose blockers have all landed. */

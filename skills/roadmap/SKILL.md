@@ -27,6 +27,7 @@ description: Orders the release's features and standalone changes into phases wi
 ## Adding an item
 
 - Place it in the earliest phase whose items don't block it. Name its blockers: an item blocks it when it builds an element this item extends, or delivers behaviour this item changes.
+- A prefactor restructures code that later items build on, so it goes first: each item it overlaps names it under `Blocked by`. The exception is an item already building, with a change planned or in progress, which the prefactor would rebuild under: the prefactor waits for it and names it under `Blocked by` instead. Put the order to the user either way. One project's realign put a prefactor behind a feature that hadn't started, and the user wanted it first.
 - Add its slug to the coverage row of each goal it serves.
 - A feature that isn't on the feature map gets there first: `cruze features add <slug> --summary <text> --goals <ids>`.
 

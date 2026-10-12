@@ -40,6 +40,16 @@ Stop planning when you find you need any of these:
 
 Say what is missing and why, then send the change to `rethink` at feature level. For a standalone change, that means its own deltas. Never add design to `change.md`.
 
+## A prefactor
+
+A prefactor changes structure, not behaviour, so it delivers no scenarios and its tasks have no red step. The tests that already reach what it rebuilds are its safety net. Its plan differs in three places:
+
+- **Test plan:** no `behaviour` row. Keep the `contract` row of each port a rebuilt adapter implements, naming its existing test file.
+- **Risks:** list the existing test files that reach each element it rebuilds, and the command that runs them. They pass before the first task and after every task, and no task edits them. When nothing reaches an element, the first task pins its current behaviour with a test that passes from the start.
+- **Tasks:** each task moves one owner and leaves those tests green. Each item keeps the visibility it had, widened only as far as its new callers need: one prefactor's only review finding was visibility left wider than it had to be.
+
+The plan review checks these with the plan rubric's Prefactor item.
+
 ## The walking skeleton
 
 The walking-skeleton change also makes CI and the project's tooling real. Its plan adds:

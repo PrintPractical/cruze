@@ -33,7 +33,7 @@ export const STEPS = ["envision", "architect", "research", "design-review", "wal
 export const FIELD_VALUES: Record<string, string[]> = {
   level: ["task", "change", "feature", "architecture", "vision"],
   kind: ["defect", "discovery"],
-  disposition: ["fixed", "waived", "deferred", "rejected"],
+  disposition: ["fixed", "waived", "deferred", "rejected", "rethink"],
   decided: ["agent", "user"],
   review: ["design", "plan", "code", "realign", "improve"],
   result: ["accepted", "sent-back"],

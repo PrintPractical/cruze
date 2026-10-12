@@ -39,4 +39,27 @@ describe("the git repository adapter", () => {
     assert.deepEqual(Object.fromEntries(read), files);
     assert.deepEqual(await new GitRepository(repo).filesOnBranch("other", ".cruze/changes"), new Map());
   });
+
+  it("finds the commit that first added a text to a file, and reads a file as it was there", async () => {
+    const repo = mkdtempSync(join(tmpdir(), "cruze-git-"));
+    dirs.push(repo);
+    git(repo, "init", "-q", "-b", "main");
+    mkdirSync(join(repo, "docs"));
+    writeFileSync(join(repo, "docs/a.md"), "first\n");
+    writeFileSync(join(repo, "approvals.json"), "{}\n");
+    git(repo, "add", ".");
+    git(repo, "commit", "-q", "-m", "one");
+    writeFileSync(join(repo, "docs/a.md"), "second\n");
+    writeFileSync(join(repo, "approvals.json"), "{\"approvedAt\": \"2026-10-11T12:00:00.000Z\"}\n");
+    git(repo, "commit", "-q", "-am", "two");
+    writeFileSync(join(repo, "docs/a.md"), "third\n");
+    git(repo, "commit", "-q", "-am", "three");
+
+    const repository = new GitRepository(repo);
+    const commit = await repository.firstCommitAdding("approvals.json", "2026-10-11T12:00:00.000Z");
+    assert.ok(commit !== null);
+    assert.equal(await repository.fileAt(commit, "docs/a.md"), "second\n");
+    assert.equal(await repository.fileAt(commit, "docs/missing.md"), null);
+    assert.equal(await repository.firstCommitAdding("approvals.json", "never recorded"), null);
+  });
 });

@@ -15,7 +15,7 @@ Land makes finished work part of the living model. `cruze land` merges the chang
    - When an `approvals.json` conflicts, take main's version of it. Then run `cruze status`, and re-approve what it shows stale, as step 3 describes.
    - Resolve code conflicts as usual, then run the full suite. When main came in without code conflicts, leave the full suite to CI.
 3. **Run `cruze status`.** When the change or its feature shows `upstream changed`, another branch landed changes to elements it cites. Then:
-   - Show the user the diff of each changed element, and check that the change's code and tests still hold against it.
+   - Run `cruze diff <ref>` for each, show the user the diff of each changed element, and check that the change's code and tests still hold against it.
    - When they still hold, re-approve the stale documents: the feature first, then the change. The change's verification carries over when its own design didn't change.
    - When they don't hold, stop and offer `rethink`.
 4. **Run `cruze land`** and quote its report: what it merged, what is now built, and whether the work finished and was archived.

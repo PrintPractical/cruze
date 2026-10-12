@@ -45,10 +45,10 @@ A review has at most two rounds. Only blockers can force the second one.
    - `deferred`: it belongs to later work. When it is future scope, add it with `cruze features add <slug> --summary <text> --goals <ids>`.
    - `rejected`: the finding is wrong, with the reason.
 
-   A finding whose fix would change an approved element, such as one marked `Needs design change`, is never `deferred` or `waived`. Recommend `rethink` at that element's level now. Once the rethink is done and the code follows it, record the finding as `fixed`.
+   A finding whose fix would change an approved element, such as one marked `Needs design change`, is never `deferred` or `waived`. Recommend `rethink` at that element's level now. Once the rethink is done and the code follows it, record the finding as `fixed`. When the user wants the rethink later, record it as `rethink` instead, with `--item` naming the feature or change it amends: `cruze next` and the build gate hold that work until a rethink is recorded for it.
 
    Then one line for each finding you are fixing yourself. When there are no exceptions, say what you are fixing and carry on without waiting. The user can object to any line until the work is approved, and that finding becomes an exception: revert its fix and let them decide it.
-5. **Record every disposition:** `cruze journal add disposition --set finding="<rubric item>: <summary>" --set disposition=<fixed|waived|deferred|rejected> --set reason="<reason>" --set review=<design|plan|code> --set decided=<agent|user>`, with the same `--item`. Use `decided=user` for each exception, once the user decides it, and `decided=agent` for each finding you fixed yourself. The CLI refuses `decided=agent` for anything but `fixed`. A recorded disposition is never raised again.
+5. **Record every disposition:** `cruze journal add disposition --set finding="<rubric item>: <summary>" --set disposition=<fixed|waived|deferred|rejected|rethink> --set reason="<reason>" --set review=<design|plan|code> --set decided=<agent|user>`, with the same `--item`. Use `decided=user` for each exception, once the user decides it, and `decided=agent` for each finding you fixed yourself. The CLI refuses `decided=agent` for anything but `fixed`. A recorded disposition is never raised again.
 6. Apply every `fixed` change, then run `cruze validate`. Done when it reports no errors.
 7. When a finding could be caught by a tool, such as a layering, naming or size rule, tell the user which `cruze check` rule or linter setting would catch it next time.
 

@@ -1,5 +1,6 @@
 import type { Handler } from "./cli_context.ts";
 import { runCheck, runLand, runTrace } from "./commands/code.ts";
+import { runDiff } from "./commands/diff.ts";
 import { runApprove, runNew, runValidate } from "./commands/documents.ts";
 import { runInit } from "./commands/init.ts";
 import { runInstall } from "./commands/install.ts";
@@ -23,6 +24,7 @@ export const COMMANDS: Record<string, Command> = {
   validate: { handler: runValidate, options: [], usage: "validate                                          check every document against the formats" },
   status: { handler: runStatus, options: ["gate", "override", "overlap", "change"], usage: "status [--gate build [--override <reason>]] [--overlap [--change <ref>]]" },
   next: { handler: runNext, options: [], usage: "next                                              the step to run next on this branch, and why" },
+  diff: { handler: runDiff, options: [], usage: "diff <ref>                                        what changed upstream of a document since its approval, and whether its delta needs a rebase" },
   show: { handler: runShow, options: [], usage: "show <ref>                                        the design a change builds, or a feature's delta, with what it cites and its settled ledger" },
   approve: {
     handler: runApprove,
