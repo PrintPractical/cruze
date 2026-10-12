@@ -9,7 +9,17 @@ Cruze skills are read by agents, not people. Write them for the agent that reads
 - A skill is a folder under `skills/` with a `SKILL.md`. It is installed as `cruze-<folder>`, and the frontmatter `name` must be exactly that. The `name` is lowercase letters, digits and single hyphens, at most 64 characters.
 - The frontmatter holds `name` and `description` as flat `key: value` lines. The description is at most 1024 characters.
 - The body of `SKILL.md` is at most 150 lines. Templates, checklists, rubrics and examples go in sibling files, each reached by a pointer line that says when to read it.
+- An instruction file holds at most 2,100 words, and the instruction files together stay within the bundle's word budget, `BUNDLE_WORD_BUDGET` in `src/domain/skill_budget.ts`. Templates and realign notes don't count: the CLI reads and renders them. See "Context budget" below.
 - Point to a sibling file with a relative Markdown link, such as `[contracts.md](contracts.md)`. Point to another Cruze skill's file by its installed path in backticks, such as `.agents/skills/cruze-formats/reference/work-items.md`, because that is where the agent finds it in a project. Every pointer must resolve, and every Markdown file in a skill must be reachable by links from its `SKILL.md`.
+
+## Context budget
+
+Every word a step loads is context the agent spends before it reads the project, in every project, on every run. In one project, Cruze's skills were an eighth of what its agents read; the project's own Cruze documents were three times that.
+
+- **Measure a change by what a run loads,** not by the bundle's size. A run loads a workflow skill, the files it names for the run's branch, and the files a role names. Moving a rubric only some reviews need into its own file cut a plan review's load by more than half, with no rule removed.
+- **Pay for what you add.** A change that adds text names what it replaces or makes redundant, and removes it in the same change: a rule a CLI check now enforces, a step a later rule covers, an example a better one replaces. When nothing can go, say so in the commit, and raise `BUNDLE_WORD_BUDGET` there with the reason. Lower the budget whenever a change cuts text.
+- **Duplicate only across what runs alone.** A rule repeated in files that one run loads together is waste: keep it in one and point to it. A fresh-context role reads only its role file and the inputs it lists, so the rules its report depends on, such as the findings format, stay in each role file.
+- **Keep evidence short.** One clause of evidence, such as "two projects settled 35 of them as deviations", tells the agent why a rule matters. The full story belongs in the eval case.
 
 ## Two kinds of skill
 
@@ -33,7 +43,7 @@ Skills run under Claude Code, Codex, OpenCode and others. Name the action, never
 - **State the target behaviour.** "Write one test per scenario, named with its `SCN` ID." A prohibition earns a line only as a hard guardrail, and even then it sits next to the positive target.
 - **Use leading words** the model already knows: *walking skeleton*, *tracer bullet*, *seam*, *port*, *adapter*, *red/green*, *blocker*. Use the same word everywhere for the same idea.
 - **Cut no-ops.** Delete any sentence that doesn't change what the agent would do by default, such as "be careful" or "write clean code".
-- **Keep one source of truth.** A rule lives in one skill or one reference file, and other skills point to it. Don't restate what the agent can look up in one step (`package.json` scripts, `--help`, the directory tree). Write down what can't be looked up: the reason, the convention, the gotcha.
+- **Keep one source of truth.** A rule lives in one skill or one reference file, and other skills point to it, except in role files, as "Context budget" says. Don't restate what the agent can look up in one step (`package.json` scripts, `--help`, the directory tree). Write down what can't be looked up: the reason, the convention, the gotcha.
 - **Write plainly.** Use short sentences and specific nouns. No emoji and no marketing adjectives.
 
 ## House conventions

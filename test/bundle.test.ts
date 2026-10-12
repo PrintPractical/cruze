@@ -6,6 +6,7 @@ import { PackageBundle } from "../src/adapters/outbound/package_bundle.ts";
 import { parseConfig } from "../src/domain/config.ts";
 import { INIT_AGENTS, INIT_SCAFFOLD, renderTemplate, reviewSettingTemplate } from "../src/domain/scaffold.ts";
 import { SKILL_FILE, agentToolProblems, skillProblems } from "../src/domain/skill.ts";
+import { BUNDLE_WORD_BUDGET, MAX_FILE_WORDS, budgetProblems } from "../src/domain/skill_budget.ts";
 import { skillLinkProblems, type SkillFiles } from "../src/domain/skill_links.ts";
 import { compareVersions } from "../src/domain/versions/cruze_version.ts";
 import { parseRealignNotes, type RealignNote } from "../src/domain/versions/realign_notes.ts";
@@ -28,6 +29,12 @@ describe("the shipped bundle", () => {
   it("resolves every pointer between skill files, and reaches every file from its SKILL.md", async () => {
     const bundle = await PackageBundle.locate();
     assert.deepEqual(skillLinkProblems(await bundle.skills()), []);
+  });
+
+  // Between 0.0.1 and 0.0.10 the skills grew by half, and no retro removed anything.
+  it("keeps every instruction file, and the bundle as a whole, within their word budgets", async () => {
+    const bundle = await PackageBundle.locate();
+    assert.deepEqual(budgetProblems(await bundle.skills()), []);
   });
 
   it("names no agent-specific tool, so every agent can follow the skills", async () => {
@@ -122,6 +129,19 @@ describe("checking pointers between skill files", () => {
       }),
     ]);
     assert.deepEqual(problems, []);
+  });
+});
+
+describe("checking the skills' word budgets", () => {
+  const words = (n: number): string => Array.from({ length: n }, () => "word").join(" ");
+
+  it("reports a file over its limit and a bundle over its budget, and leaves templates and notes out", () => {
+    const big = { folder: "plan", files: [{ path: "SKILL.md", text: words(MAX_FILE_WORDS + 1) }] };
+    assert.deepEqual(budgetProblems([big]), [`plan/SKILL.md: ${MAX_FILE_WORDS + 1} words, over ${MAX_FILE_WORDS}; move what only some runs need into a sibling file`]);
+    const many = Array.from({ length: Math.ceil(BUNDLE_WORD_BUDGET / MAX_FILE_WORDS) + 1 }, (_, i) => ({ folder: `s${i}`, files: [{ path: "SKILL.md", text: words(MAX_FILE_WORDS) }] }));
+    assert.match(budgetProblems(many).join("\n"), /over the budget of/);
+    const data = { folder: "formats", files: [{ path: "templates/vision.md", text: words(BUNDLE_WORD_BUDGET) }, { path: "notes/0.0.2.md", text: words(BUNDLE_WORD_BUDGET) }] };
+    assert.deepEqual(budgetProblems([data]), []);
   });
 });
 

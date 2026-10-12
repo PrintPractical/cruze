@@ -34,7 +34,7 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
 
    Name the feature or change with `--item` whenever the rethink amends one: a rethink recorded for it closes the findings decided `rethink` on it.
 
-   `found_by` is the step that found it. A defect also needs `missed_by`, the earliest step whose job was to catch it. Both take one of `envision`, `architect`, `research`, `design-review`, `walkthrough`, `plan`, `plan-review`, `build`, `code-review`, `verify`, `land`, `realign`, `improve`, `validate`, `check` or `user`. When a design review ran over the element and an item of its rubric in `.agents/skills/cruze-roles/design-reviewer.md` covers the gap, `missed_by` is `design-review`, not `architect`: a retro reads it to know which rubric to fix.
+   `found_by` is the step that found it. A defect also needs `missed_by`, the earliest step whose job was to catch it. Both take one of `envision`, `architect`, `research`, `design-review`, `walkthrough`, `plan`, `plan-review`, `build`, `code-review`, `verify`, `land`, `realign`, `improve`, `validate`, `check` or `user`. When a design review ran over the element and an item of its rubric, `.agents/skills/cruze-roles/design-rubric.md` or `.agents/skills/cruze-roles/plan-rubric.md`, covers the gap, `missed_by` is `design-review`, not `architect`: a retro reads it to know which rubric to fix.
 
 Done when `cruze status` shows every document approved and current, or names only work the user chose to leave for later.
 

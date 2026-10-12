@@ -1,6 +1,7 @@
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { resolveArtifact } from "../../domain/project/artifact_ref.ts";
-import { featureOf } from "../../domain/project/work_items.ts";
+import { isPlanned } from "../../domain/project/plan_parts.ts";
+import { featureOf, type WorkItem } from "../../domain/project/work_items.ts";
 import type { AgentRunner } from "../ports/agent_runner.ts";
 import { loadView, type ProjectDeps } from "../project_context.ts";
 
@@ -44,7 +45,7 @@ export async function runReview(deps: ProjectDeps & { runner: AgentRunner }, req
     context.push(`Under review: ${item?.ref ?? path} (\`${path}\`)`);
     const feature = item === undefined ? undefined : featureOf(view.items, item);
     if (feature !== undefined) context.push(`Its feature: \`${feature.path}\``);
-    if (role === "design-reviewer" && item !== undefined && item.kind !== "feature") context.push("This is a change's plan: review it with the plan rubric.");
+    if (role === "design-reviewer" && item !== undefined) context.push(rubricLine(item));
   } else {
     context.push("Under review: the project documents the role lists for project scope");
   }
@@ -82,4 +83,11 @@ async function bundledRole(deps: ProjectDeps, role: Role): Promise<string> {
   const file = roles?.files.find((f) => f.path === `${role}.md`);
   if (file === undefined) throw new CruzeError("role-missing", `the ${role} role is not installed; run cruze install`);
   return file.text;
+}
+
+/** A design reviewer reads one rubric: the plan rubric for a planned change, the design rubric otherwise. */
+function rubricLine(item: WorkItem): string {
+  return item.kind !== "feature" && isPlanned(item.doc)
+    ? "This is a change's plan: review it against `.agents/skills/cruze-roles/plan-rubric.md`."
+    : "This is a design: review it against `.agents/skills/cruze-roles/design-rubric.md`.";
 }

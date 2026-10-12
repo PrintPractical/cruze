@@ -38,9 +38,12 @@ Every rethink, waived blocker and escaped bug in a project that uses Cruze is ev
    - what would have gone differently in those entries.
 
    Prefer a mechanical fix, such as a validation or check rule, over more prose in a skill. Prefer tightening an existing rule over adding a new one.
-5. **Write an eval case per proposal,** following [eval-cases.md](eval-cases.md). A proposal without an eval case is incomplete.
-6. **Present the retro** to the maintainer: the counts, the groups ranked by frequency times cost, and each proposal with its eval case. The maintainer decides which to accept.
-7. **Implement the accepted proposals** on a branch, following `AGENTS.md` and `docs/contributing/writing-skills.md`. Add each eval, record each user-visible change in `CHANGELOG.md`, and add a realign note for it to `skills/realign/notes/<coming version>.md`, in the format `skills/realign/notes.md` gives. A proposal that changes what existing code must look like gets `Applies to: existing code`, with its `Detect` rule or the auditor's `Ask`. Run `npm run check`.
+
+   Name what each proposal removes, as "Context budget" in `docs/contributing/writing-skills.md` describes: the text it replaces, a rule a new CLI check now enforces, a step it makes redundant. A proposal that only adds says why nothing can go.
+5. **Look for what to remove.** Read the skills the groups touched for text no entry in any bundle exercised and no eval case pins, rules a CLI check now enforces, and rules repeated in files that one run loads together. Propose each removal with its evidence, as for any proposal. Done when the retro's proposals, taken together, add no more words than they remove, or the maintainer has accepted the difference. A removal needs no new eval case: name the eval cases and tests that still cover the behaviour it leaves.
+6. **Write an eval case per proposal,** following [eval-cases.md](eval-cases.md). A proposal without an eval case is incomplete.
+7. **Present the retro** to the maintainer: the counts, the groups ranked by frequency times cost, each proposal with its eval case, and the words the retro adds and removes. The maintainer decides which to accept.
+8. **Implement the accepted proposals** on a branch, following `AGENTS.md` and `docs/contributing/writing-skills.md`. Add each eval, record each user-visible change in `CHANGELOG.md`, and add a realign note for it to `skills/realign/notes/<coming version>.md`, in the format `skills/realign/notes.md` gives. A proposal that changes what existing code must look like gets `Applies to: existing code`, with its `Detect` rule or the auditor's `Ask`. Lower `BUNDLE_WORD_BUDGET` in `src/domain/skill_budget.ts` by what the retro saved, or raise it with the reason the maintainer accepted. Run `npm run check`.
 
 ## Rules
 
