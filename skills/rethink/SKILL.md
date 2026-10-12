@@ -26,7 +26,7 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
 7. **Record the rethink.** Draft the entry and show it to the user in one line. When they confirm, run:
 
    ```sh
-   cruze journal add rethink --set level=<task|change|feature|architecture|vision> --set kind=<defect|discovery> \
+   cruze journal add rethink --set level=<task|detail|change|feature|architecture|vision> --set kind=<defect|discovery> \
      --set summary="<what changed>" --set wrong="<document and element, and what was wrong>" \
      --set found_by=<step> [--set missed_by=<step>] \
      --set agent="<the agent you run in>" [--item <ref>]
@@ -43,6 +43,7 @@ Done when `cruze status` shows every document approved and current, or names onl
 | Level | Example | Amend | Then |
 | --- | --- | --- | --- |
 | Task | A helper belongs in a different file of the same module | Nothing. Record it with `cruze task deviation` | Carry on building. This is not a rethink, so record no rethink entry |
+| Detail | Build or verify needs a limit, timeout, message or error case | The element's text, with the code | The user approves it, with no review. Run from build or verify, as [levels.md](levels.md) says |
 | Change | A test plan row or a task's file is wrong, with no design change | `change.md`: its test plan or tasks | Plan review of the diff, then re-approve the change |
 | Feature | A use case needs a second port operation; a scenario is wrong | `feature.md`: its deltas and Changes table, or a standalone `change.md`'s deltas | Design review of the diff, walkthrough of the changed parts, then re-approve the feature and its changes |
 | Architecture | An entity boundary is wrong, or a new port is needed | `docs/architecture.md` directly, plus an ADR when it passes the ADR test | Design review of the diff when it changes an operation, port, error or `XC` rule, walkthrough of the diff, then `cruze approve architecture`, with `--replan` for built elements whose code must change |

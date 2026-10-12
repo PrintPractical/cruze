@@ -50,6 +50,21 @@ describe("the journal and feedback export", () => {
     await assert.rejects(recordEvent(h.deps, "review", { review: "design", round: "1", blockers: "two", concerns: "0" }), rejectsWith("invalid-event"));
   });
 
+  // Ork: each of three verifies reviewed the whole change again, and each found a new edge case to send it back over.
+  it("records the commit a change was verified at, so a later verify reviews only what changed since", async () => {
+    const h = await exampleProject();
+    const entry = await recordEvent(h.deps, "verification", { result: "sent-back", summary: "a get answer over the cap", back_to: "rethink", commit: "b2a6fba" }, CHANGE_01);
+    assert.equal(entry["commit"], "b2a6fba");
+    await assert.rejects(recordEvent(h.deps, "verification", { result: "accepted", summary: "ok", commit: "HEAD" }, CHANGE_01), rejectsWith("invalid-event"));
+  });
+
+  // Ork: settling one message length took a full rethink, two reviews, a rebuild and another verify.
+  it("records a detail amendment made inside build or verify as a rethink of its own level", async () => {
+    const h = await exampleProject();
+    const entry = await recordEvent(h.deps, "rethink", { level: "detail", kind: "defect", summary: "cut a quoted op name to 1 KiB", wrong: "ADP-api-server.dispatcher gave no limit", found_by: "code-review", missed_by: "design-review" }, CHANGE_01);
+    assert.equal(entry["level"], "detail");
+  });
+
   // rto ran its 25-minute suite at build's finish, at verify and in the verifier, on the same commit.
   it("records the commit where every check passed, so later steps can quote it instead of rerunning", async () => {
     const h = await exampleProject();

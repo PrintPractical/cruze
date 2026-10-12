@@ -49,12 +49,12 @@ The plan is design. Within a task you decide only what is local and reversible.
   - a new element, port operation or scenario;
   - a file outside the owner's module, other than the test support module;
   - a change to an approved scenario's behaviour, or to its test;
-  - a dependency, or a feature of an approved dependency, that the design doesn't name. Ask for it as `.agents/skills/cruze-dependency-approval/SKILL.md` says, and never write around it with hand-written code or a shell command;
-  - a limit, timeout, buffer size, message or error case the design doesn't give. Picking one in code hides a gap in the design: the user decides it, at feature level. Two projects settled 35 of them as deviations.
+  - a dependency, or a feature of an approved dependency, that the design doesn't name. Ask for it as `.agents/skills/cruze-dependency-approval/SKILL.md` says, and never write around it with hand-written code or a shell command.
 
   Explain what you found, with the evidence, and don't work around it. Completed tasks keep their commits.
-- **Read a deviation back before you record it.** One that says the design gives no value, text, error or outcome and names the one you chose, or that the code can't keep a promise a port or use case makes, is a rethink, not a deviation. In one change, two deviations worded that way came back as code-review blockers and sent it back at verify.
-- Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`.
+- **Settle a detail with the user,** as "Detail" in `.agents/skills/cruze-rethink/levels.md` says, when the code needs a limit, timeout, buffer size, message or error case the design doesn't give. Never offer a deviation instead: two projects settled 35 details as deviations.
+- **Read a deviation back before you record it.** One naming a value, text, error or outcome the design doesn't give is a detail; one saying the code can't keep a promise a port or use case makes is a rethink.
+- Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`, a detail included.
 
 ## Protecting the check
 
