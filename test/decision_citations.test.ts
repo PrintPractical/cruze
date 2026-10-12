@@ -4,7 +4,7 @@ import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
 import { checkCode } from "../src/app/use_cases/check_code.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
 import { findDecisionCitations, workItemSlugs } from "../src/domain/decision_citations.ts";
-import { FEATURE, FEATURE_PATH, edit, exampleProject, type Harness } from "./support/harness.ts";
+import { FEATURE, FEATURE_PATH, edit, exampleProject, setVersions, type Harness } from "./support/harness.ts";
 
 const ARCHITECTURE = "docs/architecture.md";
 const PROJECT_DECISIONS = "- ADR-2026-09-24-hop-chains: console paths are ordered hop chains, each hop connected over the previous link, instead of delegating to OpenSSH `ProxyJump`\n";
@@ -68,7 +68,10 @@ describe("citing decisions by number in code", () => {
     const h = await exampleProject();
     h.files.files.set("src/access/domain/escape_detector.rs", "/// Holds back `Ctrl-]` (open-console D1).\npub struct EscapeDetector { d1: u8 }\nconst D2: u8 = 2;\n");
     h.files.files.set("tests/access_open_console.rs", "// Each hop gets its own timeout\n// (D2).\n");
-    const findings = (await checkCode(h.deps, { ci: true })).findings.filter((f) => f.rule === "decision-citation");
-    assert.deepEqual(findings.map((f) => [f.path, f.line, f.pending]), [["src/access/domain/escape_detector.rs", 1, true], ["tests/access_open_console.rs", 2, true]]);
+    const findings = async () => (await checkCode(h.deps, { ci: true })).findings.filter((f) => f.rule === "decision-citation");
+    setVersions(h.files, { standards: "0.0.9" });
+    assert.deepEqual((await findings()).map((f) => [f.path, f.line, f.pending]), [["src/access/domain/escape_detector.rs", 1, true], ["tests/access_open_console.rs", 2, true]]);
+    setVersions(h.files, { standards: "0.0.10" });
+    assert.deepEqual((await findings()).map((f) => f.pending), [undefined, undefined]);
   });
 });
