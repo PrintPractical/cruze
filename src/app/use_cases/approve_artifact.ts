@@ -1,7 +1,8 @@
 import { requirePlanReviewClosed, requireUnchangedSinceApproval, type AgentBasis } from "../../domain/approvals/agent_approval.ts";
 import { evaluateApproval } from "../../domain/approvals/evaluate.ts";
 import { fingerprint, isApprovable } from "../../domain/approvals/fingerprint.ts";
-import { latestApproval, serializeApprovals, withApproval, type ApprovalRecord } from "../../domain/approvals/records.ts";
+import { rebaseNeeded } from "../../domain/approvals/rebase.ts";
+import { serializeApprovals, withApproval } from "../../domain/approvals/records.ts";
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { updateProgress } from "../../domain/edits/progress_block.ts";
 import { setStatus, stampMissingStatuses } from "../../domain/edits/status_lines.ts";
@@ -14,7 +15,7 @@ import { PATHS } from "../../domain/project/layout.ts";
 import { isPlanned, readChangesTable } from "../../domain/project/plan_parts.ts";
 import { readProgress } from "../../domain/project/progress.ts";
 import { approvalFolder, approvalsPath, type ProjectView } from "../../domain/project/project_view.ts";
-import { featureOf } from "../../domain/project/work_items.ts";
+import { featureOf, type WorkItem } from "../../domain/project/work_items.ts";
 import type { Problem } from "../../domain/validation/problem.ts";
 import { SIZE_RULES } from "../../domain/validation/size_rules.ts";
 import { validateProject } from "../../domain/validation/validate_project.ts";
@@ -103,7 +104,7 @@ export async function approveArtifact(deps: ProjectDeps, ref: string, options: A
   const current = view.approvals.get(folder) ?? { version: 1, approvals: [], merged: {} };
   const rebased = options.rebase ?? [];
   const deltaIds = item === undefined || item.kind === "change" ? new Set<string>() : readDelta(item.doc).ids;
-  requireRebased(view, deltaIds, latestApproval(current, path), rebased);
+  if (item !== undefined) requireRebased(view, item, rebased);
   const merged = { ...current.merged };
   for (const id of rebased) {
     const living = view.living.elements.get(id);
@@ -144,13 +145,8 @@ export async function approveArtifact(deps: ProjectDeps, ref: string, options: A
  * a rethink or another land, the delta would overwrite that edit, so approval waits until the
  * delta is reconciled and the element is named with --rebase.
  */
-function requireRebased(view: ProjectView, deltaIds: Set<string>, previous: ApprovalRecord | undefined, rebased: string[]): void {
-  if (previous === undefined) return;
-  const moved = [...deltaIds].filter((id) => {
-    const living = view.living.elements.get(id);
-    const before = previous.upstream[id];
-    return living !== undefined && before !== undefined && before !== elementHash(living.doc, living.element) && !rebased.includes(id);
-  });
+function requireRebased(view: ProjectView, item: WorkItem, rebased: string[]): void {
+  const moved = rebaseNeeded(view, item).filter((id) => !rebased.includes(id));
   if (moved.length > 0) {
     throw new CruzeError(
       "rebase-required",

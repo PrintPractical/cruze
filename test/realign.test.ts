@@ -3,14 +3,15 @@ import { describe, it } from "node:test";
 import { PackageBundle } from "../src/adapters/outbound/package_bundle.ts";
 import type { Bundle } from "../src/app/ports/bundle.ts";
 import type { ProjectDeps } from "../src/app/project_context.ts";
+import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
 import { checkCode } from "../src/app/use_cases/check_code.ts";
 import { recordEvent } from "../src/app/use_cases/journal_events.ts";
 import { landChange } from "../src/app/use_cases/land_change.ts";
-import { showStatus, suggestNext } from "../src/app/use_cases/project_status.ts";
+import { checkBuildGate, showStatus, suggestNext } from "../src/app/use_cases/project_status.ts";
 import { realignDone } from "../src/app/use_cases/realign_done.ts";
 import { realignStatus } from "../src/app/use_cases/realign_status.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { BRANCH_01, CHANGE_01, approveDesign, buildChange, exampleProject, setVersions, type Harness } from "./support/harness.ts";
+import { BRANCH_01, CHANGE_01, FEATURE, approveDesign, buildChange, exampleProject, setVersions, type Harness } from "./support/harness.ts";
 
 const CONFIG = ".cruze/config.yaml";
 const SPLIT_TESTS = "src/access/domain/console_session/tests.rs";
@@ -116,5 +117,27 @@ describe("realigning a project to a new Cruze", () => {
     await approveDesign(h.deps);
     const next = await suggestNext(h.deps);
     assert.ok([next.next, ...next.also].some((s) => s.step === "realign" && s.target === "0.0.2"));
+  });
+
+  // Ork: seven design findings were recorded as fixed "by a rethink before 03 is planned", and nothing showed them.
+  it("holds a feature's work until the design findings decided for a rethink have one, and names them", async () => {
+    const h = await exampleProject();
+    await approveDesign(h.deps);
+    h.repository.branch = BRANCH_01;
+    await approveArtifact(h.deps, CHANGE_01);
+    const finding = { finding: "flow-control-and-recovery: a full event queue drops the newest report", disposition: "rethink", reason: "settled by a feature-level rethink", review: "realign" };
+    await recordEvent(h.deps, "disposition", finding, FEATURE);
+    const next = (await suggestNext(h.deps)).next;
+    assert.equal(next.step, "rethink");
+    assert.equal(next.target, FEATURE);
+    assert.match(next.reason, /1 finding\(s\) on .* a full event queue drops the newest report/);
+    assert.deepEqual((await showStatus(h.deps)).features[0]?.rethinkPending, [finding.finding]);
+    const gate = await checkBuildGate(h.deps);
+    assert.equal(gate.passed, false);
+    assert.match(gate.reasons.join("\n"), /decided for a rethink that hasn't happened yet.*run rethink/);
+
+    await recordEvent(h.deps, "rethink", { level: "feature", kind: "defect", summary: "a full queue drops the oldest report", wrong: "FLOW-access.open-console", found_by: "realign", missed_by: "design-review" }, FEATURE);
+    assert.notEqual((await suggestNext(h.deps)).next.step, "rethink");
+    assert.equal((await showStatus(h.deps)).features[0]?.rethinkPending, undefined);
   });
 });

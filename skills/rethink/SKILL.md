@@ -9,7 +9,7 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
 
 ## Steps
 
-1. **State the discovery.** Say what is wrong or new, and quote the evidence: the failing test, the output, the document line, or what the user said.
+1. **State the discovery.** Say what is wrong or new, and quote the evidence: the failing test, the output, the document line, or what the user said. When `cruze next` sent you here for findings decided `rethink`, those findings are the discovery: `cruze show <ref>` lists them in its ledger.
 2. **Classify it.** Pick the level from the table below, using the highest level the discovery touches. Pick its kind:
    - **Defect:** a Cruze step should have caught it.
    - **Discovery:** it is new information no step could have had.
@@ -19,7 +19,7 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
 4. **Amend that level,** following the level's section in [levels.md](levels.md). Settle any decision the amendment needs with the user, and record it as that level records decisions.
 5. **Keep completed work.** A ticked task stays ticked unless the amendment changes its owner, its files, or what it proves. Reopen each task that changed with `cruze task reopen T<n> "<what changed>"`. Its commits stay in history, and build redoes the task.
 6. **Re-approve what went stale.** Run `cruze status` and work from the top down. The amended document comes first, and the user approves it as its level says. Then take each feature or change it lists as `upstream changed`, whose own text you didn't edit:
-   - Read the diff of the elements it names, and check the work still holds against them. When it doesn't, amend it too, and the user approves it as an amended document.
+   - Run `cruze diff <ref>`. It shows each changed element's approved and current text, and whether the work's delta needs a rebase. Check the work still holds against it. When it doesn't, amend it too, and the user approves it as an amended document.
    - When it holds, re-stamp it with `cruze approve <ref> --restamp-unchanged`. The CLI refuses work whose own text changed, a project document, and a change with a task reopened since its approval; the user re-approves those.
 
    Tell the user, in one line each, what you re-stamped and why it still holds. They can object, and that document goes to them. A change's verification carries over when its own design didn't change.
@@ -31,6 +31,8 @@ Finding a design flaw mid-build is information, not failure. Rethink amends the 
      --set found_by=<step> [--set missed_by=<step>] \
      --set agent="<the agent you run in>" [--item <ref>]
    ```
+
+   Name the feature or change with `--item` whenever the rethink amends one: a rethink recorded for it closes the findings decided `rethink` on it.
 
    `found_by` is the step that found it. A defect also needs `missed_by`, the earliest step whose job was to catch it. Both take one of `envision`, `architect`, `research`, `design-review`, `walkthrough`, `plan`, `plan-review`, `build`, `code-review`, `verify`, `land`, `realign`, `improve`, `validate`, `check` or `user`. When a design review ran over the element and an item of its rubric in `.agents/skills/cruze-roles/design-reviewer.md` covers the gap, `missed_by` is `design-review`, not `architect`: a retro reads it to know which rubric to fix.
 

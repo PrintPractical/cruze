@@ -103,10 +103,25 @@ describe("landing a change", () => {
     assert.deepEqual(h.files.files, before);
   });
 
-  it("won't let a feature overwrite an element someone else changed after it merged it", async () => {
+  // Ork: a realign edited an element the feature's first change had merged, and its re-stamp was refused with rebase-required.
+  it("keeps an edit someone else made to an element the feature merged, with no rebase of its delta", async () => {
     const h = await landFirstChange();
     edit(h.files, "docs/architecture.md", "any other byte releases `0x1d`", "any other byte releases `0x1d` at once");
     await approveArtifact(h.deps, "architecture");
+    await approveArtifact(h.deps, FEATURE, { agent: "rethink" });
+    h.files.files.set(`.cruze/features/${FEATURE}/changes/02-ssh-hops/change.md`, CHANGE_02_TEXT);
+    await buildChange(h, CHANGE_02, "open-console-ssh");
+    await landChange(h.deps, CHANGE_02);
+    assert.match(h.files.files.get("docs/architecture.md") ?? "", /any other byte releases `0x1d` at once/);
+    assert.equal(statusOf(h, "docs/architecture.md", "ENT-access.escape-detector"), "built");
+    assert.deepEqual((await validate(h.deps)).problems, []);
+  });
+
+  it("won't let a feature overwrite an element someone else changed after it merged it, when its delta changes the element again", async () => {
+    const h = await landFirstChange();
+    edit(h.files, "docs/architecture.md", "any other byte releases `0x1d`", "any other byte releases `0x1d` at once");
+    await approveArtifact(h.deps, "architecture");
+    edit(h.files, FEATURE_PATH, "in `armed`, `q` means detach", "in `armed`, `q` or `Q` means detach");
     await assert.rejects(approveArtifact(h.deps, FEATURE), (e: unknown) => e instanceof CruzeError && e.code === "rebase-required" && /--rebase ENT-access\.escape-detector/.test(e.message));
     h.files.files.set(`.cruze/features/${FEATURE}/changes/02-ssh-hops/change.md`, CHANGE_02_TEXT);
     h.repository.branch = "open-console-ssh";

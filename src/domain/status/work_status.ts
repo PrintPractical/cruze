@@ -5,6 +5,7 @@ import { readChangesTable, readScope } from "../project/plan_parts.ts";
 import { readProgress } from "../project/progress.ts";
 import type { ProjectView } from "../project/project_view.ts";
 import { changesOf, featureOf, type WorkItem } from "../project/work_items.ts";
+import { pendingReason, pendingRethinks } from "./pending_rethink.ts";
 
 export interface ChangeStatus {
   ref: string;
@@ -15,6 +16,8 @@ export interface ChangeStatus {
   tasksTotal: number;
   /** When and in which commit the change landed, once it has. */
   landed?: string;
+  /** Findings decided for a rethink of this change that hasn't happened yet. */
+  rethinkPending?: string[];
 }
 
 export interface FeatureStatus {
@@ -22,6 +25,8 @@ export interface FeatureStatus {
   path: string;
   approval: ApprovalStatus;
   changes: ChangeStatus[];
+  /** Findings decided for a rethink of this feature that hasn't happened yet. */
+  rethinkPending?: string[];
 }
 
 export interface ProjectStatus {
@@ -42,6 +47,7 @@ export function projectStatus(view: ProjectView, branch: string | null): Project
       path: feature.path,
       approval: evaluateApproval(view, feature.path),
       changes: changesOf(view.items, feature).map((change) => changeStatus(view, change)),
+      ...withPending(view, feature),
     }));
   const standalone = active.filter((item) => item.kind === "standalone").map((change) => changeStatus(view, change));
   const status: ProjectStatus = { documents, features, standalone };
@@ -69,7 +75,12 @@ function changeStatus(view: ProjectView, change: WorkItem): ChangeStatus {
   };
   if (progress.branch !== undefined) status.branch = progress.branch;
   if (progress.landed !== undefined) status.landed = progress.landed;
-  return status;
+  return { ...status, ...withPending(view, change) };
+}
+
+function withPending(view: ProjectView, item: WorkItem): { rethinkPending?: string[] } {
+  const pending = pendingRethinks(view.journal, item);
+  return pending.length === 0 ? {} : { rethinkPending: pending.map((e) => String(e["finding"] ?? "")) };
 }
 
 /** Why building may not start on this branch; empty when the build gate passes. */
@@ -86,7 +97,11 @@ export function buildGateReasons(view: ProjectView, branch: string | null): stri
     const detail = status.changed.length > 0 ? `: ${status.changed.join(", ")} changed` : status.unjournaled === true ? ": the approval has no journal entry" : "";
     return [`${path} is ${status.state}${detail}`];
   });
-  return [...approvals, ...unlandedDependencies(view, change, feature)];
+  const rethinks = [feature, change].flatMap((part) => {
+    const pending = part === undefined ? [] : pendingRethinks(view.journal, part);
+    return part === undefined || pending.length === 0 ? [] : [`${pendingReason(part, pending)}; run rethink`];
+  });
+  return [...approvals, ...rethinks, ...unlandedDependencies(view, change, feature)];
 }
 
 /** The changes this change's row in its feature's Changes table depends on that haven't landed on this branch. */
