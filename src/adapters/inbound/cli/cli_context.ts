@@ -57,6 +57,9 @@ export interface Options {
   byAgent: boolean;
   restampUnchanged: boolean;
   index: boolean;
+  notes: boolean;
+  kind?: string;
+  about?: string;
   round?: string;
   package?: string;
   base?: string;

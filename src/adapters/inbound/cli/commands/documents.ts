@@ -34,7 +34,7 @@ export async function runNew(context: CliContext, args: string[], options: Optio
   }
   requireArgs(args, ["kind", "slug"]);
   if (args[0] === "note") {
-    const report = await createNote(context, args[1] ?? "", requireOption(options.title, "--title"));
+    const report = await createNote(context, args[1] ?? "", requireOption(options.title, "--title"), requireOption(options.kind, "--kind"), requireOption(options.about, "--about"));
     return { json: report, human: `Created ${report.path}` };
   }
   const kind = args[0] as NewKind;

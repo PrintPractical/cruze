@@ -36,7 +36,7 @@ Facts are `- Key: value` items. Keys marked required must be present; the others
 | `CTX` | `Purpose` | `Depends on` (context IDs, with what is used) |
 | `ENT` | `Kind` (`aggregate`, `entity`, `value`, `service`, `policy` or `event`), `Module`, `File` | `Invariants`, `Relationships`, `States` (for state machines) |
 | `UC` | `Input`, `Output`, `Errors`, `Uses`, `Module`, `File` | `Serves` (REQ IDs) |
-| `PORT` | `Direction` (`driven` or `driving`), `Operations`, `Module`, `File` | `Implemented by`, `Future` |
+| `PORT` | `Direction` (`driven` or `driving`), `Operations`, `Module`, `File` | `Implemented by` |
 | `ADP` | `Implements` (a driven port) or `Drives` (use cases), `Technology`, `Module`, `File` | `Adopts` (library and adopt-or-build reason), `Format` (the stored or wire format it owns, or where its schema lives) |
 | `FLOW` | `Elements`, a Mermaid `sequenceDiagram` | `Serves` (SCN IDs, once they exist), `Failure paths` |
 | `MOD` | `Path` (a directory ending in `/`, or one file; list several in backticks, never a glob, including every file the module owns outside its directory, such as a build script), `Layer` (`core`, `domain`, `application`, `adapter` or `composition`) | |
@@ -49,7 +49,7 @@ Rules for facts:
 - `File` names the real source path, one per element, with sub-items when an element spans files. Every element with code has one: an element without a file cannot be built, checked or reviewed.
 - `Operations` lists each operation as a sub-item with its signature in the project's language, then its contract: what it guarantees, its failure cases and who owns cleanup.
 - `Relationships` sub-items read `<verb> <ID> (<cardinality>)`, for example `- has one ENT-inventory.console-path (1)`.
-- `Future` records a seam kept open for a later release and the element it will need, so later features extend the design rather than rework it. A seam kept for a capability on the vision's Must stay possible cites its `LATER` ID, so a change to that capability makes the design stale.
+- `Future`, on any element, records a seam kept open for later and what it will need, so later features extend the design rather than rework it. It names the need it serves: the vision's `LATER` capability, by ID, so a change to that capability makes the design stale, or the feature on the map or the roadmap, by slug. `cruze validate` warns `future-unanchored` when it names neither.
 - Add another fact when it helps a reader, such as `Failure attribution` on an adapter. The CLI checks the listed facts and ignores the others.
 - An element that grows over several features, such as the CLI adapter gaining a command per feature, gets a `MODIFIED` operation in each feature that extends it. Its status goes back to `planned` when that feature's first change lands, and to `built` when the change that builds the new text lands.
 - The CLI adds `- Status: planned` to a new element and flips it to `built` when a landed change builds it. Leave it out of what you write.

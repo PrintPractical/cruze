@@ -20,7 +20,7 @@ Explore is the optional thinking partner that can come before any other Cruze st
 
 Only when the user says to capture:
 
-1. Run `cruze new note <slug> --title "<title>"` and write the note at the path it returns.
+1. Run `cruze new note <slug> --title "<title>" --kind explore --about <subjects>`, naming the feature slugs or contexts the idea concerns, or `project`, and write the note at the path it returns.
 2. Give the note these sections: `## Problem`, `## Options`, `## Recommendation` and `## Open questions`. Mark each statement as fact, hypothesis, preference or recommendation.
 3. Done when the note stands on its own for a reader who wasn't in the conversation.
 

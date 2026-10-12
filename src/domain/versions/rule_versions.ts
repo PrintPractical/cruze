@@ -19,6 +19,7 @@ export const RULE_SINCE: Record<string, string> = {
   "validate:module-path-glob": "0.0.8",
   "validate:decision-citation": "0.0.10",
   "check:decision-citation": "0.0.10",
+  "validate:future-unanchored": "0.0.10",
 };
 
 /** Whether a rule arrived after the version the project's code meets, so it waits for `realign`. */

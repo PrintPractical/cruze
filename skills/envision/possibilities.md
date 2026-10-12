@@ -1,6 +1,6 @@
 # Exploring what may come later
 
-The user knows where the product is heading better than any document does, but rarely says it unprompted. Ask, so designs leave room for it and never close it off. One project's user planned third-party apps and automation driven by telemetry. None of it reached the vision, a feature reversed a principle to serve it, and a later review proposed removing what it needed.
+The user knows where the product is heading better than any document does, but rarely says it unprompted. Ask, so designs leave room for it and never close it off.
 
 1. **Find the neighbours.** For each goal, user and capability in scope, name the capabilities that products in this domain commonly grow into, from what you know of the domain and its standards. Name them as the user would recognise them: single sign-on or multi-factor authentication next to sign-in, sync across devices next to local-only storage, teams and shared workspaces next to a single-user app, third-party plugins next to a fixed set of kinds, a second transport next to a local socket. Skip those the vision already records under `## Must stay possible` or `## Non-goals`.
 2. **Ask them as a round,** following `.agents/skills/cruze-grilling/SKILL.md`: whether the product may need each one, how likely, and why. Recommend an answer from what the user has said so far. Keep a round to 3 to 5, the likeliest first. "No" is a good answer too.

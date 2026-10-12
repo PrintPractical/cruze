@@ -21,7 +21,7 @@ Every Cruze document is Markdown that people read and the `cruze` CLI parses. Wr
 | `.cruze/features/<id>/changes/<NN-slug>/change.md` | One change of a feature: scope, test plan, tasks | plan |
 | `.cruze/changes/<id>/change.md` | A standalone change, carrying its own deltas | architect (tweak scope) |
 | `.cruze/config.yaml` | Project configuration | `cruze init`, architect |
-| `.cruze/notes/<date>-<slug>.md` | A captured explore note, or research evidence behind an adopt-or-build decision, free-form | explore, research |
+| `.cruze/notes/<date>-<slug>.md` | The user's input, envision's intake and its hand-off, an explore note, or research evidence. Free-form under a title and `- Kind:` (`input`, `intake`, `explore` or `research`) and `- About:` lines, which say the work it informs: `project`, feature slugs, or contexts | the user, envision, explore, research |
 
 Only the CLI writes `approvals.json`, `journal.jsonl` and anything under `.cruze/archive/`.
 
