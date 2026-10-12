@@ -64,6 +64,7 @@ When the artifact is a change's plan, review against these items instead.
 4. **No design.** Nothing in the plan changes the architecture or the specs. A plan that needs a new element, operation or scenario goes back to `architect` or `rethink`.
 5. **Risks and overlap.** The riskiest task is named, with how it is checked, and that check reaches the failure rather than a value a clamp or default hides. Overlap with work on other branches is resolved or accepted.
 6. **Ambiguity.** Name each task a fresh implementer could reasonably build differently from what the plan means.
+7. **Prefactor.** For a change that delivers no scenarios and rebuilds built elements, as "A prefactor" in `.agents/skills/cruze-plan/SKILL.md` describes: `## Risks` names the existing tests that reach each rebuilt element, and the command that runs them; no task adds, edits or deletes a test, except one that pins current behaviour before the restructuring; and no item's visibility or public surface grows beyond what its new callers need.
 
 ## Findings
 

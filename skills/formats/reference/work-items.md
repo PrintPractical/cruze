@@ -48,7 +48,7 @@ These rules close the gap between a design and what gets built. `cruze validate`
 - The first change of a feature to land merges the feature's whole delta, so the living docs never cite something a later change hasn't merged yet. What this change delivers or builds becomes `built`. Everything else arrives as `planned`, including a `MODIFIED` element whose new text isn't built yet. Each later change flips what it builds to `built`.
 - A `REMOVED` operation applies when the change whose scope lists it under `Removes` lands.
 - Under a `MODIFIED` requirement, a scenario must be in some change's scope when it is new or its text changed. An unchanged scenario the requirement keeps needs no change.
-- If someone else edits an element after this feature merged it, the next land refuses with a conflict instead of overwriting their edit. Resolve it with `rethink`.
+- If someone else edits an element after this feature merged it, their edit stands: while the feature's delta entry for that element is unchanged, later lands keep the living text, and approving the feature needs no rebase. When the feature's delta changes that element again, `cruze approve` refuses with `rebase-required` and `cruze land` with a conflict, rather than overwrite the edit. Resolve it with `rethink`.
 - The `Changes` table and each change's `Scope` agree. `plan` copies the row into the change and refines it; a disagreement is a validation error.
 
 ## Test plan

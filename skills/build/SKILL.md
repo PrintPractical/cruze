@@ -36,7 +36,7 @@ For task `T<n>`:
 5. **Commit** with a Conventional Commit message naming the task, such as `feat(access): console session state machine (T2)`.
 6. **Tick it.** Run `cruze task done T<n>`, which records the commit. Its progress edit rides along in the next commit.
 
-A task with no behaviour of its own, such as a package manifest or a plain data type, has no red step. Build it, check it, commit it and tick it, and the first task whose test uses it covers it.
+A task with no behaviour of its own, such as a package manifest or a plain data type, has no red step. Build it, check it, commit it and tick it, and the first task whose test uses it covers it. Neither has a prefactor's task: run the tests its plan names under `## Risks` before the first task, and after each task, and they pass unchanged.
 
 Done for a task when its tests pass, `cruze check --ci` passes for its files, the commit exists and the task is ticked.
 

@@ -25,13 +25,13 @@ export async function runStatus(context: CliContext, _args: string[], options: O
   const lines = [`Branch: ${report.branch ?? "(none)"}${report.active === undefined ? "" : `, building ${report.active}`}`];
   for (const doc of report.documents) lines.push(describe(doc.artifact, doc));
   for (const feature of report.features) {
-    lines.push(describe(`feature ${feature.ref}`, feature.approval));
+    lines.push(`${describe(`feature ${feature.ref}`, feature.approval)}${pendingNote(feature.rethinkPending)}`);
     for (const change of feature.changes) {
       const name = change.ref.split("/")[1] ?? change.ref;
-      lines.push(change.landed !== undefined ? `  ${name}: landed ${change.landed}` : `  ${describe(name, change.approval)}, tasks ${change.tasksDone}/${change.tasksTotal}`);
+      lines.push(change.landed !== undefined ? `  ${name}: landed ${change.landed}` : `  ${describe(name, change.approval)}, tasks ${change.tasksDone}/${change.tasksTotal}${pendingNote(change.rethinkPending)}`);
     }
   }
-  for (const change of report.standalone) lines.push(`${describe(`change ${change.ref}`, change.approval)}, tasks ${change.tasksDone}/${change.tasksTotal}`);
+  for (const change of report.standalone) lines.push(`${describe(`change ${change.ref}`, change.approval)}, tasks ${change.tasksDone}/${change.tasksTotal}${pendingNote(change.rethinkPending)}`);
   const json = {
     ...report,
     documents: report.documents.map(compact),
@@ -46,6 +46,10 @@ function compact(status: ApprovalStatus): Omit<ApprovalStatus, "record"> & { app
   const { record, ...rest } = status;
   if (record === undefined) return rest;
   return { ...rest, approvedAt: record.approvedAt, by: record.by, ...(record.basis === undefined ? {} : { basis: record.basis }) };
+}
+
+function pendingNote(findings: string[] | undefined): string {
+  return findings === undefined ? "" : `, ${findings.length} finding(s) waiting on a rethink`;
 }
 
 /** Every step starts a new session: one session that ran plan, build, verify and land reached 745k tokens of context. */

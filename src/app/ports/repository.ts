@@ -10,4 +10,8 @@ export interface Repository {
   otherBranches(): Promise<string[]>;
   /** Files under a directory as they are on another branch, by project-relative path. */
   filesOnBranch(branch: string, dir: string): Promise<Map<string, string>>;
+  /** The oldest commit whose change to a file added the text, or null. */
+  firstCommitAdding(path: string, text: string): Promise<string | null>;
+  /** A file's contents at a commit, or null when it didn't exist there. */
+  fileAt(commit: string, path: string): Promise<string | null>;
 }

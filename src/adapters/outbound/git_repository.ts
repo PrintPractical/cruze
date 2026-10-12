@@ -45,6 +45,15 @@ export class GitRepository implements Repository {
     return new Map(paths.flatMap((path, i) => (blobs[i] === undefined ? [] : [[path, blobs[i]] as [string, string]])));
   }
 
+  async firstCommitAdding(path: string, text: string): Promise<string | null> {
+    const commits = await this.git("log", "--reverse", "--format=%H", `-S${text}`, "--", path);
+    return commits?.split("\n").find((c) => c !== "") ?? null;
+  }
+
+  async fileAt(commit: string, path: string): Promise<string | null> {
+    return (await this.catFiles([`${commit}:${path}`]))[0] ?? null;
+  }
+
   /** The contents of each object, in order, through one `git cat-file --batch`; undefined for one that is missing. */
   private catFiles(objects: string[]): Promise<Array<string | undefined>> {
     return new Promise((resolve) => {

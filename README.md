@@ -120,10 +120,11 @@ Skills call these at fixed points, and CI runs `check` and `trace` on every push
 | --- | --- |
 | `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config, and warns when a change falls outside the size band in `changes:` or a document cites a decision recorded elsewhere |
 | `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on. `--by-agent` approves a change for you once its plan review has closed, and `--restamp-unchanged` re-stamps work a rethink didn't change; both record that the agent gave the approval |
-| `cruze next` | Names the step to run next on this branch, and why, from computed status |
+| `cruze next` | Names the step to run next on this branch, and why, from computed status: for stale work, whether a re-stamp or a rebase is due |
 | `cruze show <ref>` | Prints the design a change builds, or a feature's delta: each element's full body, the delivered scenarios, what they cite with where to find it, the settled decisions and the item's dispositions, so a step reads its scope instead of the whole architecture |
-| `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state |
-| `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current |
+| `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state, and counts the findings waiting on a rethink |
+| `cruze diff <ref>` | Shows what changed upstream of a document since its approval, each element's approved text against its current text, and whether the work's delta needs a rebase |
+| `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current, and no finding on them waits on a rethink |
 | `cruze status --overlap` | Lists changes on other branches that touch the same elements as this branch's change |
 | `cruze new <kind>` | Creates a project document (`vision`, `glossary`, `architecture`, `roadmap`) or work (`feature`, `change`, `adr`, `note`) from its template, with a dated ID that is never reused |
 | `cruze task done <T#>` | Ticks a task with its commit; `cruze task reopen` unticks one a rethink changed, and `cruze task deviation` records a small departure from the plan |

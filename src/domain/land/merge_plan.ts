@@ -1,3 +1,4 @@
+import { settledIds } from "../approvals/rebase.ts";
 import { sectionForKind } from "../architecture_sections.ts";
 import { CruzeError } from "../cruze_error.ts";
 import { setStatus } from "../edits/status_lines.ts";
@@ -26,7 +27,8 @@ export interface MergePlan {
 /**
  * Merges a change's work into the living docs. The first change of a feature to land merges
  * the whole delta; elements it doesn't build arrive as planned, and later changes flip what
- * they build to built. Text is replaced only when nobody else changed it since this work merged it.
+ * they build to built. Text is replaced only when nobody else changed it since this work merged it,
+ * and an element merged and unchanged in the delta since keeps its living text, whoever edited it.
  */
 export function planMerge(view: ProjectView, change: WorkItem, source: WorkItem): MergePlan {
   const scope = readScope(change.doc);
@@ -36,6 +38,7 @@ export function planMerge(view: ProjectView, change: WorkItem, source: WorkItem)
   const files = new Map<string, string>();
   const text = (path: string): string => files.get(path) ?? view.snapshot.get(path) ?? "";
   const plan: MergePlan = { files, merged, mergedIds: [], built: [], removed: [] };
+  const settled = settledIds(source.doc, merged);
 
   for (const op of delta.capabilities) {
     const key = capabilityKey(op.capability);
@@ -56,8 +59,10 @@ export function planMerge(view: ProjectView, change: WorkItem, source: WorkItem)
       }
       continue;
     }
-    mergeEntry(view, source, entry, path, text, files, merged, plan);
+    const kept = settled.has(id) && view.living.elements.has(id);
+    if (!kept) mergeEntry(view, source, entry, path, text, files, merged, plan);
     for (const target of [entry.element, ...entry.scenarios].filter((e) => STATUS_KINDS.includes(e.kind))) {
+      if (kept && !inScope.has(target.id)) continue;
       files.set(path, setStatus(text(path), target.id, statusAfterMerge(view, source, target, inScope)));
       if (inScope.has(target.id)) plan.built.push(target.id);
     }

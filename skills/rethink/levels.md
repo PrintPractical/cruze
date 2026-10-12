@@ -25,8 +25,8 @@
    - **The current change**, when the rebuild belongs to its work. Add the element to the feature's Changes row for that change and to the change's `Builds`, then re-plan and re-approve the change.
    - **A prefactor**, otherwise. From an up-to-date main, run `architect "<prefactor>"`, which designs it as a standalone change, then `plan`, `build`, `verify` and `land` it before the current change continues.
 6. Run `cruze status`. Every document citing a changed element shows `upstream changed`:
-   - When the document's own delta changes that element, rewrite the delta so it keeps your amendment. `cruze approve` refuses it with `rebase-required` until you do. Then approve it with `--rebase <ID>`.
-   - Otherwise, check the document against the element's diff, and re-stamp it or amend it as the skill's step 6 describes.
+   - When the document's own delta still changes that element, rewrite the delta so it keeps your amendment. `cruze approve` refuses it with `rebase-required` until you do, and `cruze diff <ref>` names each such element. Then approve it with `--rebase <ID>`.
+   - Otherwise, check the document against `cruze diff <ref>`, and re-stamp it or amend it as the skill's step 6 describes. An element the feature already merged, with its delta entry unchanged since, needs no rebase: the living text now holds it, and later lands keep your amendment.
 
 ## Vision
 
@@ -37,9 +37,9 @@
 
 ## A conflict with living text
 
-`cruze approve` refuses a feature or standalone change with `rebase-required` when an element its delta changes was edited in the living docs since its last approval, by a rethink or another branch's land. `cruze land` refuses with `merge-conflict` for the same reason when the approval came first. Either way, the delta would overwrite that edit. Record the rethink at feature level.
+`cruze approve` refuses a feature or standalone change with `rebase-required` when an element its delta changes was edited in the living docs since its last approval, by a rethink, a realign or another branch's land, and the delta would still write that element: the work hasn't merged it yet, or has changed its delta entry since merging it. `cruze land` refuses with `merge-conflict` for the same reason when the approval came first. Either way, the delta would overwrite that edit. Record the rethink at feature level.
 
-1. Show the user the element's current text in `docs/architecture.md` or `docs/specs/`, and the feature's delta for it.
+1. Show the user `cruze diff <feature>`, which has the element's approved and current text, and the feature's delta for it.
 2. Rewrite the delta's body so that it holds both: their edit, and what this feature needs.
 3. Re-approve the feature with `cruze approve <feature> --rebase <ID>`. This records that the feature now builds on the current text.
 4. Re-approve the change that is landing, when it shows stale; its verification carries over. Then run `land` again.
