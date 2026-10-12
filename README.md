@@ -148,7 +148,7 @@ Stepping back is editing: change an upstream document and every approval that ci
 | Skill | What it holds |
 | --- | --- |
 | `cruze-explore` | Optional thinking partner before any step: options and trade-offs, captured as a note only when you ask |
-| `cruze-envision` | The what: the project's vision, goals and feature map, or one feature's intent and requirements with scenarios |
+| `cruze-envision` | The what: the project's vision, goals, principles, what must stay possible later and feature map, asking about the capabilities the product may grow into, or one feature's intent and requirements with scenarios |
 | `cruze-architect` | The how: the architecture, a feature's architecture delta and its changes, or a tweak; ends with a design review and a walkthrough for your approval |
 | `cruze-roadmap` | Orders the release into phases with blocking edges and goal coverage, and closes a release |
 | `cruze-plan` | Turns a change into a test plan and ordered tasks with file targets, reviewed in a fresh context and approved once the review closes |

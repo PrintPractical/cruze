@@ -20,7 +20,8 @@ Envision decides the what: the problem, who has it, and the behaviour that solve
 - Write in the user's terms and the glossary's words. Behaviour is described from outside the system: what a user does and what they observe.
 - Requirements and scenarios follow `.agents/skills/cruze-formats/reference/specs.md`. Every scenario uses concrete values: real names, real inputs, exact output. The scenarios become the tests, so their values are the expected results.
 - Keep implementation out: no modules, types, libraries or file formats unless the user names one as a constraint. When the user raises one, record it as a constraint or a settled decision and move on.
-- The vision stays within one page, excluding the feature map.
+- The vision stays within one page, excluding the feature map. Its principles and what must stay possible take one line each.
+- The product's long-term intent lives in the vision, in its Principles and Must stay possible tables, at either scope. Designs answer to it for the product's whole life, long after the conversation that settled it.
 - Only the CLI writes the feature map. Use `cruze features add`, `cruze features update` and `cruze features drop`.
 
 ## Next step

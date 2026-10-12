@@ -71,8 +71,18 @@ When the user steers toward something that breaks a principle, an accepted ADR o
 
 Be direct and precise, peer to peer. Challenge only with a specific reason, and never agree without thinking.
 
+## Long-term intent
+
+The vision's `## Principles` and `## Must stay possible` hold what the product answers to beyond the work in hand. A step's own decisions are archived with its work, so long-term intent recorded there is lost. In one project, the user's "eventually" answers about policy orchestrators, tunnels and transports all went into feature decisions; a principle was reversed unnoticed, and a later review proposed removing what the user's plans needed.
+
+- **The user names something the product may need later,** in an answer or an aside, with words such as "eventually", "in the future" or "one day": propose a `LATER` row for it, with its likelihood, why, and what no design may close off. Ask it in the round.
+- **A decision touches a capability area:** once per area, ask about what it may grow into, as `.agents/skills/cruze-envision/possibilities.md` describes, unless the vision already records it.
+- **A decision departs from a `PRINCIPLE`:** name the principle, and ask whether it changes for the whole project. When it does, amend its row, with the new reason, before you record the decision. When it doesn't, the decision changes. Never record a decision that contradicts a principle the vision still states.
+- **Record it in the vision.** Edit `docs/vision.md` as the answers settle, show the user the rows that changed, and once they confirm, they approve it with `cruze approve vision`. A design that cites a row goes stale when it changes, and its next step re-checks it.
+
 ## Recording
 
 - Record each decision as soon as it settles, not at the end.
+- Principles and capabilities that must stay possible go in the vision, as "Long-term intent" says, whatever step you are in.
 - The workflow step names the document. Features and changes keep decisions in `## Settled decisions` as `D<n>: <decision> (<reason>)`. At project scope, the vision keeps goals, non-goals and constraints in their own sections, and other project decisions go in the architecture's `## Decisions` as `D<n>` lines. A decision that passes the ADR test becomes an ADR.
 - Put a term in the glossary the moment it settles, following `.agents/skills/cruze-domain-language/SKILL.md`.

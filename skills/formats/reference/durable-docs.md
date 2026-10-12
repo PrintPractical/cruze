@@ -4,7 +4,7 @@ Templates: [../templates/vision.md](../templates/vision.md), [../templates/gloss
 
 ## docs/vision.md
 
-What the product is for. At most one page, excluding the feature map.
+What the product is for, and the intent every design answers to, for the product's whole life. At most one page, excluding the feature map; the Principles and Must stay possible tables keep one line per row.
 
 | Section | Holds |
 | --- | --- |
@@ -13,8 +13,11 @@ What the product is for. At most one page, excluding the feature map.
 | `## Goals` | Table of ID, Goal and Measure. Each goal is a row element with a `GOAL-<name>` ID, and its measure says how you would know it's met |
 | `## Non-goals` | What the product deliberately doesn't do, one bullet each with the reason |
 | `## Constraints` | Platforms, languages, dependencies, performance, security and legal limits, one bullet each |
+| `## Principles` | Table of ID, Principle and Why. Each is a row element with a `PRINCIPLE-<name>` ID: a rule every design follows, such as "state is the truth; events are hints". A design that departs from one amends it here first |
+| `## Must stay possible` | Table of ID, Capability, Likelihood, Why and Leave room for. Each is a row element with a `LATER-<name>` ID: a capability the product may need after this release. Likelihood is `likely` or `possible`. Leave room for says what no design may close off, never how to build it. A design that keeps a seam open for one cites it in a `Future` fact |
 | `## Feature map` | Managed. `### Implemented` is a table of Feature, Release and Summary. `### Future` is a table of Feature, Summary and Goals |
 
+- Principles and capabilities that must stay possible live here, not in a feature's settled decisions, which are archived when the feature lands. One project kept them in a seed note and in the user's head: a feature reversed a principle unnoticed, and a review proposed removing what the long-term plans needed. A project with none writes `None.` under the heading.
 - Feature-map entries are named by slug, such as `jump-hosts`. A future entry gets a folder ID only when its feature starts.
 - Only the CLI writes the feature map. `cruze features add` puts an entry on the future list, `cruze features update` corrects an entry's summary on either list, `cruze features drop` removes one from the future list, and `land` moves a finished feature to implemented, tagged with the release in progress.
 

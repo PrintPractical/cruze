@@ -113,6 +113,9 @@ describe("validating a project", () => {
       to: "## Spec delta\n\n### MODIFIED REQ-inventory.list-devices: List configured devices\nThe CLI SHALL list every configured device in name order, and say when none is configured instead of SCN-inventory.no-config's message.\n\n#### SCN-inventory.list-configured: Devices with different console paths\n- GIVEN the configuration defines `lab-router`\n- WHEN the user runs `consolectl list`\n- THEN the output has one line\n",
       rule: "cites-dropped",
     },
+    { name: "a must-stay-possible capability with no likelihood it can have", path: "docs/vision.md", from: "| possible | Lab devices", to: "| someday | Lab devices", rule: "vision-row" },
+    { name: "a principle with no reason", path: "docs/vision.md", from: "| An engineer reading the configuration must see exactly how a console is reached |", to: "| |", rule: "vision-row" },
+    { name: "a principle outside the Principles table", path: "docs/vision.md", from: "| GOAL-agent-commands |", to: "| PRINCIPLE-json-for-agents | Agents read JSON | Agents parse output |\n| GOAL-agent-commands |", rule: "vision-row" },
     { name: "an invalid config value", path: ".cruze/config.yaml", from: "max_lines: 250", to: "max_lines: -1", rule: "config" },
   ];
   for (const c of cases) {

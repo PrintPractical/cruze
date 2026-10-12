@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `cruze journal add lesson` records a repeated cause that land judges to be about Cruze's own steps rather than the project, and `cruze feedback export` now carries the lines under `## Known pitfalls` in `AGENTS.md` too.
 - `cruze diff <ref>` shows what changed upstream of a document since its approval: each changed element's approved text, from the commit that recorded the approval, against its current text, and whether the work's delta needs a rebase. Rethink and land read it before re-stamping. One project went to a rethink over two merged file lists that changed no behaviour, and status had named only the IDs.
 - A review or realign finding can be decided `rethink`, with `--item` naming the feature or change a later rethink amends. Until a rethink is recorded for that work, `cruze next` names it, `cruze status` counts its findings and the build gate holds its changes. A realign recorded seven design findings as `fixed` "by a rethink before the next change is planned", and they surfaced only in a commit message.
+- The vision gains `## Principles` and `## Must stay possible`: rows with `PRINCIPLE-` and `LATER-` IDs for the rules every design follows and the capabilities the product may need later, each with why, and for a capability its likelihood and what no design may close off. Designs cite them, approvals pin them, and `cruze validate` checks their rows (`vision-row`). Changing one makes every design that cites it stale. In one project, principles stayed in a seed note and long-term plans in the user's head: a feature reversed a principle unnoticed, and a later review proposed removing what those plans needed.
+- Envision asks about the capabilities a product may grow into, such as single sign-on next to sign-in, or sync across devices next to local-only storage, and records the answers as capabilities that must stay possible, or as non-goals.
 
 ### Changed
 
@@ -22,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `cruze next` says for stale work whether a re-stamp or a rebase is due, and names the elements a rebase needs.
 - Realign settles each feature its amendments made stale before it ends, and asks the order of each prefactor against the items it overlaps. The roadmap puts a prefactor before those items, unless one is already building.
 - A prefactor's plan adds no behaviour rows, names under `## Risks` the existing tests that reach each element it rebuilds, which pass unchanged after every task, and keeps each item's visibility as it was. The plan rubric checks it, and build runs those tests in place of a red step.
+- Long-term intent goes to the vision from any step. When the user says the product may need something "eventually", grilling proposes a `LATER` row instead of a decision that is archived with the work. A decision that departs from a principle amends the principle first, with the user. Project-scope envision carries every principle and long-term idea from the user's notes into the vision, and asks about a choice the notes mark as agreed but the user never decided.
+- Architect leaves room for each must-stay-possible capability a design touches, in a `Future` fact that cites it, and builds nothing for it. The design reviewer checks every design against the principles and those capabilities (rubric item 12), and the surveyor proposes no restructuring that would close one off without saying so.
 
 ## [0.0.9] - 2026-10-11
 

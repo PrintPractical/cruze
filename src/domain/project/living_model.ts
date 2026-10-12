@@ -1,4 +1,5 @@
 import { headingElements, rowElements, type Element } from "../elements.ts";
+import { VISION_KINDS } from "../ids.ts";
 import { parseMarkdown, type MarkdownDoc } from "../markdown.ts";
 import { PATHS, childFiles, type Snapshot } from "./layout.ts";
 
@@ -49,6 +50,6 @@ function elementsOf(path: string, doc: MarkdownDoc): Element[] {
   if (path.startsWith(`${PATHS.adrDir}/`)) {
     return [{ id: adrId(path), kind: "ADR", title: doc.headings[0]?.text ?? "", form: "heading", level: 1, start: 0, end: doc.lines.length }];
   }
-  if (path === PATHS.vision) return rowElements(doc).filter((element) => element.kind === "GOAL");
+  if (path === PATHS.vision) return rowElements(doc).filter((element) => VISION_KINDS.includes(element.kind));
   return headingElements(doc);
 }

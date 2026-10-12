@@ -2,6 +2,7 @@ import type { ProjectView } from "../project/project_view.ts";
 import { livingProblems } from "./living_rules.ts";
 import { error, sortProblems, type Problem } from "./problem.ts";
 import { configProblems, readmeProblems, roadmapProblems, templateLeftovers } from "./project_rules.ts";
+import { visionProblems } from "./vision_rules.ts";
 import { workItemProblems } from "./work_item_rules.ts";
 
 /** Every rule in the cruze-formats skill, applied to the whole project. */
@@ -13,6 +14,7 @@ export function validateProject(view: ProjectView): Problem[] {
   return sortProblems([
     ...configProblems(view),
     ...livingProblems(view),
+    ...visionProblems(view),
     ...roadmapProblems(view),
     ...workItemProblems(view),
     ...templateLeftovers(view),
