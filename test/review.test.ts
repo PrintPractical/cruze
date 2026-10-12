@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import type { AgentRun, AgentRunner } from "../src/app/ports/agent_runner.ts";
 import { runReview } from "../src/app/use_cases/run_review.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { CHANGE_01, exampleProject } from "./support/harness.ts";
+import { CHANGE_01, FEATURE, exampleProject } from "./support/harness.ts";
 
 /** Records what it was asked to run and answers with a fixed report. */
 class ScriptedRunner implements AgentRunner {
@@ -69,6 +69,16 @@ describe("running a role in a fresh context", () => {
     if (report.status !== "run-in-helper") return;
     assert.match(report.instruction, /^No review agent is configured under review\.command\./);
     assert.match(report.prompt, /^# Design reviewer\n/);
+    assert.match(report.prompt, /review it against `\.agents\/skills\/cruze-roles\/plan-rubric\.md`/);
+  });
+
+  // A plan review loaded the design rubric too, three times the plan rubric's length, and used none of it.
+  it("points a design reviewer at the one rubric for what it reviews", async () => {
+    const h = await exampleProject();
+    const runner = new ScriptedRunner();
+    const design = await runReview({ ...h.deps, runner }, { role: "design-reviewer", item: FEATURE });
+    assert.ok(design.status === "run-in-helper" && design.prompt.includes("review it against `.agents/skills/cruze-roles/design-rubric.md`"));
+    assert.ok(design.status === "run-in-helper" && !design.prompt.includes("This is a change's plan"));
   });
 
   it("hands the prompt back to run in a helper when the configured agent isn't installed", async () => {

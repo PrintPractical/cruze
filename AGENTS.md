@@ -48,6 +48,7 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - Write erasable TypeScript only (no enums, namespaces or parameter properties), so Node can run sources directly. Relative imports use the `.ts` extension; the build rewrites them.
 - Test behaviour through use cases with fakes that honour the port contracts. Unit-test domain rules directly only when the logic is non-trivial.
 - Skills follow [docs/contributing/writing-skills.md](docs/contributing/writing-skills.md), and `test/bundle.test.ts` enforces the format.
+- Skills have a word budget, `BUNDLE_WORD_BUDGET` in `src/domain/skill_budget.ts`, and a 2,100-word limit per file. A change that adds skill text removes what it makes redundant, or raises the budget with the reason in its commit; one that cuts text lowers it.
 - Commit messages follow Conventional Commits. Record user-visible changes under `[Unreleased]` in `CHANGELOG.md`.
 
 ## Known pitfalls

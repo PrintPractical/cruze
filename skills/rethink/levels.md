@@ -4,7 +4,7 @@
 
 1. Edit the change's `## Test plan` or `## Tasks` so they are right. The scope doesn't change at this level; a scope change is a feature-level rethink.
 2. Run `cruze validate`. Done when it reports no errors for the change.
-3. Run the plan review from `.agents/skills/cruze-roles/SKILL.md` on the diff alone, with the design reviewer's plan rubric and `review=plan`.
+3. Run the plan review from `.agents/skills/cruze-roles/SKILL.md` on the diff alone, with the design reviewer's plan rubric, `.agents/skills/cruze-roles/plan-rubric.md`, and `review=plan`.
 4. Re-approve with `cruze approve <change> --by-agent` once the review has closed, as plan does.
 
 ## Feature

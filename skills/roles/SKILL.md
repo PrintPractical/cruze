@@ -9,7 +9,7 @@ A role is a prompt with fixed inputs and a report as its only output. It runs in
 
 | Role | File | Used by |
 | --- | --- | --- |
-| Design reviewer | [design-reviewer.md](design-reviewer.md) | architect, at project and feature scope; plan, for the plan review |
+| Design reviewer | [design-reviewer.md](design-reviewer.md), with [design-rubric.md](design-rubric.md) for a design or [plan-rubric.md](plan-rubric.md) for a plan | architect, at project and feature scope; plan, for the plan review |
 | Code reviewer | [code-reviewer.md](code-reviewer.md) | verify, for the code review |
 | Verifier | [verifier.md](verifier.md) | verify, to run the system |
 | Researcher | [researcher.md](researcher.md) | architect, for adopt-or-build decisions |

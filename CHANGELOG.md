@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A prefactor's plan adds no behaviour rows, names under `## Risks` the existing tests that reach each element it rebuilds, which pass unchanged after every task, and keeps each item's visibility as it was. The plan rubric checks it, and build runs those tests in place of a red step.
 - Long-term intent goes to the vision from any step. When the user says the product may need something "eventually", grilling proposes a `LATER` row instead of a decision that is archived with the work. A decision that departs from a principle amends the principle first, with the user. Project-scope envision carries every principle and long-term idea from the user's notes into the vision, and asks about a choice the notes mark as agreed but the user never decided.
 - Architect leaves room for each must-stay-possible capability a design touches, in a `Future` fact that cites it, and builds nothing for it. The design reviewer checks every design against the principles and those capabilities (rubric item 12), and the surveyor proposes no restructuring that would close one off without saying so.
+- The design reviewer's two rubrics are files of their own, `design-rubric.md` and `plan-rubric.md`, and a review reads only the one for what it reviews. A plan review now loads about 950 words of the role instead of about 2,400, and a design review about 1,950; no rule changed. `cruze review` names the rubric in the prompt.
 
 ## [0.0.9] - 2026-10-11
 
