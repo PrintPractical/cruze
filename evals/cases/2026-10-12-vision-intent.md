@@ -1,7 +1,7 @@
 # Long-term intent lived in a seed note and the user's head, and the design drifted from it
 
 - Proposal: the vision holds `## Principles` (`PRINCIPLE-` rows) and `## Must stay possible` (`LATER-` rows), which designs cite and approvals pin. Grilling sends "eventually" intent and departures from a principle to the vision, from any step. The design reviewer checks each design against both (rubric item 12), and the surveyor respects them.
-- Evidence: Ork. The seed's principle "events are lossy, never used for control logic" never reached `docs/`. On 2026-10-10 the user answered "I could see eventually policy orchestrators wanting to react to specific events, so I actually think this is a yes", which was recorded as an orchestration-runtime decision and archived. Downloadable apps, Wi-Fi mesh and reactive telemetry appeared nowhere until the restart review of 2026-10-12 proposed removing the catalog, event-driven reconciles and ephemeral sets those plans needed.
+- Evidence: Ork. The seed's principle "events are lossy, never used for control logic" never reached `docs/`. On 2026-10-10 the user answered "I could see eventually policy orchestrators wanting to react to specific events, so I actually think this is a yes", which was recorded as an orchestration-runtime decision and archived. Downloadable apps and orchestrators that react to telemetry appeared nowhere until the restart review of 2026-10-12 proposed removing the catalog, event-driven reconciles and ephemeral sets those plans needed.
 - Asset: `src/domain/validation/vision_rules.ts`, `src/domain/ids.ts`, `skills/formats/templates/vision.md`, `skills/grilling/SKILL.md`, "Long-term intent", `skills/roles/design-reviewer.md`, "Rubric", item 12, `skills/roles/surveyor.md`
 
 ## Situation
