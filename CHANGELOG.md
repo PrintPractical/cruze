@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.12] - 2026-10-13
+
+Designs the user can see, keep lean and follow. One project approved an architecture whose orchestrators passed JSON values inside the daemon, and a status shape with fields nothing read. No walkthrough showed either, the feature's documents ran to 25,000 words, and the user stopped the build at task 13 of 20. Its questions cited IDs the user didn't know, assumed details the user hadn't seen, and a rethink grew machinery without looking at the features ahead. The walkthrough now shows each caller's call with its types, and lists the decisions the user didn't make. The design rubric cuts fields nothing reads and flags untyped values passed inside the system. Grilling names things in plain words, explains a part before asking about it, offers to shrink what the user doubts, and stops when an answer keeps growing. A rethink at feature level and above designs for the features ahead, as architect does. Existing projects upgrade as the README's Upgrading section says. Every change applies to new work only.
+
 ### Changed
 
 - The design walkthrough's code sketch shows the call each kind of caller makes, a component in the same process included, with the types it passes as they will be declared. Its "yours to decide" part lists, one line each, every decision the design takes that no answer of the user's settled, and every value the system's own components pass each other untyped or encoded. One project approved an architecture whose orchestrators passed JSON values inside the daemon. No sketch showed it, the feature documents ran to 25,000 words, and the user rejected it at build a day later, after 13 of 20 tasks.
@@ -280,7 +284,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.11...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.12...HEAD
+[0.0.12]: https://github.com/PrintPractical/cruze/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/PrintPractical/cruze/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/PrintPractical/cruze/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/PrintPractical/cruze/compare/v0.0.8...v0.0.9
