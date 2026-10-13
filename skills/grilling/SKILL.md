@@ -45,6 +45,8 @@ Recommended: named hosts, because the lab config already shares two jump hosts a
 - Ask about behaviour and trade-offs in the user's terms and the glossary's words, not about implementation mechanics. Where the trade-off is in the code's shape, show the shape.
 - When the user answers "you decide" or "I don't know", take your recommendation and record it with "(recommended; the user deferred)".
 - When an answer contradicts an earlier decision, point to that decision and ask which one stands.
+- When the user doubts part of the design, calling it rigid, heavy or messy, one option removes or shrinks it, with what that costs. One user called a status shape rigid, was offered more of it, and stopped a build over its unused fields a day later.
+- When making one answer hold needs new types, rules or error cases, and those need fixes of their own, stop before the next round. Show what the answer has grown beside the simplest alternative that meets the user's need, and let the user choose. One rethink grew four types over eleven questions before a review found five blockers in them; the alternative was 40% smaller.
 
 ## What to ask and what to decide
 
