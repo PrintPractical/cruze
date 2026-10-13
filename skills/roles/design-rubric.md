@@ -1,6 +1,6 @@
 # Design rubric
 
-The design reviewer's rubric for a design: the architecture at project scope, or the design of a feature or a standalone change. Review against these items and nothing else. Each finding names one.
+The design reviewer's rubric for a design: the architecture at project scope, or the design of a feature or a standalone change. Review against these items and nothing else. Each finding names one. At project scope, items 6 and 11 hold in full for what the foundation builds; a later part may leave a specific open when a `Future` fact names it, but not an operation or data that crosses into the foundation.
 
 1. **Behaviour.** Every requirement has at least one scenario. Every scenario has concrete values, one WHEN, and a THEN a person could check. Failure behaviour the user will meet has its own scenario.
 2. **Seams.** Every scenario can be driven through a use case, or through an inbound adapter when the outcome is what that adapter shows. Every driven port the use case needs can be faked.
