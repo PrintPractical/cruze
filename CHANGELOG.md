@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.13] - 2026-10-13
+
+A project starts with the first chunk the user wants, designed against the whole. Every project used to start with a walking skeleton, one thin slice through every layer. On large systems it grew past one change, and users often wanted a different first chunk, such as an app's screens before its logic, or one core component before the rest. Architect now asks the user what the first change, the foundation, builds: a product shell, a core component or a walking skeleton. It still designs the whole release end to end, in full for the foundation and at the boundaries for the rest, leaving the specifics of later parts to the features that build them. Existing projects upgrade as the README's Upgrading section says. Every change applies to new work only.
+
 ### Changed
 
 - A new project's first change is now its foundation, and the user chooses its kind during grilling at project-scope architect. The options are a product shell (every screen or command, wired together with sample data and no logic), a core component (the one the others depend on, working through its own interface), or a walking skeleton (one use case through every layer). Architect recommends one with its reason. Architect still designs the whole release end to end, so the foundation is shaped by everything that will use it. It designs in full only what the foundation builds. The rest is designed at its boundaries: use cases, the operations and data that pass between parts, and the flows that cross them. Specifics such as limits, edge cases, messages and adapter technology stay open in `Future` facts for the feature that builds the part. The design rubric's contract and flow-control items hold in full only for the foundation. Until now, every project started with a thin slice through every layer. Users of large systems found it either a slice too big for one change or not the first chunk they wanted, such as an app's screens before its logic. The roadmap template's first phase and item, the CI and config comments, and the design rubric's slicing item follow the new name.
@@ -288,7 +292,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.12...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.13...HEAD
+[0.0.13]: https://github.com/PrintPractical/cruze/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/PrintPractical/cruze/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/PrintPractical/cruze/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/PrintPractical/cruze/compare/v0.0.9...v0.0.10
