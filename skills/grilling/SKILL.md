@@ -20,7 +20,7 @@ Interview the user until you both understand the design the same way. Decisions 
 ## A round
 
 ````markdown
-Where we are: architect for 2026-09-25-open-console, round 2. Settled: D1 (a console session may cross jump hosts), D2 (credentials come from the vault).
+Where we are: architect for 2026-09-25-open-console, round 2. Settled: a console session may cross jump hosts, and credentials come from the vault.
 
 **Q4. Where the jump-host list lives**
 Per device in the device config, or as named hosts that devices reference. Named hosts avoid repeating a host's address and credentials across devices, but add a second lookup.
