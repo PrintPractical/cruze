@@ -5,7 +5,7 @@ The result is a feature folder whose `feature.md` holds the intent, the settled 
 1. **Check the project.** `cruze status` must show `docs/vision.md` approved. If it isn't, stop and run envision at project scope first.
 2. **Find the feature.** Look for it in the roadmap's phases and on the feature map's future list.
    - When it isn't in the roadmap's phases, ask the user whether it belongs in this release. If it does, add it by following "Adding an item" in `.agents/skills/cruze-roadmap/SKILL.md`, and re-approve the roadmap. If it doesn't, put it on the future list with `cruze features add` and stop here.
-   - When its `Blocked by` items haven't landed (see the roadmap's `## Status`), tell the user. Continue only if they want to design ahead, and record that as a settled decision.
+   - Check its blockers against the `Blocked by` rule in step 5 of `.agents/skills/cruze-roadmap/SKILL.md`, and add any missing. When one hasn't landed (see the roadmap's `## Status`), tell the user before the first round, and recommend envisioning it first. Continue only if they want to design ahead, and record that as a settled decision.
 3. **Create the folder.** When the feature has no folder yet, run `cruze new feature <slug> --title "<title>" --roadmap <slug>`, using its roadmap slug. When a folder exists, edit its `feature.md`.
 4. **Read the behaviour it touches.** Read the specs in `docs/specs/` for every capability the feature changes, so you know each requirement and scenario it builds on. Run `cruze show --notes <slug>`, and take up the notes about this feature and the parts of the user's input handed to it, open questions included, as "Taking up a hand-off later" in [intake.md](intake.md) describes.
 5. **List the open decisions:**
@@ -15,6 +15,7 @@ The result is a feature folder whose `feature.md` holds the intent, the settled 
    - **Later:** the vision's `PRINCIPLE` and `LATER` rows this feature touches, and the capabilities it may grow into, asked about as [possibilities.md](possibilities.md) describes. A feature that adds sign-in asks about single sign-on and multi-factor authentication, for example.
 6. **Grill in rounds** until every open decision is settled. Record decisions under `## Settled decisions` and terms in the glossary as they settle.
    - When a decision changes something the feature's summary on the feature map promises, such as a policy it names, correct the summary with `cruze features update <slug> --summary <text>`.
+   - When a decision makes the feature rely on an item that hasn't landed, put step 2's choice to the user on its own, before the next round.
    - When an answer names something the product may need later, or a decision departs from a principle, the vision changes, as "Long-term intent" in the grilling skill describes. A settled decision of this feature is archived when it lands, so it can't hold either.
 7. **Write the spec delta.** Use `ADDED` for new requirements, `MODIFIED` for a requirement whose text or scenarios change (writing its full new body with every scenario it keeps), `REMOVED` with a `Reason` and `Migration` for retired behaviour, and `ADDED CAPABILITY` for a new capability.
    - Name every ID with glossary terms. An ID is never reused.

@@ -16,6 +16,7 @@ Each release that changes what Cruze expects of a project ships a notes file, `n
 - [0.0.11](notes/0.0.11.md)
 - [0.0.12](notes/0.0.12.md)
 - [0.0.13](notes/0.0.13.md)
+- [0.0.14](notes/0.0.14.md)
 
 ## Format
 
