@@ -2,7 +2,7 @@
 
 The walkthrough hands the design to the user in one message: a short overview in plain terms, then the documents to review in full. The documents are the design, and the user reads them faster than you can retell them, so present the whole design at once and wait for one answer: approval, or comments.
 
-At feature scope, cover only what the feature adds, changes or removes. At project scope, cover the whole architecture, the layer rules, the roadmap and the walking skeleton.
+At feature scope, cover only what the feature adds, changes or removes. At project scope, cover the whole architecture, the layer rules, the roadmap and the foundation.
 
 ## The overview
 
@@ -13,7 +13,7 @@ Write it in the glossary's terms, as what callers can do and what happens when t
 3. **What it looks like.** Illustrated as `.agents/skills/cruze-grilling/illustrating.md` says:
    - A plain-text diagram of the main scenario crossing the design: the inbound adapter, the use case, the domain elements and the ports, marking what is new.
    - A code sketch, in the project's language, of what the new and changed elements look like: the port operations and use case signatures with their errors, the main entity, and the call each kind of caller makes, a component in the same process included, with the types it passes as they will be declared. One project approved orchestrators that passed JSON values inside the daemon, which no sketch showed, and rejected it at build a day later.
-4. **The slices.** The changes in order, one line each, saying what each delivers and why the first is first. At project scope, the roadmap's phases and the walking skeleton instead.
+4. **The slices.** The changes in order, one line each, saying what each delivers and why the first is first. At project scope, the roadmap's phases and the foundation instead, with the kind the user chose.
 5. **What is yours to decide.** The review findings the roles skill brings to the user, any `cruze validate` warning still standing, such as a change over its size limit, any point where a fresh implementer could still build something different, and any rule you challenged that the user overrode. Then, one line each, every decision the design takes that no answer of the user's settled, carried-over ones included, and every value the system's own components pass each other untyped or encoded, such as a JSON value. Approval rests on this overview: one feature's documents ran to 25,000 words.
 
 ## The documents
@@ -21,7 +21,7 @@ Write it in the glossary's terms, as what callers can do and what happens when t
 List each file the user should read in full, with the sections that changed:
 
 - Feature scope: the feature's `feature.md`, and the ADRs it adds.
-- Project scope: `docs/architecture.md`, the `layers:` in `.cruze/config.yaml`, `docs/roadmap.md`, the walking-skeleton `change.md`, and the ADRs in `docs/adr/`.
+- Project scope: `docs/architecture.md`, the `layers:` in `.cruze/config.yaml`, `docs/roadmap.md`, the foundation's `change.md`, and the ADRs in `docs/adr/`.
 
 The documents' diagrams are Mermaid. Say where the user can render them, such as an editor preview or GitHub, rather than pasting them; the overview's plain-text sketches are for reading in the conversation.
 

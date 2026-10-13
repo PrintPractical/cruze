@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      # The walking-skeleton change adds the language's format, lint, build and
+      # The foundation change adds the language's format, lint, build and
       # test steps here, from `commands:` in .cruze/config.yaml.
       - name: Documents match the Cruze formats
         run: npx --yes --package={{cruze_package}} cruze validate

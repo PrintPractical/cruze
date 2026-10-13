@@ -73,7 +73,7 @@ cruze init --package https://github.com/PrintPractical/cruze/releases/download/v
 | `AGENTS.md` | Agent instructions; Cruze keeps its managed sections current |
 | `CLAUDE.md` | For Claude Code only: a link to `AGENTS.md` |
 | `.cruze/config.yaml` | Project configuration, including the Cruze version whose skills the project uses, and for Claude Code the command `cruze review` runs |
-| `.github/workflows/ci.yml` | CI that runs `cruze validate`, `check` and `trace`; the walking-skeleton change adds the language's build and test steps |
+| `.github/workflows/ci.yml` | CI that runs `cruze validate`, `check` and `trace`; the foundation change adds the language's build and test steps |
 | `.gitattributes` | Merges Cruze's journals line by line, so parallel branches don't conflict on them |
 | `.agents/skills/cruze-*` | The Cruze skills, also linked into `.claude/skills/` for Claude Code |
 

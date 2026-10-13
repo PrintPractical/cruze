@@ -69,6 +69,6 @@ The current release, as an index. It changes only when a feature or standalone c
 | `## Coverage` | Table of Goal and the items that serve it. Every goal in scope has at least one item |
 | `## Status` | Managed: each started item's folder ID and state (`designing`, `building` or `landed`). `cruze new` adds the row and `cruze land` updates it |
 
-- Items are named by slug. The first item of a new project is the `walking-skeleton` standalone change.
+- Items are named by slug. The first item of a new project is the `foundation` standalone change, of the kind the user chose at architect.
 - `Blocked by` lists slugs that must land first. The blocking graph has no cycles.
 - A new release replaces `## Release` and `## Phases`. Landed items leave the roadmap once the release closes; the feature map in the vision keeps the record.

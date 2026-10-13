@@ -1,6 +1,6 @@
 ---
 name: cruze-architect
-description: Decides how to build and how big, at project scope (domain model, contexts, ports, adapters, module map, layer rules, ADRs and the roadmap with its walking skeleton), feature scope (the architecture delta and its split into changes) or tweak scope (a standalone change), ending with a design review and a walkthrough for your approval.
+description: Decides how to build and how big, at project scope (domain model, contexts, ports, adapters, module map, layer rules, ADRs and the roadmap with its foundation, the first change, which the user chooses), feature scope (the architecture delta and its split into changes) or tweak scope (a standalone change), ending with a design review and a walkthrough for your approval.
 ---
 
 # Architect
@@ -40,7 +40,7 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 
 ## Next step
 
-- Project scope: `plan` for the walking-skeleton change.
+- Project scope: `plan` for the foundation change.
 - Feature scope: `plan` for the feature's first change.
 - Tweak scope: `plan` for the standalone change.
 
