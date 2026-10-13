@@ -9,7 +9,7 @@ description: Orders the release's features and standalone changes into phases wi
 
 ## Steps
 
-1. **Read the state.** Read `docs/vision.md` (goals and feature map), `docs/roadmap.md`, and `docs/architecture.md` as "Reading it" in `.agents/skills/cruze-formats/reference/architecture.md` says, and run `cruze status`. The vision must be approved. When no roadmap exists, stop: project-scope `architect` creates the first one with the walking skeleton.
+1. **Read the state.** Read `docs/vision.md` (goals and feature map), `docs/roadmap.md`, and `docs/architecture.md` as "Reading it" in `.agents/skills/cruze-formats/reference/architecture.md` says, and run `cruze status`. The vision must be approved. When no roadmap exists, stop: project-scope `architect` creates the first one with the foundation.
 2. **Pick the job.**
    - **Add an item:** a feature or standalone change the user wants in this release. Its slug comes from the feature map when it is there.
    - **Reorder or drop:** the order or scope of the release changed.

@@ -27,7 +27,7 @@ check:
 layers: []
 
 # The project's commands, by name, such as `test: cargo test`. The
-# walking-skeleton change fills them in; `cruze land` copies them into AGENTS.md.
+# foundation change fills them in; `cruze land` copies them into AGENTS.md.
 commands: {}
 
 {{review_setting}}

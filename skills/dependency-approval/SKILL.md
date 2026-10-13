@@ -42,7 +42,7 @@ Recommended: adopt `russh`. Approve?
 ## Recording
 
 - A feature or standalone change records it as a row in `## Adopt or build`: the component, `adopt`, the package, and the reason. The adapter that uses it carries an `Adopts` fact in the architecture delta.
-- At project scope, the adapter's `Adopts` fact in `docs/architecture.md` records it, and a dependency no adapter owns, such as a test framework or a build tool, goes in the walking-skeleton change's `## Adopt or build`. A choice that is hard to reverse, such as an async runtime, a framework or a database, also gets an ADR.
+- At project scope, the adapter's `Adopts` fact in `docs/architecture.md` records it, and a dependency no adapter owns, such as a test framework or a build tool, goes in the foundation change's `## Adopt or build`. A choice that is hard to reverse, such as an async runtime, a framework or a database, also gets an ADR.
 - Choosing to build commodity functionality is also the user's call: a parser, serializer, protocol codec, CLI parser, URL or version handling, retries, compression, or date and time handling. Record it as a `build` row with the concrete reason for owning the code.
 - When a build finds it needs a dependency the design didn't name, stop the task and ask as above. An approval changes the design, so record it through the rethink step at feature level, or at change level for a standalone change. A refusal keeps the decision open: don't add the package provisionally, and don't hand-write a replacement unless the user chooses that.
 

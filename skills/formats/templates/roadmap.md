@@ -6,17 +6,17 @@
 
 ## Phases
 
-### Phase 1: Walking skeleton
+### Phase 1: Foundation
 
 | Item | Kind | Goals | Blocked by |
 | --- | --- | --- | --- |
-| walking-skeleton | change | <GOAL IDs> | |
+| foundation | change | <GOAL IDs> | |
 
 ### Phase 2: <name>
 
 | Item | Kind | Goals | Blocked by |
 | --- | --- | --- | --- |
-| <slug> | feature | <GOAL IDs> | walking-skeleton |
+| <slug> | feature | <GOAL IDs> | foundation |
 
 ## Coverage
 

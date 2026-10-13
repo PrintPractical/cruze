@@ -26,7 +26,7 @@ Plan turns one designed change into work an implementer can do without guessing:
 10. **Record decisions and risks.** Put task-level choices you made under `## Settled decisions`. Under `## Risks`, name the riskiest task and how its test catches the failure. Open each check you name and confirm it reaches the failure: the test asserts the value at risk rather than one a clamp or default hides, the lint is enabled, and the command prints what you say it shows. When no check does, name a review of the diff. Remove every template guide.
 11. **Validate.** Run `cruze validate`. Done when it reports no errors for the change.
 12. **Review the plan.** Commit the plan, then run the review in `.agents/skills/cruze-roles/SKILL.md` with the design reviewer and its plan rubric, `.agents/skills/cruze-roles/plan-rubric.md`, `review=plan`, and `--item <ref>`.
-13. **Approve.** For a feature's change, run `cruze approve <ref> --by-agent` on this branch and quote its result. The plan carries no design of its own, so once its review has closed, with no blocker open and a disposition for every finding, you approve it for the user. A standalone change, such as the walking skeleton or a prefactor, carries its own design, so show the user the plan and ask them to approve it with `cruze approve <ref>`. The approval binds the change to the branch. When it refuses with `plan-review-open`, do what it names. When it refuses with `size-unaccepted`, the plan has more tasks than `changes.max_tasks`: split the change through `rethink` at feature level, or, when the user accepts the size, list the change under `changes.exceptions` in `.cruze/config.yaml` with their reason and approve again. A blocker still open after round 2 goes to the user, and once they decide it, they approve the plan themselves with `cruze approve <ref>`.
+13. **Approve.** For a feature's change, run `cruze approve <ref> --by-agent` on this branch and quote its result. The plan carries no design of its own, so once its review has closed, with no blocker open and a disposition for every finding, you approve it for the user. A standalone change, such as the foundation or a prefactor, carries its own design, so show the user the plan and ask them to approve it with `cruze approve <ref>`. The approval binds the change to the branch. When it refuses with `plan-review-open`, do what it names. When it refuses with `size-unaccepted`, the plan has more tasks than `changes.max_tasks`: split the change through `rethink` at feature level, or, when the user accepts the size, list the change under `changes.exceptions` in `.cruze/config.yaml` with their reason and approve again. A blocker still open after round 2 goes to the user, and once they decide it, they approve the plan themselves with `cruze approve <ref>`.
 14. **Commit** with a message such as `docs: plan <change>`.
 
 ## When the plan needs design
@@ -50,9 +50,9 @@ A prefactor changes structure, not behaviour, so it delivers no scenarios and it
 
 The plan review checks these with the plan rubric's Prefactor item.
 
-## The walking skeleton
+## The foundation
 
-The walking-skeleton change also makes CI and the project's tooling real. Its plan adds:
+The foundation change, a project's first, also makes CI and the project's tooling real. Its plan adds:
 
 - `commands:` in `.cruze/config.yaml`: the format, lint, build, test and run commands, as the language's standard tooling runs them. When some tests are much slower than the rest, such as UI or device tests, `test` runs the fast tier and `test_full` the whole suite, so build can run `test` after every task.
 - A task that adds the language's format, lint, build and test steps to CI (`.github/workflows/ci.yml`), before the Cruze steps `cruze init` put there. The task proves the flow its smoke test runs.

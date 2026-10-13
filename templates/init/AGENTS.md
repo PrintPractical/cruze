@@ -9,7 +9,7 @@ This project uses [Cruze](https://github.com/PrintPractical/cruze) for spec-driv
 ## Commands
 
 <!-- cruze:managed -->
-No build or test commands yet. `cruze land` fills this in when the walking-skeleton change lands.
+No build or test commands yet. `cruze land` fills this in when the foundation change lands.
 <!-- /cruze:managed -->
 
 ## Layout
