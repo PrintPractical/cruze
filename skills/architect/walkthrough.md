@@ -12,9 +12,9 @@ Write it in the glossary's terms, as what callers can do and what happens when t
 2. **What it touches.** Each new external system, and each new dependency named with its purpose and the approval behind it. Also each component you chose to build yourself, with the reason.
 3. **What it looks like.** Illustrated as `.agents/skills/cruze-grilling/illustrating.md` says:
    - A plain-text diagram of the main scenario crossing the design: the inbound adapter, the use case, the domain elements and the ports, marking what is new.
-   - A code sketch, in the project's language, of what the new and changed elements look like: the port operations and use case signatures with their errors, the main entity, and the call an inbound adapter makes.
+   - A code sketch, in the project's language, of what the new and changed elements look like: the port operations and use case signatures with their errors, the main entity, and the call each kind of caller makes, a component in the same process included, with the types it passes as they will be declared. One project approved orchestrators that passed JSON values inside the daemon, which no sketch showed, and rejected it at build a day later.
 4. **The slices.** The changes in order, one line each, saying what each delivers and why the first is first. At project scope, the roadmap's phases and the walking skeleton instead.
-5. **What is yours to decide.** The review findings the roles skill brings to the user, any `cruze validate` warning still standing, such as a change over its size limit, any point where a fresh implementer could still build something different, and any rule you challenged that the user overrode.
+5. **What is yours to decide.** The review findings the roles skill brings to the user, any `cruze validate` warning still standing, such as a change over its size limit, any point where a fresh implementer could still build something different, and any rule you challenged that the user overrode. Then, one line each, every decision the design takes that no answer of the user's settled, carried-over ones included, and every value the system's own components pass each other untyped or encoded, such as a JSON value. Approval rests on this overview: one feature's documents ran to 25,000 words.
 
 ## The documents
 
