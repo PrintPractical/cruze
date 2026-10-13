@@ -4,8 +4,8 @@ The user decides from what they can picture. A question about a port's errors or
 
 ## Reading cold
 
-- Open each round, and each message of review exceptions, with one line saying where things stand: the work item, the step, and the earlier decisions this round builds on, such as `Where we are: architect for 2026-10-08-subscriptions, round 3. Settled: D2 (one stream per session), D4 (events carry revisions).`
-- Say what an ID means in plain words the first time a message uses it, such as `SCN-configuration.reject-taken-priority (a second set asking for a priority already taken is refused)`.
+- Open each round, and each message of review exceptions, with one line saying where things stand: the work item, the step, and the earlier decisions this round builds on, such as `Where we are: architect for 2026-10-08-subscriptions, round 3. Settled: one stream per session, and events carry revisions.`
+- The user doesn't know the design's IDs by heart. Name each requirement, scenario, element, decision or task in plain words, and add its ID after them in parentheses only when the user may want to look it up: "a second set asking for a priority already taken is refused (SCN-configuration.reject-taken-priority)". Never let an ID stand alone or be what a sentence is about, as in "D11 forbids this". In one project, 197 of the 215 IDs in 75 questions stood alone, and the user misread what was asked.
 - Each question says what it decides and why it matters now, without pointing back to an earlier message.
 
 ## Choosing the illustration
@@ -22,7 +22,7 @@ Show each option, side by side, with the form that fits what the question decide
 | A stored format or a config file | A sample of the file |
 | A dependency | The code with it and the code without it |
 
-Leave out the illustration only when the question is about a name, a number or the wording of a sentence, where it would repeat the words.
+Leave out the illustration only when the question is about a name, a number or the wording of a sentence, where it would repeat the words. A question asked through a pick-one tool carries it too: in each option's preview where the tool has one, otherwise in a message just before. One build asked through such a tool with only file and function names in its options, and the user had to ask what it meant.
 
 ## Writing it
 
