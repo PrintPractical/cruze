@@ -4,6 +4,7 @@ The user decides from what they can picture. A question about a port's errors or
 
 ## Reading cold
 
+- The user knows what the product should do, not the design's internals. Before a question about a part of the design, say in a sentence or two what that part is, what it does today and why the question comes up, and show it. Ask about what the user will notice, and explain the mechanism only as far as the choice needs. In one day of one project, the user asked four times what a question meant, from "what's the definition of a condition?" to "give me an ELI5".
 - Open each round, and each message of review exceptions, with one line saying where things stand: the work item, the step, and the earlier decisions this round builds on, such as `Where we are: architect for 2026-10-08-subscriptions, round 3. Settled: one stream per session, and events carry revisions.`
 - The user doesn't know the design's IDs by heart. Name each requirement, scenario, element, decision or task in plain words, and add its ID after them in parentheses only when the user may want to look it up: "a second set asking for a priority already taken is refused (SCN-configuration.reject-taken-priority)". Never let an ID stand alone or be what a sentence is about, as in "D11 forbids this". In one project, 197 of the 215 IDs in 75 questions stood alone, and the user misread what was asked.
 - Each question says what it decides and why it matters now, without pointing back to an earlier message.
