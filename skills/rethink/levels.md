@@ -4,7 +4,7 @@
 
 A detail settles a limit, timeout, buffer size, message or error case that an element of the work in progress doesn't give, with no new element, port operation or dependency, and no change to an approved scenario. Build and verify run it without leaving their step: one message length settled as a full rethink took 75 minutes.
 
-1. Ask the user, recommending a value and saying what the code then does.
+1. Ask the user, recommending a value and showing what the code then does, as `.agents/skills/cruze-grilling/illustrating.md` says.
 2. Amend the element where it lives, in the delta or `docs/architecture.md`, adding at most one failure scenario and its test plan row for a new error case. Run `cruze validate`; done when it reports no errors.
 3. Commit the text with the code and its test, naming the task. Tasks stay ticked.
 4. The user approves the amended document. Re-stamp what went stale, and record the rethink with `level=detail`, as the skill's steps 6 and 7 say.
