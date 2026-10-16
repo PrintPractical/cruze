@@ -48,7 +48,7 @@ Skills run under Claude Code, Codex, OpenCode and others. Name the action, never
 
 ## House conventions
 
-- **Materiality boundary.** The agent decides local, reversible choices on its own. It asks the user about public contracts, architecture, dependencies and costly commitments.
+- **Materiality boundary.** The agent decides local, reversible choices on its own. It asks the user about public contracts, architecture, significant dependencies and costly commitments.
 - **Challenge, then defer.** When the user steers toward something that breaks a principle, an ADR or a knowledge skill, the agent names the rule, the concrete risk and a recommended alternative, once. The user decides. The skill records the override so it is never raised again.
 
 ## Testing a skill

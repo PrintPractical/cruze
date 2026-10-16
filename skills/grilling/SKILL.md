@@ -55,7 +55,7 @@ Ask the user when a choice affects any of these:
 - Scope: what is in and what is out.
 - A public contract, including the errors a caller sees.
 - The architecture: contexts, ports, dependency direction and the module map.
-- A dependency, always, through `.agents/skills/cruze-dependency-approval/SKILL.md`.
+- A significant dependency, always, through `.agents/skills/cruze-dependency-approval/SKILL.md`.
 - Security, privacy or compliance.
 - Compatibility, stored data or migration.
 - A commitment that is costly or hard to reverse.

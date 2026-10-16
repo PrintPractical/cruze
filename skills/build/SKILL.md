@@ -44,15 +44,14 @@ Done for a task when its tests pass, `cruze check --ci` passes for its files, th
 
 The plan is design. Within a task you decide only what is local and reversible.
 
-- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a new file of the owner's module that splits off a responsibility, a `check.exceptions` entry with its reason, a private type, a fixture or harness added to the test support module that the task's tests need, or two tasks' commits swapped for a reason. The test support module is in every test-writing task's scope, so extend it rather than writing a private helper in a test file. Run `cruze task deviation T<n> "<what you did and why>"`.
+- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a new file of the owner's module that splits off a responsibility, a `check.exceptions` entry with its reason, a private type, a fixture or harness added to the test support module that the task's tests need, a dependency that isn't significant, as `.agents/skills/cruze-dependency-approval/SKILL.md` defines it, or two tasks' commits swapped for a reason. The test support module is in every test-writing task's scope, so extend it rather than writing a private helper in a test file. Run `cruze task deviation T<n> "<what you did and why>"`.
 - **Stop and offer `rethink`** when the code needs any of these:
   - a new element, port operation or scenario;
   - a file outside the owner's module, other than the test support module;
-  - a change to an approved scenario's behaviour, or to its test;
-  - a dependency, or a feature of an approved dependency, that the design doesn't name. Ask for it as `.agents/skills/cruze-dependency-approval/SKILL.md` says, and never write around it with hand-written code or a shell command.
+  - a change to an approved scenario's behaviour, or to its test.
 
   Explain what you found, with the evidence, and don't work around it. Completed tasks keep their commits.
-- **Settle a detail with the user,** as "Detail" in `.agents/skills/cruze-rethink/levels.md` says, when the code needs a limit, timeout, buffer size, message or error case the design doesn't give. Never offer a deviation instead: two projects settled 35 details as deviations.
+- **Settle a detail with the user,** as "Detail" in `.agents/skills/cruze-rethink/levels.md` says, when the code needs a limit, timeout, buffer size, message or error case the design doesn't give, or a significant dependency. Never offer a deviation instead: two projects settled 35 details as deviations.
 - **Read a deviation back before you record it.** One naming a value, text, error or outcome the design doesn't give is a detail; one saying the code can't keep a promise a port or use case makes is a rethink.
 - Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`, a detail included.
 
