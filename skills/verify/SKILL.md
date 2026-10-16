@@ -41,5 +41,3 @@ Done when the decision is recorded.
 
 - Accepted: `land`.
 - Sent back: `build` for reopened tasks, or `rethink` for design.
-
-Start it in a new session, so its context starts empty.

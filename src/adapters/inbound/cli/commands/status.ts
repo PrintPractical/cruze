@@ -52,9 +52,6 @@ function pendingNote(findings: string[] | undefined): string {
   return findings === undefined ? "" : `, ${findings.length} finding(s) waiting on a rethink`;
 }
 
-/** Every step starts a new session: one session that ran plan, build, verify and land reached 745k tokens of context. */
-const FRESH_SESSION = "Run it in a new session, so its context starts empty.";
-
 const BASIS: Record<string, string> = { "plan-review": " (by the agent, after its plan review)", rethink: " (re-stamped by the agent after a rethink)" };
 
 function describe(label: string, status: ApprovalStatus): string {
@@ -66,6 +63,6 @@ function describe(label: string, status: ApprovalStatus): string {
 export async function runNext(context: CliContext): Promise<CommandResult> {
   const report = await suggestNext(context);
   const describe = (s: { step: string; target?: string; reason: string }): string => `${s.step}${s.target === undefined ? "" : ` ${s.target}`}: ${s.reason}`;
-  const lines = [`Next: ${describe(report.next)}`, ...report.also.map((s) => `Also: ${describe(s)}`), FRESH_SESSION];
-  return { json: { ...report, session: FRESH_SESSION }, human: lines.join("\n") };
+  const lines = [`Next: ${describe(report.next)}`, ...report.also.map((s) => `Also: ${describe(s)}`)];
+  return { json: report, human: lines.join("\n") };
 }

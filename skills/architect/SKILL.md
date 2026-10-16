@@ -45,5 +45,3 @@ Architect decides the how and the how big. It designs the domain, the ports and 
 - Tweak scope: `plan` for the standalone change.
 
 Plan branches from main, so get the approved design onto main first, as a pull request or a merge, together with the vision or feature map it builds on. A plan branched from an unmerged design branch carries the design into the change's pull request.
-
-Start it in a new session, so its context starts empty.

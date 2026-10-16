@@ -59,4 +59,4 @@ The foundation change, a project's first, also makes CI and the project's toolin
 
 ## Next step
 
-Show the user the test plan table, the tasks in order and the risks, and say the plan is approved, or, for a standalone change, ask them to approve it. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch, in a new session so its context starts empty.
+Show the user the test plan table, the tasks in order and the risks, and say the plan is approved, or, for a standalone change, ask them to approve it. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch.

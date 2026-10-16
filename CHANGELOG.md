@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Workflow skills, `cruze next` and the `AGENTS.md` template no longer say to start each step in a new session, and `cruze next --json` drops its `session` field. Managing context is up to the developer: some chain plan, build, verify and land for one change in a session on purpose. Reviewers, the verifier and the auditor still run in a fresh context, so they judge the documents and not the conversation that wrote them.
+
 ## [0.0.13] - 2026-10-13
 
 A project starts with the first chunk the user wants, designed against the whole. Every project used to start with a walking skeleton, one thin slice through every layer. On large systems it grew past one change, and users often wanted a different first chunk, such as an app's screens before its logic, or one core component before the rest. Architect now asks the user what the first change, the foundation, builds: a product shell, a core component or a walking skeleton. It still designs the whole release end to end, in full for the foundation and at the boundaries for the rest, leaving the specifics of later parts to the features that build them. Existing projects upgrade as the README's Upgrading section says. Every change applies to new work only.
