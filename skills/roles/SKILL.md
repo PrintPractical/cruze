@@ -34,7 +34,7 @@ A review has at most two rounds. Only blockers can force the second one.
 3. **Sort the findings.** A finding is an **exception**, which the user decides, when any of these holds:
    - Its fix changes behaviour: it adds, removes or rewrites a requirement or scenario, or changes what a person sees or does beyond what the spec says. Making the code or the plan meet a scenario as written is not a change of behaviour.
    - Its fix changes a port, a port's `Operations` or a public contract that the approved design names.
-   - Its fix changes another decision the grilling skill leaves to the user: a context, dependency direction or a dependency.
+   - Its fix changes another decision the grilling skill leaves to the user: a context, dependency direction or a significant dependency.
    - You recommend anything but `fixed`: waiving, deferring or rejecting it, or a rethink because it needs a design change. A fix through a detail amendment is an exception too.
    - You would fix it differently from the reviewer's proposed fix.
 

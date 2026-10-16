@@ -9,7 +9,7 @@ At feature scope, cover only what the feature adds, changes or removes. At proje
 Write it in the glossary's terms, as what callers can do and what happens when they do, not as a list of elements. Keep the prose to what the user can read in a minute, and open it with the line that says where things stand, from `.agents/skills/cruze-grilling/illustrating.md`.
 
 1. **What it does.** The intent in two sentences. Then one line per use case, or at feature scope per requirement: who asks for what, what they get, and the main way it fails.
-2. **What it touches.** Each new external system, and each new dependency named with its purpose and the approval behind it. Also each component you chose to build yourself, with the reason.
+2. **What it touches.** Each new external system, and each new package named with its purpose, marking the significant ones and the approval behind each. Also each component you chose to build yourself, with the reason.
 3. **What it looks like.** Illustrated as `.agents/skills/cruze-grilling/illustrating.md` says:
    - A plain-text diagram of the main scenario crossing the design: the inbound adapter, the use case, the domain elements and the ports, marking what is new.
    - A code sketch, in the project's language, of what the new and changed elements look like: the port operations and use case signatures with their errors, the main entity, and the call each kind of caller makes, a component in the same process included, with the types it passes as they will be declared. One project approved orchestrators that passed JSON values inside the daemon, which no sketch showed, and rejected it at build a day later.

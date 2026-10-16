@@ -21,7 +21,7 @@ A task is one owner, the files it writes, and the IDs it proves. Build does them
    ```
 
    - Owner and paths in backticks. Every path is a file the architecture assigns to that owner, or a test or support file. List the test support files the task extends, such as a shared harness or fixture, so its tests reuse them.
-   - When a task adds a module, a file or a dependency, list the file that declares it, such as the crate root or `mod.rs`, the package manifest, or the Xcode project. A task that adds a dependency or a feature of one also lists the lockfile, and names the `## Adopt or build` row that approves it.
+   - When a task adds a module, a file or a dependency, list the file that declares it, such as the crate root or `mod.rs`, the package manifest, or the Xcode project. A task that adds a dependency or a feature of one also lists the lockfile.
    - A task proves the elements it builds, and each scenario whose test goes green in it.
    - A task that only sets up tooling proves the flow or scenario its checks run.
 4. **Find the owners.** For each rule, text, format or conversion a task's element applies, such as a message, a path format, a rounding or a name check, search the code and the other tasks for every place that applies it. Give it one owner: when an earlier task's owner already holds it, the later task's line names that file as a callee rather than building the rule again. Done when no rule is written in two places. Two projects wrote 20 rules twice and moved them at code review.

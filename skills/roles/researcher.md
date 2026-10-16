@@ -25,7 +25,7 @@ For components, report one block each:
 | <component> | adopt or build | <package and version, when adopting> | <the deciding reason> |
 
 Evidence: <the evaluation table for the serious candidates, with sources and the date checked>
-New dependency: yes or no
+New dependency: no, yes, or significant with the reason
 Claims to verify: <each feature, flag or command the design would rely on, with where the source shows it>
 ```
 

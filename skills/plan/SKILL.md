@@ -36,7 +36,7 @@ Stop planning when you find you need any of these:
 - a new element, or a new operation on a port;
 - a file the architecture doesn't assign to the owner;
 - a scenario that isn't in the spec delta;
-- a dependency that isn't in `## Adopt or build`.
+- a significant dependency, as `.agents/skills/cruze-dependency-approval/SKILL.md` defines it, that isn't in `## Adopt or build`.
 
 Say what is missing and why, then send the change to `rethink` at feature level. For a standalone change, that means its own deltas. Never add design to `change.md`.
 

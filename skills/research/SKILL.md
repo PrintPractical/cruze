@@ -19,13 +19,13 @@ Run these steps for each component in a design that isn't domain logic. Domain l
 6. Take the recommendation to the user. Adopting means a new dependency, which follows `.agents/skills/cruze-dependency-approval/SKILL.md`. Building commodity functionality is the user's call as well.
 7. Verify what the design will rely on. List each claim the design or its testing approach makes about anything it doesn't build:
    - an adopted library or tool: the features or flags it needs, and each command the design spells out, such as a CI step;
-   - each type, trait, macro or API the design names from a package: that the package exports it at that version, and every crate, package or target that must declare the package to use it, test support included;
+   - each type, trait, macro or API the design names from a package: that the package exports it at that version;
    - the language or runtime, such as whether a trait with async methods can be used as a trait object;
    - the platform's test environment, such as which permissions a test process gets, and every package a new test image installs, with the whole suite run once in it;
    - each new method, trait or call shape the design gives the project's own types: compile a sketch beside the methods its receiver already has, on a concrete type and on a trait object, since a new name can be ambiguous on one and not the other;
    - an external system the product talks to, such as what a broker logs or how it answers.
 
-   Once the user has approved any dependency involved, check each claim by running it: build a scratch project outside the repository with exactly the declared features, and run each command there or with `--help`, or run the external system and watch it. When a claim can't be run, check it in that version's source, and say so. Write the features into the `Adopts` fact or the row's Choice.
+   Once the user has approved any significant dependency involved, check each claim by running it: build a scratch project outside the repository with exactly the declared features, and run each command there or with `--help`, or run the external system and watch it. When a claim can't be run, check it in that version's source, and say so.
 
 Done when every non-domain component in the design has a row with a decision and a reason, and every claim the design relies on is verified, with how.
 
