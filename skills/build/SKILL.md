@@ -62,4 +62,4 @@ Never weaken, skip or delete a behaviour, contract or smoke test for an approved
 
 ## Next step
 
-`verify`, once every task is ticked and the finishing checks pass. Start it in a new session, so its context starts empty: one session that ran plan, build, verify and land reached 745k tokens.
+`verify`, once every task is ticked and the finishing checks pass.

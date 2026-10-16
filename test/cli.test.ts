@@ -84,7 +84,7 @@ describe("the cruze command", () => {
     assert.match(shown.stdout, /^# 2026-09-25-open-console\/01-local-serial \(feature 2026-09-25-open-console\)/);
     assert.match(shown.stdout, /### ADDED ENT-access.escape-detector/);
     assert.match(shown.stdout, /## Cited, not shown\n\n- /);
-    assert.match(cruze(repo, "next", "--text").stdout, /Run it in a new session/);
+    assert.doesNotMatch(cruze(repo, "next", "--text").stdout, /new session/);
   });
 
   // Agents pipe listings into head and grep; a listing larger than the pipe buffer ended in a 16-line Node stack trace.
