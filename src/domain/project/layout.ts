@@ -1,4 +1,4 @@
-/** Where Cruze documents live in a project, and the snapshot of them the domain works on. */
+/** Where Cruze documents live in a project. */
 
 /** Project files by path, relative to the project root, with forward slashes. */
 export type Snapshot = ReadonlyMap<string, string>;
@@ -6,36 +6,20 @@ export type Snapshot = ReadonlyMap<string, string>;
 export const PATHS = {
   readme: "README.md",
   vision: "docs/vision.md",
-  glossary: "docs/glossary.md",
   architecture: "docs/architecture.md",
-  roadmap: "docs/roadmap.md",
-  adrDir: "docs/adr",
-  specsDir: "docs/specs",
+  featuresDir: "docs/features",
   config: ".cruze/config.yaml",
-  featuresDir: ".cruze/features",
-  changesDir: ".cruze/changes",
-  archiveDir: ".cruze/archive",
-  notesDir: ".cruze/notes",
-  projectApprovals: ".cruze/approvals.json",
-  projectJournal: ".cruze/journal.jsonl",
+  approvals: ".cruze/approvals.json",
 } as const;
 
-/** Directories whose files make up the snapshot. */
-export const SNAPSHOT_ROOTS = ["docs", ".cruze"] as const;
-
-export function specPath(capability: string): string {
-  return `${PATHS.specsDir}/${capability}.md`;
+export function featurePath(slug: string): string {
+  return `${PATHS.featuresDir}/${slug}.md`;
 }
 
-export function filesUnder(snapshot: Snapshot, dir: string): string[] {
-  const prefix = `${dir}/`;
-  return [...snapshot.keys()].filter((path) => path.startsWith(prefix)).sort();
-}
-
-/** Paths directly matching `<dir>/<name><suffix>`, one level deep. */
-export function childFiles(snapshot: Snapshot, dir: string, suffix: string): string[] {
-  return filesUnder(snapshot, dir).filter((path) => {
-    const rest = path.slice(dir.length + 1);
-    return !rest.includes("/") && rest.endsWith(suffix);
-  });
+/** The feature slug of a path directly under docs/features/, or undefined. */
+export function slugOfFeaturePath(path: string): string | undefined {
+  const prefix = `${PATHS.featuresDir}/`;
+  if (!path.startsWith(prefix) || !path.endsWith(".md")) return undefined;
+  const rest = path.slice(prefix.length, -3);
+  return rest.includes("/") ? undefined : rest;
 }

@@ -23,5 +23,5 @@ Gather this for each serious candidate, from the registry and the repository dur
 | Component | Decision | Choice | Reason |
 | --- | --- | --- | --- |
 | SSH transport | adopt | `russh` <version> | Pure Rust, so no OpenSSL on macOS; maintained, Apache-2.0. `ssh2` needs libssh2. See `.cruze/notes/2026-09-25-ssh-libraries.md` |
-| Serial line settings (`115200 8N1`) | build | | A product-specific notation of three fields that no library parses; about 30 lines to own (D3, the user's decision) |
+| Serial line settings (`115200 8N1`) | build | | A product-specific notation of three fields that no library parses; about 30 lines to own (the user's decision) |
 ```

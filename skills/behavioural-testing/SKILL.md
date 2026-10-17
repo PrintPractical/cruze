@@ -1,30 +1,28 @@
 ---
 name: cruze-behavioural-testing
-description: The testing standard for a Cruze project, covering which tests to write, the seam each one drives, the ID it carries, and fakes instead of mocks. Use when writing a change's test plan, when writing, changing or fixing a test, when building a fake for a port, when deciding whether a unit test is warranted, or when reviewing tests.
+description: The testing standard for a Cruze project, covering which tests to write, the seam each one drives, the ID it carries, and fakes instead of mocks. Use when writing, changing or fixing a test, when building a fake for a port, when deciding whether a unit test is warranted, or when reviewing tests.
 ---
 
 # Behavioural testing
 
-Behaviour is the contract. Every scenario in the specs becomes a test that drives the system through a use case and checks what a caller would see. Tests pin behaviour, not structure, so the code behind them can be rewritten freely.
+Behaviour is the contract. Every scenario in a feature becomes a test that drives the system through a use case and checks what a caller would see. Tests pin behaviour, not structure, so the code behind them can be rewritten freely.
 
-## Writing tests for a task
+## Writing tests for a feature
 
-1. Find the test plan rows whose Subject the task proves. Done when you know the seam, test file and kind of every test the task needs.
-2. Write one test at its seam, carrying its subject ID. Take the inputs and expected values from the scenario's GIVEN, WHEN and THEN.
+1. For each scenario, pick its seam from the table below. Done when you know the seam, test file and kind of every test the feature needs.
+2. Write one test at its seam, carrying the scenario's ID. Take the inputs and expected values from the scenario's GIVEN, WHEN and THEN.
 3. Run it and watch it fail for the reason you expect (red). A test that passes before the code exists proves nothing, so fix the test. A test that guards a race or an ordering must be seen failing against code that has the flaw: run the racing work concurrently, on a multi-threaded runtime where there is one, and wait for a signal the system gives, such as a watch having opened, never for a fixed sleep.
 4. Write the least code that makes it pass (green). Then write the next test. Work in tracer bullets, one test and one slice of code at a time, never all the tests first.
-5. Done when every test plan row whose Subject the task proves has a passing test carrying that ID, and each test fails when the behaviour it checks is removed. Tasks that prove only a `UC`, `ADP` or `MOD` are proved by the rows of the scenarios and ports they serve.
+5. Done when every scenario has a passing test carrying its ID, every port with a real adapter has contract tests, and each test fails when the behaviour it checks is removed.
 
 ## The four kinds
 
-These match the test plan in `.agents/skills/cruze-formats/reference/work-items.md`.
-
 | Kind | Subject | Seam | When |
 | --- | --- | --- | --- |
-| `behaviour` | `SCN` | The use case's API with a fake for each driven port, or the inbound adapter when the outcome is what that adapter shows, such as CLI output, an exit code or an HTTP status | One or more per scenario, always |
-| `contract` | `PORT` | The same cases run against the fake and every real adapter | Every driven port that has a real adapter |
-| `domain` | `ENT` | The entity's own API | Only for real logic: state machines, calculations, invariants with edge cases |
-| `smoke` | `FLOW` | The real inbound adapter, wired by the real composition root | The top 1 to 3 flows |
+| `behaviour` | a scenario | The use case's API with a fake for each driven port, or the inbound adapter when the outcome is what that adapter shows, such as CLI output, an exit code or an HTTP status | One or more per scenario, always |
+| `contract` | a port | The same cases run against the fake and every real adapter | Every driven port that has a real adapter |
+| `domain` | a domain type | The entity's own API | Only for real logic: state machines, calculations, invariants with edge cases |
+| `smoke` | the main path | The real inbound adapter, wired by the real composition root | The top 1 to 3 paths through the system |
 
 A behaviour test drives a use case, not a single domain type, so it keeps passing when rules move between entities. In a library with no use cases, the seam is the library's public API. Write a domain test only when a rule's edge cases are too many to reach through use cases one by one.
 
@@ -51,9 +49,9 @@ A behaviour test drives a use case, not a single domain type, so it keeps passin
 
 ## Protecting the check
 
-- Behaviour, contract and smoke tests for approved scenarios, ports and flows are the safety net. Never edit one to get green. When one fails, either the code is wrong, or the spec is. A wrong spec or design goes through the rethink step, and the test changes only with the delta that changes its subject: a spec delta for a `SCN`, an architecture delta for a `PORT` or `FLOW`.
+- Behaviour, contract and smoke tests for approved scenarios and ports are the safety net. Never edit one to get green. When one fails, either the code is wrong, or the scenario is. A wrong scenario goes back through shape, and the test changes only after the user approves the changed scenario.
 - Domain tests are disposable. Rewrite or delete them along with the code they test.
-- Never skip a test, delete one, or weaken an assertion to finish a task. Verify flags any diff to a safety-net test that has no matching delta.
+- Never skip a test, delete one, or weaken an assertion to finish. Review flags any weakened safety-net test.
 
 ## What not to write
 
@@ -65,6 +63,6 @@ Side-by-side examples are in [examples.md](examples.md).
 
 ## Naming and tracing
 
-- Every test carries its subject ID where `.agents/skills/cruze-formats/reference/work-items.md` says, such as `// SCN-access.direct-serial` on the line above it.
+- Every behaviour test carries its scenario's ID in a comment or string, such as `// SCN-open-serial.attach` on the line above it. A test name alone doesn't count, since `cruze trace` looks for the literal ID.
 - A scenario may need several tests, and each of them carries its ID. One test covers one scenario.
-- `cruze trace` checks scenarios only: it fails when a scenario the change delivers has no test carrying its ID, or when a test cites a scenario nobody defined. Run it before calling a change's tests complete, and quote its result. For the `contract`, `domain` and `smoke` rows, list each subject ID next to the test that carries it.
+- `cruze trace <slug>` fails when one of the feature's scenarios has no test carrying its ID, or when a test cites a scenario no feature defines. Run it before calling a feature's tests complete, and quote its result.

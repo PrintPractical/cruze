@@ -7,7 +7,7 @@ The examples are in Rust, from a console-access tool. The shape is the same in a
 Good. It drives the use case, fakes the ports, and checks what the caller sees:
 
 ```rust
-// SCN-access.second-hop-refused
+// SCN-ssh-hops.second-hop-refused
 #[test]
 fn second_hop_refused_closes_the_first_hop() {
     let catalog = InMemoryDeviceCatalog::with(device("lab-router", ssh_via("jump-1")));
@@ -89,7 +89,6 @@ The file format is the TOML adapter's business. Its contract tests cover it, and
 Good. A state machine with real rules, tested through the entity's own API:
 
 ```rust
-// ENT-access.console-session
 #[test]
 fn a_closed_session_cannot_reopen() {
     let mut session = ConsoleSession::opening();

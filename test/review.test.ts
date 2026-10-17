@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import type { AgentRun, AgentRunner } from "../src/app/ports/agent_runner.ts";
 import { runReview } from "../src/app/use_cases/run_review.ts";
 import { CruzeError } from "../src/domain/cruze_error.ts";
-import { CHANGE_01, FEATURE, exampleProject } from "./support/harness.ts";
+import { exampleProject } from "./support/harness.ts";
 
 /** Records what it was asked to run and answers with a fixed report. */
 class ScriptedRunner implements AgentRunner {
@@ -32,65 +32,43 @@ describe("running a role in a fresh context", () => {
     const h = await exampleProject();
     configureReview(h, ["claude", "-p"]);
     const runner = new ScriptedRunner();
-    const report = await runReview({ ...h.deps, runner }, { role: "code-reviewer", item: CHANGE_01, base: "main" });
+    const report = await runReview({ ...h.deps, runner }, { role: "code-reviewer", item: "open-serial", base: "main" });
     assert.equal(report.status === "reported" && report.report, "Blockers: 0. Concerns: 1. Nits: 2.");
     const [run] = runner.runs;
-    assert.deepEqual(run?.command.slice(0, 2), ["claude", "-p"]);
+    assert.deepEqual(run?.command, ["claude", "-p"]);
     assert.match(run?.prompt ?? "", /^# Code reviewer\n/);
-    assert.match(run?.prompt ?? "", /- Under review: 2026-09-25-open-console\/01-local-serial \(`\.cruze\/features\/2026-09-25-open-console\/changes\/01-local-serial\/change\.md`\)/);
-    assert.match(run?.prompt ?? "", /- Its feature: `\.cruze\/features\/2026-09-25-open-console\/feature\.md`/);
+    assert.match(run?.prompt ?? "", /- Under review: the feature in `docs\/features\/open-serial\.md`/);
     assert.match(run?.prompt ?? "", /run `git diff main`/);
   });
 
-  it("gives round 2 the round-1 blockers, and uses the project's own command when it sets one", async () => {
-    const h = await exampleProject();
-    configureReview(h, ["codex", "exec", "-"]);
-    const runner = new ScriptedRunner();
-    await runReview({ ...h.deps, runner }, { role: "design-reviewer", round: 2, blockers: "1. Placement: EscapeDetector has no file" });
-    assert.deepEqual(runner.runs[0]?.command, ["codex", "exec", "-"]);
-    assert.match(runner.runs[0]?.prompt ?? "", /- Round: 2\n/);
-    assert.match(runner.runs[0]?.prompt ?? "", /Round-1 blockers to check:\n\n1\. Placement: EscapeDetector has no file/);
-  });
-
-  it("refuses an unknown role, and reports a failed agent run with its error", async () => {
+  it("refuses an unknown role and an unknown feature, and reports a failed agent run with its error", async () => {
     const h = await exampleProject();
     configureReview(h, ["claude", "-p"]);
     await assert.rejects(runReview({ ...h.deps, runner: new ScriptedRunner() }, { role: "critic" }), rejectsWith("unknown-role"));
+    await assert.rejects(runReview({ ...h.deps, runner: new ScriptedRunner() }, { role: "code-reviewer", item: "teleport" }), rejectsWith("not-found"));
     const failing = new ScriptedRunner({ exitCode: 1, output: "", error: "not logged in" });
-    await assert.rejects(runReview({ ...h.deps, runner: failing }, { role: "verifier", item: CHANGE_01 }), (e: unknown) => rejectsWith("review-failed")(e) && /not logged in/.test((e as Error).message));
+    await assert.rejects(runReview({ ...h.deps, runner: failing }, { role: "researcher" }), (e: unknown) => rejectsWith("review-failed")(e) && /not logged in/.test((e as Error).message));
   });
 
   it("hands the prompt back to run in a helper when no review agent is configured", async () => {
     const h = await exampleProject();
     const runner = new ScriptedRunner();
-    const report = await runReview({ ...h.deps, runner }, { role: "design-reviewer", item: CHANGE_01 });
+    const report = await runReview({ ...h.deps, runner }, { role: "code-reviewer", item: "open-serial" });
     assert.equal(report.status, "run-in-helper");
     assert.deepEqual(runner.runs, []);
     if (report.status !== "run-in-helper") return;
     assert.match(report.instruction, /^No review agent is configured under review\.command\./);
-    assert.match(report.prompt, /^# Design reviewer\n/);
-    assert.match(report.prompt, /review it against `\.agents\/skills\/cruze-roles\/plan-rubric\.md`/);
-  });
-
-  // A plan review loaded the design rubric too, three times the plan rubric's length, and used none of it.
-  it("points a design reviewer at the one rubric for what it reviews", async () => {
-    const h = await exampleProject();
-    const runner = new ScriptedRunner();
-    const design = await runReview({ ...h.deps, runner }, { role: "design-reviewer", item: FEATURE });
-    assert.ok(design.status === "run-in-helper" && design.prompt.includes("review it against `.agents/skills/cruze-roles/design-rubric.md`"));
-    assert.ok(design.status === "run-in-helper" && !design.prompt.includes("This is a change's plan"));
+    assert.match(report.prompt, /^# Code reviewer\n/);
   });
 
   it("hands the prompt back to run in a helper when the configured agent isn't installed", async () => {
     const h = await exampleProject();
     configureReview(h, ["claude", "-p"]);
     const runner = new ScriptedRunner({ kind: "missing" });
-    const report = await runReview({ ...h.deps, runner }, { role: "code-reviewer", item: CHANGE_01, base: "main" });
+    const report = await runReview({ ...h.deps, runner }, { role: "code-reviewer", item: "open-serial", base: "main" });
     assert.equal(report.status, "run-in-helper");
     if (report.status !== "run-in-helper") return;
     assert.match(report.instruction, /^claude is not installed/);
-    assert.match(report.instruction, /helper agent with no conversation history/);
     assert.equal(report.prompt, runner.runs[0]?.prompt);
-    assert.match(report.prompt, /^# Code reviewer\n/);
   });
 });

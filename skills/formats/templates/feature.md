@@ -1,49 +1,33 @@
----
-id: {{id}}
-title: {{title_quoted}}
-roadmap: <roadmap item slug>
----
+# {{title}}
 
-# Feature: {{title}}
+- Status: shaped
 
 ## Intent
 
-<The problem and outcome in the user's words. Who it is for. Constraints.>
+<What the user can do once this is built, and why, in two sentences.>
 
-Out of scope:
+## Behaviour
 
-- <what this feature deliberately leaves out>
+### SCN-{{slug}}.<name>: <Scenario title>
 
-## Settled decisions
+- Given <the starting state>
+- When <the one action>
+- Then <what the user sees>
 
-- D1: <decision> (<reason>)
+## Public API
 
-## Adopt or build
+<Every public type, function, command, endpoint or message this feature adds or changes, as real code in the project's language. Write "No change." when there is none.>
 
-| Component | Decision | Choice | Reason |
-| --- | --- | --- | --- |
+```text
+```
 
-## Spec delta
+## Stack sketch
 
-### ADDED REQ-<capability>.<name>: <Requirement title>
-<The requirement using SHALL or MUST.>
+<The main scenario crossing the stack, from the inbound adapter through the core to the ports and adapters, with what is new marked. Then each change this feature makes to docs/architecture.md, one line each.>
 
-#### SCN-<capability>.<name>: <Scenario title>
-- GIVEN <starting state>
-- WHEN <the one action>
-- THEN <observable outcome>
+```text
+```
 
-## Architecture delta
+## Decisions
 
-### ADDED <ID>: <Element title>
-- <the element's full body, as it will read in architecture.md>
-
-## Changes
-
-| Change | Delivers | Builds | Depends on |
-| --- | --- | --- | --- |
-| 01-<slug> | <SCN and REQ IDs> | <architecture IDs> | |
-
-<!-- cruze:managed -->
-## Progress
-<!-- /cruze:managed -->
+- <A choice the user would notice or might question, and why.>

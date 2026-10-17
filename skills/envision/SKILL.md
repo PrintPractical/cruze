@@ -1,30 +1,36 @@
 ---
 name: cruze-envision
-description: Decides what to build with the user, either for the whole project (problem, users, goals, non-goals, constraints, feature map and glossary) or for one feature (intent and requirements with scenarios), by grilling in rounds on the gaps.
+description: Starts a project, or a major shift in one, by putting the user's vision on paper, breaking the release into features with what each needs, and designing the architecture map those features and the future ones fit into.
 ---
 
 # Envision
 
-Envision decides the what: the problem, who has it, and the behaviour that solves it. It takes whatever drafts the user brings as input, finds the gaps, and grills in rounds until the user confirms a shared understanding. Architecture, modules and code belong to `architect`.
+Envision runs at the start of a project, and again when the product changes direction or a release is done. It turns the user's idea into three things everything later reads: a vision with future features, the release broken into features, and an architecture map designed with all of them in view. The user approves two documents once each, and the agent decides everything else.
+
+Read `.agents/skills/cruze-asking/SKILL.md` before the first question, and `.agents/skills/cruze-formats/SKILL.md` before writing a document.
 
 ## Steps
 
-1. **Pick the scope.** It is project scope when `docs/vision.md` doesn't exist yet, or when the user asks to rework the project's goals. It is feature scope when the user names a feature. When unsure, ask. Done when you can say which.
-2. **Gather the input.** Read what the user gave you: pasted drafts, files they point to, and the notes `cruze show --notes` lists. Read whichever of `docs/vision.md`, `docs/glossary.md`, `docs/roadmap.md` and `docs/architecture.md` exist, and run `cruze status`.
-3. **Load the standards.** Read `.agents/skills/cruze-grilling/SKILL.md` and `.agents/skills/cruze-domain-language/SKILL.md`, and follow them for the rest of this step.
-4. **Follow the scope's procedure.** For project scope, follow [project.md](project.md). For feature scope, follow [feature.md](feature.md). Each one ends with the user's confirmation.
-5. **Check the documents.** Run `cruze validate`. Done when it reports no errors in the documents this step wrote. At feature scope, expect one `not-designed` warning for the feature, which `architect` clears.
+1. **Take in what the user has.** The user's idea may be a sentence, a long document or a conversation. Read all of it, and the repository's README and code if there are any. When the user shares a document, keep it next to the docs, such as `docs/seed.md`, so nothing in it is lost. Done when you can say the product's purpose in one sentence.
+2. **Write the vision.** Run `cruze new vision` if `docs/vision.md` doesn't exist, then fill in the problem, users, terms, non-goals and constraints from what the user said, in their words. Leave the Release and Future features tables for steps 3 and 4. Mark anything you inferred rather than read, so the user can see it.
+3. **Ask what may come later,** as [possibilities.md](possibilities.md) says, and fill in `## Future features`. Done when the table holds every likely neighbour the user agreed to, each with what must stay possible.
+4. **Break the release into features,** as [breakdown.md](breakdown.md) says, and fill in the `## Release` table. Done when `cruze validate` reports no release problem.
+5. **Show the vision and the breakdown.** In one message: the product in two sentences; the release's features as a short table, with a plain-text diagram of what needs what; the future features in one line each; and every point you inferred. Ask one question: "Is anything missing, merged wrong, or in the wrong order?" Apply the answer. When the user approves, run `cruze approve vision`. Done when the vision is approved.
+6. **Design the architecture map,** as [architecture.md](architecture.md) says. Done when `docs/architecture.md` exists, `cruze validate` reports no problem in it, and `.cruze/config.yaml` has its `source`, `tests` and `layers`.
+7. **Show the architecture.** In one message, illustrated as `.agents/skills/cruze-asking/SKILL.md` says:
+   - a plain-text diagram of the ports and adapters, marking which serve future features;
+   - the runtime model in three lines: threads or tasks, the limits that matter, and what happens at shutdown;
+   - the core ports as code, with their errors;
+   - each technology choice and significant dependency, with why;
+   - every decision you took that the user might question.
 
-## Rules
+   Ask: "Do you approve this architecture, or what should change?" Apply changes and show what moved. When the user approves, run `cruze approve architecture`. Done when it is approved.
+8. **Commit** the documents and the config with a message such as `docs: envision <project>`.
 
-- Write in the user's terms and the glossary's words. Behaviour is described from outside the system: what a user does and what they observe.
-- Requirements and scenarios follow `.agents/skills/cruze-formats/reference/specs.md`. Every scenario uses concrete values: real names, real inputs, exact output. The scenarios become the tests, so their values are the expected results.
-- Keep implementation out: no modules, types, libraries or file formats unless the user names one as a constraint. When the user raises one, record it as a constraint or a settled decision and move on.
-- Problem through Constraints stay within one page. A principle or a capability that must stay possible takes as much as its intent needs: never shorten one to fit.
-- The product's long-term intent lives in the vision, in its Principles and Must stay possible tables, at either scope. Designs answer to it for the product's whole life, long after the conversation that settled it.
-- Only the CLI writes the feature map. Use `cruze features add`, `cruze features update` and `cruze features drop`.
+## A major shift or the next release
+
+When the vision exists, edit it rather than starting again: move built features out of `## Release`, add the next release's features and update what they need, and move future features in when they join. Change the architecture map only where the new features move a boundary. Then show what changed and approve as in steps 5 and 7.
 
 ## Next step
 
-- After project scope: run `architect` at project scope.
-- After feature scope: run `architect "<feature>"`.
+`shape` for the first feature of the release, which `cruze next` names.

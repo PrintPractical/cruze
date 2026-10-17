@@ -13,11 +13,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      # The foundation change adds the language's format, lint, build and
-      # test steps here, from `commands:` in .cruze/config.yaml.
+      # The foundation feature adds the language's format, lint, build and
+      # test steps here, with a coverage gate.
       - name: Documents match the Cruze formats
         run: npx --yes --package={{cruze_package}} cruze validate
       - name: Layer rules and file budgets
         run: npx --yes --package={{cruze_package}} cruze check --ci
       - name: Every built scenario has a test
-        run: npx --yes --package={{cruze_package}} cruze trace --all
+        run: npx --yes --package={{cruze_package}} cruze trace

@@ -1,36 +1,29 @@
 import type { CruzeConfig, Layer } from "../config.ts";
 import { matchesAny } from "../glob.ts";
 import { budgetedText } from "./budget_text.ts";
-import { decisionCitationsInComments } from "./decision_comments.ts";
 import { importsOf, resolveImport } from "./imports.ts";
 import { countTypes } from "./type_count.ts";
 
 export interface CheckFinding {
   path: string;
   line?: number;
-  rule: "layer" | "max-lines" | "max-types" | "outside-module-map" | "no-layer" | "test-placement" | "decision-citation";
+  rule: "layer" | "max-lines" | "max-types" | "no-layer" | "test-placement";
   message: string;
   /** Layer violations always fail; the rest fail in CI unless excepted. */
   severity: "error" | "warning";
-  /** Set when the rule is newer than the project's `standards:`: it reports, but can't fail CI until the project realigns. */
-  pending?: true;
 }
 
 export interface CheckInput {
   config: CruzeConfig;
   /** Every source file matched by config.source, by path. */
   sources: ReadonlyMap<string, string>;
-  /** Paths of the MOD elements in the architecture; files outside all of them are flagged. */
-  modulePaths: string[];
-  /** Test files outside config.source, by path: only their comments are checked. */
-  tests?: ReadonlyMap<string, string>;
   /** Check only these files, when given; imports still resolve against every source. */
   only?: string[];
 }
 
 /** Enforces the architecture's layer rules and the file budgets on source code. */
 export function checkSource(input: CheckInput): CheckFinding[] {
-  const { config, sources, modulePaths } = input;
+  const { config, sources } = input;
   const all = [...sources.keys()];
   const targets = input.only ?? all;
   const layerOf = (path: string): Layer | undefined => config.layers.find((layer) => matchesAny(path, layer.paths));
@@ -67,30 +60,8 @@ export function checkSource(input: CheckInput): CheckFinding[] {
     if (!excepted && isRustTestFileInSource(path)) {
       findings.push({ path, rule: "test-placement", severity: "warning", message: "Rust tests that leave their inline module go in the crate's tests/ directory, not under src/" });
     }
-    if (modulePaths.length > 0 && !insideModuleMap(path, modulePaths)) {
-      findings.push({ path, rule: "outside-module-map", severity: "warning", message: "the file is outside every module in the architecture's module map" });
-    }
-    findings.push(...decisionFindings(path, text));
-  }
-  for (const [path, text] of input.tests ?? []) {
-    if (!sources.has(path) && (input.only === undefined || input.only.includes(path))) findings.push(...decisionFindings(path, text));
   }
   return findings;
-}
-
-function decisionFindings(path: string, text: string): CheckFinding[] {
-  return decisionCitationsInComments(path, text).map((citation) => ({
-    path,
-    line: citation.line + 1,
-    rule: "decision-citation",
-    severity: "warning",
-    message: `the comment cites ${citation.text}, a decision number a reader of the code can't follow; say what was decided, or cite the element or ADR that holds it`,
-  }));
-}
-
-/** Whether a module's Path covers the file: a directory path ending in `/` covers everything under it, any other names one file. */
-export function insideModuleMap(path: string, modulePaths: string[]): boolean {
-  return modulePaths.some((module) => (module.endsWith("/") ? path.startsWith(module) : path === module));
 }
 
 /** A Rust file of tests split out of a module: `tests.rs`, `*_tests.rs`, or anything under a `tests/` folder inside `src/`. */

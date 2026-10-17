@@ -1,6 +1,6 @@
 # Rust
 
-These add to the hexagonal design rules for Rust projects. The module map decides the layout; this file never does.
+These add to the hexagonal design rules for Rust projects. The architecture's layers decide the layout; this file never does.
 
 ## Modules
 

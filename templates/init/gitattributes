@@ -1,2 +1,0 @@
-# Cruze journals are append-only, so parallel branches merge them by keeping every line.
-**/journal.jsonl merge=union
