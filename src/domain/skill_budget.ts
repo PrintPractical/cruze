@@ -11,7 +11,7 @@ export const MAX_FILE_WORDS = 2100;
  * 0.0.10 the skills grew by half while nothing was removed. Lower this when text is cut. Raising it
  * is the maintainer's decision, with the reason in the commit that raises it.
  */
-export const BUNDLE_WORD_BUDGET = 45930;
+export const BUNDLE_WORD_BUDGET = 45810;
 
 /** Data the CLI reads or renders, rather than instructions an agent reads. */
 const NOT_INSTRUCTIONS = /(^|\/)(templates|notes)\//;

@@ -45,4 +45,4 @@ A fix from `triage` has no change folder, so `cruze land` doesn't run.
 
 ## Next step
 
-Once the work is on main, switch to an up-to-date main, run `cruze next` there, and name what it says. Start it in a new session, so its context starts empty. Before the merge, `cruze next` on the change's branch can name work that main doesn't hold yet. When a feature just finished and every roadmap item has landed, the next step is `roadmap`, to close the release.
+Once the work is on main, switch to an up-to-date main, run `cruze next` there, and name what it says. Before the merge, `cruze next` on the change's branch can name work that main doesn't hold yet. When a feature just finished and every roadmap item has landed, the next step is `roadmap`, to close the release.

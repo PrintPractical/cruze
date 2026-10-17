@@ -36,7 +36,7 @@ Stop planning when you find you need any of these:
 - a new element, or a new operation on a port;
 - a file the architecture doesn't assign to the owner;
 - a scenario that isn't in the spec delta;
-- a dependency that isn't in `## Adopt or build`.
+- a significant dependency, as `.agents/skills/cruze-dependency-approval/SKILL.md` defines it, that isn't in `## Adopt or build`.
 
 Say what is missing and why, then send the change to `rethink` at feature level. For a standalone change, that means its own deltas. Never add design to `change.md`.
 
@@ -59,4 +59,4 @@ The foundation change, a project's first, also makes CI and the project's toolin
 
 ## Next step
 
-Show the user the test plan table, the tasks in order and the risks, and say the plan is approved, or, for a standalone change, ask them to approve it. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch, in a new session so its context starts empty.
+Show the user the test plan table, the tasks in order and the risks, and say the plan is approved, or, for a standalone change, ask them to approve it. They can object, and you amend the plan, run its review on the diff, and approve again. Otherwise the next step is `build`, on this branch.

@@ -169,7 +169,7 @@ Stepping back is editing: change an upstream document and every approval that ci
 | `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |
 | `cruze-grilling` | Interviewing the user in rounds until decisions settle, and challenging once before deferring |
 | `cruze-domain-language` | Building the glossary and using its words in documents, IDs and code |
-| `cruze-dependency-approval` | No new dependency without your explicit approval, and where approvals are recorded |
+| `cruze-dependency-approval` | Adopt libraries freely, ask you only for significant ones (hard to reverse, native code, licence, security), and where each is recorded |
 | `cruze-research` | Adopting a mature library before building, and answering questions from primary sources at the right version |
 
 ## Reporting back
