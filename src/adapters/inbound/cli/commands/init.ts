@@ -18,6 +18,6 @@ export async function runInit(context: CliContext, _args: string[], options: Opt
   if (report.created.length > 0) lines.push(`Created: ${report.created.join(", ")}`);
   if (report.skipped.length > 0) lines.push(`Left untouched (already present): ${report.skipped.join(", ")}`);
   lines.push(...describeSkillInstall(report.skills));
-  lines.push("Next: open your coding agent in this repository and ask it what Cruze can do.");
+  lines.push("Next: open your coding agent in this repository and ask it to envision the project, with whatever you have: a sentence, a design document, notes.");
   return { json: report, human: lines.join("\n") };
 }
