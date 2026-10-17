@@ -19,6 +19,7 @@ description: Orders the release's features and standalone changes into phases wi
 5. **Check the rules.**
    - Every item names the goals it serves.
    - `Blocked by` names only items in this or an earlier phase, and the blocking graph has no cycle.
+   - `Blocked by` names every item that builds an element this item extends, delivers behaviour it changes, or delivers behaviour it relies on. Read the item's use cases and `Future` facts in the architecture: a promise that a restart changes nothing relies on whatever keeps state across restarts.
    - Every goal the release covers has at least one item in `## Coverage`.
    - A phase holds items that can proceed in parallel once their blockers land.
    - Done when `cruze validate` reports no errors in `docs/roadmap.md`.
@@ -26,7 +27,7 @@ description: Orders the release's features and standalone changes into phases wi
 
 ## Adding an item
 
-- Place it in the earliest phase whose items don't block it. Name its blockers: an item blocks it when it builds an element this item extends, or delivers behaviour this item changes.
+- Place it in the earliest phase whose items don't block it, naming its blockers as step 5's rules say.
 - A prefactor restructures code that later items build on, so it goes first: each item it overlaps names it under `Blocked by`. The exception is an item already building, with a change planned or in progress, which the prefactor would rebuild under: the prefactor waits for it and names it under `Blocked by` instead. Put the order to the user either way. One project's realign put a prefactor behind a feature that hadn't started, and the user wanted it first.
 - Add its slug to the coverage row of each goal it serves.
 - A feature that isn't on the feature map gets there first: `cruze features add <slug> --summary <text> --goals <ids>`.
