@@ -16,6 +16,7 @@ A rewrite around five steps: envision, shape, build, review and fix. Measured ac
 - The agent asks at most one round of questions per step, only about behaviour the user will see, public APIs, significant dependencies and costly commitments, and lists the choices it made in the document the user approves.
 - `cruze approve` hashes one document; an edit after approval shows it as edited until it is approved again. `cruze trace` checks every built feature, or one named feature. `cruze review` runs the code reviewer or the researcher. The config is version 2.
 - The first feature of a release sets up CI with the language's build, tests and a line coverage gate.
+- Envision writes the README once the vision and architecture are approved: what the project is, its status and the release's features, how it is built, and where the documents live. Review keeps its status and usage current as features land.
 
 ### Removed
 

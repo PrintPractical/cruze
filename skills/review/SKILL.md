@@ -20,7 +20,7 @@ A reviewer who never saw the build reads the code against the approved feature. 
    - what the review found and what you fixed, counted;
    - any finding you left, and why.
 
-   Add a line in the user's words under `[Unreleased]` in `CHANGELOG.md`, push the branch and open a pull request, or merge as the project does. Done when the pull request is open or the branch is merged.
+   Add a line in the user's words under `[Unreleased]` in `CHANGELOG.md`. Update the README's status, and its usage when the feature changes what a user runs or sees, with the same commands as "how to try it". Push the branch and open a pull request, or merge as the project does. Done when the pull request is open or the branch is merged.
 
 ## Next step
 

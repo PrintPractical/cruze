@@ -25,11 +25,12 @@ Read `.agents/skills/cruze-asking/SKILL.md` before the first question, and `.age
    - every decision you took that the user might question.
 
    Ask: "Do you approve this architecture, or what should change?" Apply changes and show what moved. When the user approves, run `cruze approve architecture`. Done when it is approved.
-8. **Commit** the documents and the config with a message such as `docs: envision <project>`.
+8. **Write the README** for someone who has never heard of the project: what it is and who it is for, in the vision's words; its status, such as "designing the first release", with the release's features in one line each; a short paragraph and the overview diagram of how it is built, in plain text so it reads anywhere; and where the vision, architecture and features live. Leave out what isn't true yet, such as install or usage steps. Done when nothing in it contradicts the vision or the architecture.
+9. **Commit** the documents, the README and the config with a message such as `docs: envision <project>`.
 
 ## A major shift or the next release
 
-When the vision exists, edit it rather than starting again: move built features out of `## Release`, add the next release's features and update what they need, and move future features in when they join. Change the architecture map only where the new features move a boundary. Then show what changed and approve as in steps 5 and 7.
+When the vision exists, edit it rather than starting again: move built features out of `## Release`, add the next release's features and update what they need, and move future features in when they join. Change the architecture map only where the new features move a boundary. Then show what changed and approve as in steps 5 and 7, and bring the README's status up to date.
 
 ## Next step
 
