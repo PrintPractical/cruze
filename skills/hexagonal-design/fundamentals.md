@@ -1,6 +1,6 @@
 # Engineering fundamentals
 
-Use these to test material engineering choices in a design, a plan, code or a review. Keep the search bounded by the work at hand: the seams it touches, its scenarios, and the failure and workload risks that are credible. Stop when those have decisions backed by evidence.
+Use these to test material engineering choices in a design, code or a review. Keep the search bounded by the work at hand: the seams it touches, its scenarios, and the failure and workload risks that are credible. Stop when those have decisions backed by evidence.
 
 ## Workload before structure
 

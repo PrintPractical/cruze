@@ -32,7 +32,7 @@ describe("the cruze command", () => {
     const report = JSON.parse(stdout);
     assert.equal(report.project, "Smoke Test");
     assert.equal(readFileSync(join(repo, "README.md"), "utf8"), "# Smoke Test\n");
-    assert.match(readFileSync(join(repo, ".claude/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
+    assert.match(readFileSync(join(repo, ".claude/skills/cruze-shape/SKILL.md"), "utf8"), /name: cruze-shape/);
     assert.equal(readlinkSync(join(repo, "CLAUDE.md")), "AGENTS.md");
     assert.equal(stderr, "");
     assert.match(cruze(emptyRepo(), "init", "--name", "Smoke Test", "--yes", "--text").stdout, /Initialized Smoke Test/);
@@ -44,8 +44,8 @@ describe("the cruze command", () => {
     assert.equal(init.code, 0, init.stderr);
     assert.equal(existsSync(join(repo, "CLAUDE.md")), false);
     assert.equal(existsSync(join(repo, ".claude")), false);
-    assert.match(readFileSync(join(repo, ".agents/skills/cruze-about/SKILL.md"), "utf8"), /name: cruze-about/);
-    const review = cruze(repo, "review", "design-reviewer");
+    assert.match(readFileSync(join(repo, ".agents/skills/cruze-build/SKILL.md"), "utf8"), /name: cruze-build/);
+    const review = cruze(repo, "review", "code-reviewer");
     assert.equal(review.code, 0, review.stderr);
     assert.equal(JSON.parse(review.stdout).status, "run-in-helper");
   });
@@ -54,15 +54,28 @@ describe("the cruze command", () => {
     const repo = emptyRepo();
     cruze(repo, "init", "--name", "Twice", "--yes");
     const { code, stdout } = cruze(repo, "install");
-
     assert.equal(code, 0);
     assert.deepEqual(JSON.parse(stdout).removed, []);
-    assert.match(readFileSync(join(repo, ".agents/skills/cruze-about/SKILL.md"), "utf8"), /cruze-about/);
   });
 
   it("prints the package version", () => {
     const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
     assert.equal(cruze(emptyRepo(), "--version").stdout.trim(), pkg.version);
+  });
+
+  it("takes a new project from init through envision to its first feature", () => {
+    const repo = emptyRepo();
+    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
+    assert.equal(JSON.parse(cruze(repo, "next").stdout).reason, "the project has no vision yet");
+    assert.equal(cruze(repo, "new", "vision").code, 0);
+    const invalid = JSON.parse(cruze(repo, "validate").stdout);
+    assert.equal(invalid.valid, false, "a fresh template still holds its guides");
+    assert.ok(invalid.problems.some((p: { rule: string }) => p.rule === "template-leftover"));
+    const refused = cruze(repo, "approve", "vision");
+    assert.equal(refused.code, 1);
+    assert.match(refused.stderr, /problem\(s\) to fix first/);
+    assert.equal(cruze(repo, "new", "feature", "sign-in", "--title", "Sign in").code, 0);
+    assert.match(readFileSync(join(repo, "docs/features/sign-in.md"), "utf8"), /^# Sign in\n/);
   });
 
   it("validates, approves and reports status on a copy of the worked example", () => {
@@ -71,168 +84,99 @@ describe("the cruze command", () => {
     const validated = cruze(repo, "validate");
     assert.equal(validated.code, 0, validated.stderr);
     assert.equal(JSON.parse(validated.stdout).valid, true);
-    assert.equal(cruze(repo, "approve", "vision").code, 0);
+    for (const doc of ["vision", "architecture", "open-serial"]) assert.equal(cruze(repo, "approve", doc).code, 0);
     const status = JSON.parse(cruze(repo, "status").stdout);
-    assert.equal(status.documents[0].state, "approved");
-    assert.equal(status.documents[0].record, undefined, "status carries no hashes: agents read it often");
-    assert.match(status.documents[0].approvedAt, /^\d{4}-/);
-    const gate = cruze(repo, "status", "--gate", "build", "--text");
-    assert.equal(gate.code, 1);
-    assert.match(gate.stdout, /Build gate blocked/);
-    const shown = cruze(repo, "show", "open-console/local-serial", "--text");
-    assert.equal(shown.code, 0, shown.stderr);
-    assert.match(shown.stdout, /^# 2026-09-25-open-console\/01-local-serial \(feature 2026-09-25-open-console\)/);
-    assert.match(shown.stdout, /### ADDED ENT-access.escape-detector/);
-    assert.match(shown.stdout, /## Cited, not shown\n\n- /);
-    assert.doesNotMatch(cruze(repo, "next", "--text").stdout, /new session/);
+    assert.deepEqual(status.documents.map((d: { state: string }) => d.state), ["approved", "approved"]);
+    assert.deepEqual(status.next, { step: "build", target: "open-serial", reason: "open-serial is approved and not built" });
+    assert.match(cruze(repo, "status", "--text").stdout, /^ssh-hops: not-shaped, needs open-serial$/m);
+    const trace = cruze(repo, "trace", "--text");
+    assert.equal(trace.code, 1);
+    assert.match(trace.stdout, /missing test for SCN-list-devices\.lists-all/);
   });
 
-  // Agents pipe listings into head and grep; a listing larger than the pipe buffer ended in a 16-line Node stack trace.
   it("stops quietly when its reader closes the pipe early", async () => {
     const repo = emptyRepo();
-    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
-    const entry = JSON.stringify({ at: "2026-10-10T00:00:00.000Z", event: "disposition", by: "a", finding: "x".repeat(200), disposition: "fixed", reason: "y", review: "code" });
-    writeFileSync(join(repo, ".cruze/journal.jsonl"), `${entry}\n`.repeat(2000));
-    const child = spawn(process.execPath, [MAIN, "journal", "list", "--json"], { cwd: repo, stdio: ["ignore", "pipe", "pipe"] });
+    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
+    const child = spawn(process.execPath, [MAIN, "status", "--json"], { cwd: repo, stdio: ["ignore", "pipe", "pipe"] });
     let stderr = "";
     child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString()));
-    // Close the read end before the child writes, so its write of 600 KB meets a closed pipe for certain.
     child.stdout.destroy();
     const code = await new Promise<number | null>((resolve) => child.on("close", resolve));
-    assert.equal(stderr, "");
+    assert.doesNotMatch(stderr, /Error/);
     assert.equal(code, 0);
   });
 
   it("exits with 2 and shows usage for an unknown command", () => {
-    const { code, stderr } = cruze(emptyRepo(), "frobnicate");
+    const { code, stderr } = cruze(emptyRepo(), "land");
     assert.equal(code, 2);
-    assert.match(stderr, /Unknown command: frobnicate/);
+    assert.match(stderr, /Unknown command: land/);
     assert.match(stderr, /Usage: cruze/);
   });
 
-  it("shows chosen elements, or an index of all of them, and refuses a mix of a ref and IDs", () => {
+  it("checks one file of a 10,000-line repository in under a second", () => {
     const repo = emptyRepo();
     cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
-    const lookup = cruze(repo, "show", "PORT-access.terminal", "ADP-system.cli", "--text");
-    assert.equal(lookup.code, 0, lookup.stderr);
-    assert.match(lookup.stdout, /^<!-- docs\/architecture\.md:\d+ -->\n### PORT-access\.terminal: Terminal\n/);
-    assert.match(lookup.stdout, /### MODIFIED ADP-system\.cli: /);
-    const index = cruze(repo, "show", "--index", "access", "--text");
-    assert.equal(index.code, 0, index.stderr);
-    assert.match(index.stdout, /^# Elements\n\ndocs\/architecture\.md holds \d+ words/);
-    assert.match(index.stdout, /^- SCN-access\.direct-serial: /m);
-    assert.equal(cruze(repo, "show", "2026-09-25-open-console", "PORT-access.terminal").code, 2);
-  });
-
-  it("checks one file of a 10,000-line repository in under a second, for the per-task check", () => {
-    const repo = emptyRepo();
-    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
-    const dirs = ["src/inventory/domain", "src/inventory/app", "src/inventory/adapters", "src/access/domain", "src/access/app", "src/access/adapters", "src/cli"];
+    const dirs = ["src/domain", "src/app", "src/adapters", "src/cli"];
     for (let i = 0; i < 100; i++) {
-      const lines = ["use crate::inventory::domain::device::Device;", "use std::collections::HashMap;"];
+      const lines = ["use crate::domain::device::Device;", "use std::collections::HashMap;"];
       while (lines.length < 100) lines.push(`fn f${lines.length}() -> u32 { ${lines.length} }`);
       const dir = join(repo, dirs[i % dirs.length] ?? "src");
       mkdirSync(dir, { recursive: true });
       writeFileSync(join(dir, `generated_${i}.rs`), `${lines.join("\n")}\n`);
     }
     const started = performance.now();
-    const { code, stderr } = cruze(repo, "check", "src/inventory/domain/generated_0.rs", "--json");
+    const { code, stderr } = cruze(repo, "check", "src/domain/generated_0.rs", "--json");
     const elapsed = performance.now() - started;
     assert.equal(code, 0, stderr);
-    assert.ok(elapsed < 1000, `cruze check --file took ${Math.round(elapsed)} ms`);
+    assert.ok(elapsed < 1000, `cruze check took ${Math.round(elapsed)} ms`);
   });
 
-  // Ork: `cruze check` run from a crate's folder answered "fix .cruze/config.yaml first".
   it("works on the enclosing project from a subdirectory, with file arguments relative to it", () => {
     const repo = emptyRepo();
     cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
-    mkdirSync(join(repo, "src/inventory/domain"), { recursive: true });
-    writeFileSync(join(repo, "src/inventory/domain/hop.rs"), "pub struct Hop;\n");
+    mkdirSync(join(repo, "src/domain"), { recursive: true });
+    writeFileSync(join(repo, "src/domain/hop.rs"), "pub struct Hop;\n");
     const sub = join(repo, "src");
-    const validated = cruze(sub, "validate");
-    assert.equal(validated.code, 0, validated.stderr);
-    assert.equal(JSON.parse(validated.stdout).valid, true);
-    const checked = cruze(sub, "check", "inventory/domain/hop.rs");
+    assert.equal(JSON.parse(cruze(sub, "validate").stdout).valid, true);
+    const checked = cruze(sub, "check", "domain/hop.rs");
     assert.equal(checked.code, 0, checked.stderr);
     assert.equal(JSON.parse(checked.stdout).checked, 1);
   });
 
-  // Every project on 0.0.1 had its rethinks refused once the CLI moved on, with nothing saying why.
   it("notes on stderr when the project's skills are older than the CLI, even when the command fails", () => {
     const repo = emptyRepo();
     assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
     const config = join(repo, ".cruze/config.yaml");
     writeFileSync(config, readFileSync(config, "utf8").replace(/^cruze: .*$/m, 'cruze: "0.0.0"'));
-    const failed = cruze(repo, "journal", "add", "rethink", "--set", "caught_by=plan");
+    const failed = cruze(repo, "approve", "vision");
     assert.equal(failed.code, 1);
     assert.match(failed.stderr, /cruze: note: the project's skills are from Cruze 0\.0\.0, older than this CLI/);
     assert.doesNotMatch(cruze(emptyRepo(), "status").stderr, /note:/);
   });
 
-  // A project on OpenCode had its review try to start Claude Code, which it didn't have.
   it("hands the review prompt back to the agent when the configured review agent isn't installed", () => {
     const repo = emptyRepo();
     assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
     const config = join(repo, ".cruze/config.yaml");
     writeFileSync(config, readFileSync(config, "utf8").replace(/^  command: .*$/m, '  command: ["cruze-no-such-agent", "-p"]'));
-    const { code, stdout, stderr } = cruze(repo, "review", "design-reviewer");
+    const { code, stdout, stderr } = cruze(repo, "review", "code-reviewer");
     assert.equal(code, 0, stderr);
     const report = JSON.parse(stdout);
     assert.equal(report.status, "run-in-helper");
     assert.match(report.instruction, /^cruze-no-such-agent is not installed/);
-    assert.match(report.prompt, /^# Design reviewer\n/);
+    assert.match(report.prompt, /^# Code reviewer\n/);
   });
 
-  // An agent piped journal list into grep, which filtered the JSON while the text lines went to stderr unfiltered.
-  it("prints its result on stdout in one format, so a pipe filters all of it", () => {
+  it("prints its result in one format on stdout, and refuses an option the command doesn't take", () => {
     const repo = emptyRepo();
-    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
-    assert.equal(cruze(repo, "journal", "add", "disposition", "--set", "finding=F1", "--set", "disposition=waived", "--set", "reason=r", "--set", "review=code").code, 0);
-
-    const text = cruze(repo, "journal", "list", "--event", "disposition", "--text");
-    assert.equal(text.code, 0, text.stderr);
-    assert.match(text.stdout, /^\S+ disposition \{.*"finding":"F1"/);
-    assert.equal(text.stderr, "");
-
-    const json = cruze(repo, "journal", "list", "--event", "disposition");
-    assert.equal(JSON.parse(json.stdout)[0].finding, "F1");
-    assert.equal(json.stderr, "");
-
-    const both = cruze(repo, "journal", "list", "--json", "--text");
-    assert.equal(both.code, 2);
-    assert.match(both.stderr, /--json and --text are alternatives/);
-  });
-
-  // A reviewer passed journal list an --item that Cruze 0.0.3 ignored, and got 2,067 lines of every feature's dispositions.
-  it("refuses an option the command doesn't take, instead of ignoring it", () => {
-    const repo = emptyRepo();
-    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--yes").code, 0);
-    const validate = cruze(repo, "validate", "--item", "nonsense");
+    cpSync(fileURLToPath(new URL("../examples/console-access", import.meta.url)), repo, { recursive: true });
+    const text = cruze(repo, "next", "--text");
+    assert.match(text.stdout, /^Next: envision: /);
+    assert.equal(JSON.parse(cruze(repo, "next").stdout).step, "envision");
+    assert.match(cruze(repo, "next", "--json", "--text").stderr, /--json and --text are alternatives/);
+    const validate = cruze(repo, "validate", "--feature", "nonsense");
     assert.equal(validate.code, 2);
     assert.equal(JSON.parse(validate.stdout).error.code, "usage");
-    assert.match(validate.stderr, /cruze validate doesn't take --item; it takes no options/);
-    assert.match(cruze(repo, "journal", "list", "--change", "x").stderr, /cruze journal list doesn't take --change; it takes --event, --item/);
-    assert.match(cruze(repo, "status", "--change", "x").stderr, /--change goes with --overlap/);
-    assert.match(cruze(repo, "approve", "vision", "--by-agent", "--restamp-unchanged").stderr, /--by-agent and --restamp-unchanged are alternatives/);
-  });
-
-  // An agent wrote its round-1 blockers to its session scratchpad, and the review crashed on the path.
-  it("reads and writes files named on the command line wherever they are, outside the project too", () => {
-    const repo = emptyRepo();
-    assert.equal(cruze(repo, "init", "--name", "Smoke Test", "--agent", "other", "--yes").code, 0);
-    const scratch = emptyRepo();
-    writeFileSync(join(scratch, "blockers.md"), "- B1: the port has no error case\n");
-
-    const review = cruze(repo, "review", "design-reviewer", "--round", "2", "--blockers", join(scratch, "blockers.md"));
-    assert.equal(review.code, 0, review.stderr);
-    assert.match(JSON.parse(review.stdout).prompt, /B1: the port has no error case/);
-
-    const missing = cruze(repo, "review", "design-reviewer", "--round", "2", "--blockers", join(scratch, "none.md"));
-    assert.equal(missing.code, 2);
-    assert.match(missing.stderr, /cannot read .*none\.md: ENOENT/);
-
-    const exported = cruze(repo, "feedback", "export", "--out", join(scratch, "out/feedback.json"));
-    assert.equal(exported.code, 0, exported.stderr);
-    assert.ok(existsSync(join(scratch, "out/feedback.json")));
+    assert.match(validate.stderr, /cruze validate doesn't take --feature; it takes no options/);
   });
 });

@@ -30,7 +30,7 @@ function problemOf(line: string): string | undefined {
   }
 }
 
-// A skill written against a newer CLI passed journal list an --item it ignored, and got every entry.
+// A skill written against a newer CLI passed a command an option it ignored, and got the wrong output.
 describe("the command lines the shipped skills and templates spell out", () => {
   it("name real commands, with only the options each takes", async () => {
     const skills = (await (await PackageBundle.locate()).skills()).flatMap((skill) => skill.files.map((f) => ({ path: `skills/${skill.folder}/${f.path}`, text: f.text })));
@@ -38,15 +38,15 @@ describe("the command lines the shipped skills and templates spell out", () => {
       .filter((entry) => entry.isFile())
       .map((entry) => { const path = join(entry.parentPath, entry.name); return { path, text: readFileSync(path, "utf8") }; });
     const lines = [...skills, ...templates].flatMap((file) => commandLines(file.text).map((line) => ({ path: file.path, line })));
-    assert.ok(lines.length > 50, `found only ${lines.length} command lines`);
+    assert.ok(lines.length > 20, `found only ${lines.length} command lines`);
     const problems = lines.flatMap(({ path, line }) => { const problem = problemOf(line); return problem === undefined ? [] : [`${path}: cruze ${line}: ${problem}`]; });
     assert.deepEqual(problems, []);
   });
 
   it("are checked by a rule that refuses an option on the wrong command or subcommand", () => {
-    assert.match(problemOf("validate --item x") ?? "", /cruze validate doesn't take --item; it takes no options/);
-    assert.match(problemOf("journal list --change x") ?? "", /cruze journal list doesn't take --change; it takes --event, --item/);
-    assert.equal(problemOf("journal list --event disposition --item x --json"), undefined);
-    assert.equal(problemOf("journal <add|list>"), undefined);
+    assert.match(problemOf("validate --feature x") ?? "", /cruze validate doesn't take --feature; it takes no options/);
+    assert.match(problemOf("new feature x --base y") ?? "", /cruze new feature doesn't take --base; it takes --title/);
+    assert.equal(problemOf("review code-reviewer --feature x --base main --json"), undefined);
+    assert.match(problemOf("land") ?? "", /there is no command land/);
   });
 });

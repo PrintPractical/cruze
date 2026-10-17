@@ -9,38 +9,38 @@ Cruze skills are read by agents, not people. Write them for the agent that reads
 - A skill is a folder under `skills/` with a `SKILL.md`. It is installed as `cruze-<folder>`, and the frontmatter `name` must be exactly that. The `name` is lowercase letters, digits and single hyphens, at most 64 characters.
 - The frontmatter holds `name` and `description` as flat `key: value` lines. The description is at most 1024 characters.
 - The body of `SKILL.md` is at most 150 lines. Templates, checklists, rubrics and examples go in sibling files, each reached by a pointer line that says when to read it.
-- An instruction file holds at most 2,100 words, and the instruction files together stay within the bundle's word budget, `BUNDLE_WORD_BUDGET` in `src/domain/skill_budget.ts`. Templates and realign notes don't count: the CLI reads and renders them. See "Context budget" below.
-- Point to a sibling file with a relative Markdown link, such as `[contracts.md](contracts.md)`. Point to another Cruze skill's file by its installed path in backticks, such as `.agents/skills/cruze-formats/reference/work-items.md`, because that is where the agent finds it in a project. Every pointer must resolve, and every Markdown file in a skill must be reachable by links from its `SKILL.md`.
+- An instruction file holds at most 2,100 words, and the instruction files together stay within the bundle's word budget, `BUNDLE_WORD_BUDGET` in `src/domain/skill_budget.ts`. Templates don't count: the CLI renders them. See "Context budget" below.
+- Point to a sibling file with a relative Markdown link, such as `[contracts.md](contracts.md)`. Point to another Cruze skill's file by its installed path in backticks, such as `.agents/skills/cruze-formats/config.md`, because that is where the agent finds it in a project. Every pointer must resolve, and every Markdown file in a skill must be reachable by links from its `SKILL.md`.
 
 ## Context budget
 
-Every word a step loads is context the agent spends before it reads the project, in every project, on every run. In one project, Cruze's skills were an eighth of what its agents read; the project's own Cruze documents were three times that.
+Every word a step loads is context the agent spends before it reads the project, in every project, on every run. In 0.0.13 the skills had grown to 45,800 words, and a project's own Cruze documents to ten words for every line of code.
 
-- **Measure a change by what a run loads,** not by the bundle's size. A run loads a workflow skill, the files it names for the run's branch, and the files a role names. Moving a rubric only some reviews need into its own file cut a plan review's load by more than half, with no rule removed.
+- **Measure a change by what a run loads,** not by the bundle's size. A run loads a workflow skill, the files it names for the run's branch, and the files a role names. Moving material only some runs need into its own file cuts a run's load with no rule removed.
 - **Pay for what you add.** A change that adds text names what it replaces or makes redundant, and removes it in the same change: a rule a CLI check now enforces, a step a later rule covers, an example a better one replaces. When nothing can go, say so in the commit, and raise `BUNDLE_WORD_BUDGET` there with the reason. Lower the budget whenever a change cuts text.
 - **Duplicate only across what runs alone.** A rule repeated in files that one run loads together is waste: keep it in one and point to it. A fresh-context role reads only its role file and the inputs it lists, so the rules its report depends on, such as the findings format, stay in each role file.
 - **Keep evidence short.** One clause of evidence, such as "two projects settled 35 of them as deviations", tells the agent why a rule matters. The full story belongs in the eval case.
 
 ## Two kinds of skill
 
-- **Workflow skills** are the commands a person runs: `explore`, `envision`, `architect`, `plan`, `build`, `verify`, `land`, `triage`, `rethink`, `realign`, `improve`, `next`. The description is one plain sentence saying what the command does. Each one ends by naming the next step. The `next` skill works it out from `cruze status` when the path isn't fixed.
-- **Knowledge skills** hold standards: `hexagonal-design`, `behavioural-testing`, `grilling`, `domain-language`, `dependency-approval` and `research`. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by installed path, at the step that needs them, so nothing depends on a trigger firing. A knowledge skill opens with the procedure an agent follows when it applies the standard, then the rules, and puts material only some runs need (a language, runtime concerns, worked examples) in sibling files.
+- **Workflow skills** are the steps a person runs: `envision`, `shape`, `build`, `review` and `fix`. The description is one plain sentence saying what the step does. Each one ends by naming the next step, or `cruze next` when the path isn't fixed.
+- **Knowledge skills** hold standards: `asking`, `hexagonal-design`, `behavioural-testing`, `dependency-approval` and `research`. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by installed path, at the step that needs them, so nothing depends on a trigger firing. A knowledge skill opens with the procedure an agent follows when it applies the standard, then the rules, and puts material only some runs need (a language, runtime concerns, worked examples) in sibling files.
 
 ## Agent neutrality
 
-Skills run under Claude Code, Codex, OpenCode and others. Name the action, never an agent's tool: write "read `docs/architecture.md`", "run `cruze check --file <path>`" or "ask the user", not the name of a specific agent's read, shell or question tool. When a step needs a fresh-context reviewer or researcher, point to `.agents/skills/cruze-roles/SKILL.md`, which says how to run a role under any agent, and name the role.
+Skills run under Claude Code, Codex, OpenCode and others. Name the action, never an agent's tool: write "read `docs/architecture.md`", "run `cruze check <path>`" or "ask the user", not the name of a specific agent's read, shell or question tool. When a step needs a fresh-context reviewer or researcher, point to `.agents/skills/cruze-roles/SKILL.md`, which says how to run a role under any agent, and name the role.
 
 ## Structure
 
 - **Steps first.** Put the ordered actions the agent performs at the top. Put reference material (rules, formats, definitions) below them or in sibling files.
-- **Every step ends on a completion criterion** the agent can check: "every `SCN` in the change has a test naming it", not "the tests are adequate". Make criteria exhaustive where thoroughness matters.
+- **Every step ends on a completion criterion** the agent can check: "every scenario of the feature has a test carrying its ID", not "the tests are adequate". Make criteria exhaustive where thoroughness matters.
 - **Deterministic work goes to the CLI.** When a step needs an ID, a hash, an approval, a check or a merge, the skill runs the `cruze` command and uses its JSON output. Where the output proves the step was done, the skill has the agent quote it.
 - **Disclose by branch.** Keep inline what every run needs. Move what only some runs need (a scope, a language, an edge case) behind a pointer to a sibling file.
 - **Keep related material together.** A concept's rule, reason and exception sit under one heading.
 
 ## Wording
 
-- **State the target behaviour.** "Write one test per scenario, named with its `SCN` ID." A prohibition earns a line only as a hard guardrail, and even then it sits next to the positive target.
+- **State the target behaviour.** "Write one test per scenario, carrying its ID." A prohibition earns a line only as a hard guardrail, and even then it sits next to the positive target.
 - **Use leading words** the model already knows: *walking skeleton*, *tracer bullet*, *seam*, *port*, *adapter*, *red/green*, *blocker*. Use the same word everywhere for the same idea.
 - **Cut no-ops.** Delete any sentence that doesn't change what the agent would do by default, such as "be careful" or "write clean code".
 - **Keep one source of truth.** A rule lives in one skill or one reference file, and other skills point to it, except in role files, as "Context budget" says. Don't restate what the agent can look up in one step (`package.json` scripts, `--help`, the directory tree). Write down what can't be looked up: the reason, the convention, the gotcha.
@@ -48,11 +48,11 @@ Skills run under Claude Code, Codex, OpenCode and others. Name the action, never
 
 ## House conventions
 
-- **Materiality boundary.** The agent decides local, reversible choices on its own. It asks the user about public contracts, architecture, significant dependencies and costly commitments.
-- **Challenge, then defer.** When the user steers toward something that breaks a principle, an ADR or a knowledge skill, the agent names the rule, the concrete risk and a recommended alternative, once. The user decides. The skill records the override so it is never raised again.
+- **Ask little.** The agent decides local, reversible choices on its own and lists the ones a user might question in the document they approve. It asks the user only about behaviour they will see, public APIs, significant dependencies and costly commitments, as `skills/asking/SKILL.md` says.
+- **Challenge, then defer.** When the user steers toward something that breaks the architecture or a knowledge skill, the agent names the rule, the concrete risk and a recommended alternative, once. The user decides.
+- **Earn every step.** A new step, question, review or document costs the user time on every feature. Add one only with evidence from a real project that it catches what the user cares about.
 
 ## Testing a skill
 
-- **Load test.** Run the workflow skill on the fixture project, then run `node evals/load_check.ts skills/<folder> <transcript.jsonl> [subagent transcripts...]`. It lists every knowledge file the skill names by installed path that the run never loaded, and fails when there is one. See [evals/README.md](../../evals/README.md).
-- **Fixture run.** The skill's completion criteria hold on the fixture, and the `cruze` commands it calls leave the expected `.cruze/` state.
-- **Evals.** A change to a skill, role or template reruns the evals in `evals/` once they exist.
+- **Fixture run.** Run the workflow skill on a copy of `examples/console-access` or a fresh `cruze init` in a temporary directory. Its completion criteria hold, and `cruze validate`, `status` and `trace` report what the step should leave.
+- **Real project.** Before a release, run the changed step on a real project and measure what it cost: the user's time, the questions asked, and the words of documents per line of code.

@@ -1,133 +1,75 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { approveArtifact } from "../src/app/use_cases/approve_artifact.ts";
+import { createDocument } from "../src/app/use_cases/new_document.ts";
 import { validate } from "../src/app/use_cases/validate_project.ts";
-import { CHANGE_01_PATH, FEATURE_PATH, edit, exampleProject } from "./support/harness.ts";
+import { CruzeError } from "../src/domain/cruze_error.ts";
+import { OPEN_SERIAL, VISION, edit, exampleProject, setVersion } from "./support/harness.ts";
 
-describe("validating a project", () => {
-  it("accepts the worked example with no problems", async () => {
-    const { deps } = await exampleProject();
-    const report = await validate(deps);
-    assert.deepEqual(report.problems, []);
-    assert.equal(report.valid, true);
-  });
+const rules = async (deps: Parameters<typeof validate>[0]) => (await validate(deps)).problems.map((p) => [p.path, p.rule]);
 
-  it("expects no statuses in an architecture that has never been approved, and asks for them once it has", async () => {
+describe("validating the documents", () => {
+  it("finds no problems in the worked example", async () => {
     const h = await exampleProject();
-    const unstamped = (h.files.files.get("docs/architecture.md") ?? "").replace(/^- Status: (planned|built)\n/gm, "");
-    h.files.files.set("docs/architecture.md", unstamped);
-    assert.deepEqual((await validate(h.deps)).problems.filter((p) => p.rule === "missing-status"), []);
-    h.files.files.set(".cruze/approvals.json", JSON.stringify({ version: 1, approvals: [{ artifact: "docs/architecture.md", hash: "sha256:0", upstream: {}, approvedAt: "2026-09-24T00:00:00Z", by: "a" }], merged: {} }));
-    assert.ok((await validate(h.deps)).problems.some((p) => p.rule === "missing-status"));
+    setVersion(h.files, h.deps.bundle.version);
+    assert.deepEqual((await validate(h.deps)).problems, []);
   });
 
-  // mw-configuration-service: a module's Path missed the crate entry files, and only CI's check found it at build.
-  it("warns when a task writes a source file no module's Path covers", async () => {
+  it("reports missing sections, a missing status, and a scenario that names another feature", async () => {
     const h = await exampleProject();
-    edit(h.files, CHANGE_01_PATH, "- T11: `main` in `src/main.rs`,", "- T11: `main` in `src/main.rs`, `src/bin/serial_probe.rs`, `tests/probe.rs`,");
-    const problems = (await validate(h.deps)).problems.filter((p) => p.rule === "outside-module-map");
-    assert.deepEqual(problems.map((p) => [p.path, p.severity, p.message]), [[CHANGE_01_PATH, "warning", "T11 writes src/bin/serial_probe.rs, which no module's Path covers; add it to a module's Path or move the file"]]);
+    setVersion(h.files, h.deps.bundle.version);
+    edit(h.files, OPEN_SERIAL, "## Stack sketch", "## Sketch");
+    edit(h.files, OPEN_SERIAL, "- Status: shaped\n", "");
+    edit(h.files, OPEN_SERIAL, "SCN-open-serial.detach:", "SCN-serial.detach:");
+    assert.deepEqual(await rules(h.deps), [[OPEN_SERIAL, "missing-section"], [OPEN_SERIAL, "status"], [OPEN_SERIAL, "scenario-id"]]);
   });
 
-  // mw-configuration-service: the README had a title and sections, but never said what the project is.
-  it("warns, once the vision is approved, when the README has nothing under its title", async () => {
+  it("reports a scenario defined twice, and a heading that isn't a proper scenario", async () => {
     const h = await exampleProject();
-    const readmeWarnings = async (): Promise<string[]> => (await validate(h.deps)).problems.filter((p) => p.rule === "readme-overview").map((p) => `${p.path} ${p.severity}`);
-    h.files.files.set("README.md", "# Console Access\n\n![logo](logo.svg)\n\n## Architecture\n\nA hexagon.\n");
-    assert.deepEqual(await readmeWarnings(), []);
-    await approveArtifact(h.deps, "vision");
-    assert.deepEqual(await readmeWarnings(), ["README.md warning"]);
-    h.files.files.set("README.md", "# Console Access\n\n![logo](logo.svg)\n\n`consolectl` opens device consoles over serial and SSH hops.\n\n## Architecture\n");
-    assert.deepEqual(await readmeWarnings(), []);
+    setVersion(h.files, h.deps.bundle.version);
+    edit(h.files, OPEN_SERIAL, "### SCN-open-serial.detach: Detach with Ctrl-]", "### SCN-open-serial.attach: Detach with Ctrl-]");
+    edit(h.files, OPEN_SERIAL, "### SCN-open-serial.port-busy: Port in use", "### SCN-open-serial.port-busy Port in use");
+    const problems = (await validate(h.deps)).problems;
+    assert.deepEqual(problems.map((p) => p.rule), ["duplicate-scenario", "scenario-heading"]);
   });
 
-  // mw-configuration-service: two features of 9 changes each; their design reviews let contradictions through to plan.
-  it("warns when a feature has more changes than one design review can hold", async () => {
+  it("reports unknown needs and a circle of needs in the release", async () => {
     const h = await exampleProject();
-    const text = h.files.files.get(FEATURE_PATH) ?? "";
-    const row = "| 02-ssh-hops | SCN-access.ssh-direct, SCN-access.ssh-through-jump-host, SCN-access.second-hop-refused | ADP-access.ssh-connector, FLOW-access.hop-failure | 01-local-serial |\n";
-    const more = [3, 4, 5, 6, 7].map((n) => `| 0${n}-more-${n} | | | 01-local-serial |\n`).join("");
-    h.files.files.set(FEATURE_PATH, text.replace(row, row + more));
-    const sizes = (await validate(h.deps)).problems.filter((p) => p.rule === "feature-size");
-    assert.deepEqual(sizes.map((p) => [p.path, p.severity]), [[FEATURE_PATH, "warning"]]);
-    assert.match(sizes[0]?.message ?? "", /7 changes, over 6/);
+    setVersion(h.files, h.deps.bundle.version);
+    edit(h.files, VISION, "| list-devices | List the configured devices and how each is reached | |", "| list-devices | List the configured devices and how each is reached | run-commands, teleport |");
+    const problems = (await validate(h.deps)).problems;
+    assert.deepEqual(problems.map((p) => p.message), ["list-devices needs teleport, which isn't a feature of this release", "features need each other in a circle: list-devices → run-commands → open-serial → list-devices"]);
   });
 
-  it("warns when a change is too small to be worth its own review and verify", async () => {
+  it("warns on a document too long to read in one sitting, and on leftover template guides", async () => {
     const h = await exampleProject();
-    edit(h.files, ".cruze/config.yaml", "changes:\n  min_builds: 2\n", "");
-    const small = (await validate(h.deps)).problems.filter((p) => p.rule === "change-too-small");
-    assert.deepEqual(small.map((p) => [p.path, p.severity]), [[FEATURE_PATH, "warning"]]);
-    assert.match(small[0]?.message ?? "", /02-ssh-hops builds 2 element\(s\), under 3/);
+    setVersion(h.files, h.deps.bundle.version);
+    edit(h.files, OPEN_SERIAL, "## Decisions\n", `## Decisions\n\n${"word ".repeat(2600)}\n\n- <A choice>\n`);
+    assert.deepEqual(await rules(h.deps), [[OPEN_SERIAL, "too-long"], [OPEN_SERIAL, "template-leftover"]]);
   });
 
-  it("warns when a change, or its plan, is more than one review and one verifier run can hold", async () => {
+  it("refuses a config from an older Cruze, and warns when the skills don't match this CLI", async () => {
     const h = await exampleProject();
-    edit(h.files, ".cruze/config.yaml", "  min_builds: 2\n", "  min_builds: 2\n  max_scenarios: 4\n  max_tasks: 10\n");
-    const large = (await validate(h.deps)).problems.filter((p) => p.rule.endsWith("-too-large")).sort((a, b) => a.rule.localeCompare(b.rule));
-    assert.deepEqual(large.map((p) => [p.rule, p.path, p.severity]), [["change-too-large", FEATURE_PATH, "warning"], ["plan-too-large", CHANGE_01_PATH, "warning"]]);
-    assert.match(large[0]?.message ?? "", /01-local-serial delivers 5 scenarios, over 4/);
-    assert.match(large[1]?.message ?? "", /11 tasks, over 10/);
+    assert.deepEqual(await rules(h.deps), h.deps.bundle.version === "0.0.14" ? [] : [[".cruze/config.yaml", "cruze-version"]]);
+    setVersion(h.files, "0.0.1");
+    assert.deepEqual(await rules(h.deps), [[".cruze/config.yaml", "cruze-version"]]);
+    edit(h.files, ".cruze/config.yaml", "version: 2", "version: 1");
+    assert.match((await validate(h.deps)).problems[0]?.message ?? "", /older Cruze/);
   });
+});
 
-  // rto split every context into package targets per layer; a context can keep its core as one module.
-  it("accepts a core module that holds a context's domain and application together", async () => {
+describe("starting a document", () => {
+  it("creates a feature from its template, ready to fill in", async () => {
     const h = await exampleProject();
-    edit(h.files, "docs/architecture.md", "- Layer: domain", "- Layer: core");
-    const report = await validate(h.deps);
-    assert.ok(!report.problems.some((p) => p.rule === "fact-value"), report.problems.map((p) => p.message).join("; "));
+    const report = await createDocument(h.deps, "feature", "ssh-hops", "Consoles over SSH hops");
+    assert.equal(report.path, "docs/features/ssh-hops.md");
+    const text = h.files.files.get(report.path) ?? "";
+    assert.match(text, /^# Consoles over SSH hops\n\n- Status: shaped\n/);
+    assert.match(text, /### SCN-ssh-hops\.<name>: <Scenario title>/);
   });
 
-  it("reports a review.decide or a size limit it doesn't know", async () => {
+  it("refuses a bad slug and a document that already exists", async () => {
     const h = await exampleProject();
-    edit(h.files, ".cruze/config.yaml", "  min_builds: 2\n", "  min_builds: none\n");
-    h.files.files.set(".cruze/config.yaml", `${h.files.files.get(".cruze/config.yaml") ?? ""}review:\n  decide: sometimes\n`);
-    const messages = (await validate(h.deps)).problems.filter((p) => p.rule === "config").map((p) => p.message).sort();
-    assert.deepEqual(messages, ["changes.min_builds must be a positive whole number", "review.decide must be exceptions or all"]);
+    await assert.rejects(createDocument(h.deps, "feature", "SSH_hops"), (e: unknown) => e instanceof CruzeError && e.code === "invalid-slug");
+    await assert.rejects(createDocument(h.deps, "vision"), (e: unknown) => e instanceof CruzeError && e.code === "exists");
   });
-
-  // Each case breaks one rule of the cruze-formats skill and names the rule that must catch it.
-  const cases: Array<{ name: string; path: string; from: string; to: string; rule: string }> = [
-    { name: "a cited ID that no document defines", path: "docs/architecture.md", from: "- Uses: PORT-inventory.device-catalog\n", to: "- Uses: PORT-inventory.device-katalog\n", rule: "unknown-id" },
-    { name: "a fact value outside its allowed set", path: "docs/architecture.md", from: "- Direction: driven", to: "- Direction: sideways", rule: "fact-value" },
-    { name: "a required fact left out", path: "docs/architecture.md", from: "- Input: a device name\n- Output: the device, with its console path", to: "- Output: the device, with its console path", rule: "required-fact" },
-    { name: "an element under the wrong section", path: "docs/architecture.md", from: "## Ports\n", to: "## Portz\n", rule: "misplaced-element" },
-    { name: "a requirement without SHALL or MUST", path: "docs/specs/inventory.md", from: "The CLI SHALL list every", to: "The CLI lists every", rule: "req-keyword" },
-    { name: "a scenario with no WHEN step", path: "docs/specs/inventory.md", from: "- WHEN the user runs `consolectl list`\n- THEN the output has two lines", to: "- THEN the output has two lines", rule: "scenario-steps" },
-    { name: "a delta scenario no change covers", path: FEATURE_PATH, from: "| SCN-access.ssh-direct, SCN-access.ssh-through-jump-host, SCN-access.second-hop-refused |", to: "| SCN-access.ssh-direct, SCN-access.second-hop-refused |", rule: "uncovered" },
-    { name: "a delta element in two changes' scope", path: FEATURE_PATH, from: "| ADP-access.ssh-connector, FLOW-access.hop-failure |", to: "| ADP-access.ssh-connector, FLOW-access.hop-failure, ENT-access.escape-detector |", rule: "covered-twice" },
-    { name: "an ADDED element that already exists", path: FEATURE_PATH, from: "### ADDED ENT-access.escape-detector:", to: "### ADDED ENT-inventory.device:", rule: "delta-op" },
-    { name: "a scope element no task proves", path: CHANGE_01_PATH, from: "- T8: `SerialConnector` in `src/access/adapters/serial_connector.rs`, proves ADP-access.serial-connector\n", to: "", rule: "unproved-scope" },
-    { name: "a malformed task line", path: CHANGE_01_PATH, from: "- T1: `EscapeDetector` in", to: "- T1: EscapeDetector in", rule: "task-format" },
-    { name: "a delivered scenario without a behaviour test", path: CHANGE_01_PATH, from: "| `tests/access_open_console.rs` | behaviour |\n| SCN-access.escape-not-completed", to: "| `tests/access_open_console.rs` | smoke |\n| SCN-access.escape-not-completed", rule: "missing-behaviour-test" },
-    { name: "a built adapter whose port has no contract test", path: CHANGE_01_PATH, from: "| `tests/contract_terminal.rs` | contract |", to: "| `tests/contract_terminal.rs` | smoke |", rule: "missing-contract-test" },
-    { name: "a change scope that disagrees with the feature", path: CHANGE_01_PATH, from: "- Delivers: SCN-access.direct-serial, ", to: "- Delivers: ", rule: "scope-mismatch" },
-    { name: "a leftover template guide", path: "docs/vision.md", from: "## Non-goals\n", to: "## Non-goals\n\n- <What the product deliberately doesn't do.>\n", rule: "template-leftover" },
-    { name: "a roadmap blocking cycle", path: "docs/roadmap.md", from: "| walking-skeleton | change | GOAL-paths-in-config | |", to: "| walking-skeleton | change | GOAL-paths-in-config | open-console |", rule: "roadmap-cycle" },
-    { name: "a frontmatter ID that isn't the folder name", path: FEATURE_PATH, from: "id: 2026-09-25-open-console", to: "id: open-console", rule: "frontmatter" },
-    { name: "a module Path written as a glob", path: "docs/architecture.md", from: "- Path: `src/access/adapters/`", to: "- Path: `src/access/adapters/**`", rule: "module-path-glob" },
-    {
-      name: "a citation of a scenario that a modified requirement drops",
-      path: FEATURE_PATH,
-      from: "## Spec delta\n",
-      to: "## Spec delta\n\n### MODIFIED REQ-inventory.list-devices: List configured devices\nThe CLI SHALL list every configured device in name order, and say when none is configured instead of SCN-inventory.no-config's message.\n\n#### SCN-inventory.list-configured: Devices with different console paths\n- GIVEN the configuration defines `lab-router`\n- WHEN the user runs `consolectl list`\n- THEN the output has one line\n",
-      rule: "cites-dropped",
-    },
-    { name: "a must-stay-possible capability with no likelihood it can have", path: "docs/vision.md", from: "| possible | Lab devices", to: "| someday | Lab devices", rule: "vision-row" },
-    { name: "a principle with no reason", path: "docs/vision.md", from: "| An engineer reading the configuration must see exactly how a console is reached |", to: "| |", rule: "vision-row" },
-    { name: "a principle outside the Principles table", path: "docs/vision.md", from: "| GOAL-agent-commands |", to: "| PRINCIPLE-json-for-agents | Agents read JSON | Agents parse output |\n| GOAL-agent-commands |", rule: "vision-row" },
-    { name: "an invalid config value", path: ".cruze/config.yaml", from: "max_lines: 250", to: "max_lines: -1", rule: "config" },
-  ];
-  for (const c of cases) {
-    it(`reports ${c.name} as ${c.rule}`, async () => {
-      const { files, deps } = await exampleProject();
-      edit(files, c.path, c.from, c.to);
-      const report = await validate(deps);
-      assert.equal(report.valid, false);
-      assert.ok(
-        report.problems.some((p) => p.rule === c.rule && p.severity === "error"),
-        `expected a ${c.rule} error, got: ${report.problems.map((p) => p.rule).join(", ")}`,
-      );
-    });
-  }
 });

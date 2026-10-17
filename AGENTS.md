@@ -13,32 +13,27 @@ Instructions for coding agents working on Cruze itself. Cruze is an npm package 
 
 The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` constructs adapters.
 
-- `src/domain/`: pure rules that work on a snapshot of the project's files and return new text. Imports nothing outside `domain/` except Node's `crypto`/`path` and the `yaml` parser.
-  - `markdown.ts`, `elements.ts`, `ids.ts`, `hashing.ts`: parsing documents into elements and hashing their design content.
-  - `project/`: the living-docs model, work items and their parts, and the project view that loads them together.
-  - `validation/`: one file per group of rules from the cruze-formats skill.
-  - `approvals/`, `status/`: fingerprints, computed approval state, the build gate.
-  - `edits/`: the only code that writes managed content (status lines, progress, managed tables).
-  - `land/`: merging deltas into living docs, and the bookkeeping of a land.
+- `src/domain/`: pure rules that work on a snapshot of the project's files. Imports nothing outside `domain/` except Node's `crypto`/`path` and the `yaml` parser.
+  - `markdown.ts`, `markdown_tables.ts`, `ids.ts`, `hashing.ts`: parsing documents, scenario IDs, and hashing design content.
+  - `project/`: the document layout, feature files, the vision's Release table, and the loader that reads them together.
+  - `approvals.ts`, `next_step.ts`: approval state and the next step.
+  - `validation/`: the format rules from the cruze-formats skill.
   - `check/`, `trace.ts`: layer rules, file budgets and scenario traceability.
-  - `skill.ts`, `skill_links.ts`: the format of bundled skills, and the pointers between their files.
+  - `skill.ts`, `skill_links.ts`, `skill_budget.ts`: the format of bundled skills, the pointers between their files, and their word budget.
 - `src/app/ports/`: capabilities the use cases need, named by capability (`ProjectFiles`, `Bundle`, `Prompter`, `Clock`, `Repository`, `AgentRunner`).
-- `src/app/project_context.ts`: loads the project view and appends journal entries for the use cases.
+- `src/app/project_context.ts`: loads the project's documents for the use cases.
 - `src/app/use_cases/`: one file per use case.
 - `src/adapters/inbound/cli/`: argument parsing, the command table in `commands.ts`, handlers grouped in `commands/`, output.
-- `src/adapters/outbound/`: Node filesystem, the package bundle reader, the terminal prompter.
+- `src/adapters/outbound/`: Node filesystem, git, the package bundle reader, the terminal prompter, the review agent runner.
 - `src/main.ts`: composition root. `bin/cruze.mjs` is the `cruze` bin: it runs `dist/main.js`, building it first when missing.
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
-- `skills/formats/`: the contract for every project document (IDs, elements, deltas, scope rules), with templates. Skills and the CLI both read it, so change a format there and nowhere else.
-- `skills/hexagonal-design/`, `behavioural-testing/`, `grilling/`, `domain-language/`, `dependency-approval/`, `research/`: knowledge skills, the standards that workflow skills load by installed path.
-- `skills/explore/`, `envision/`, `architect/`, `roadmap/`, `plan/`, `build/`, `verify/`, `land/`, `triage/`, `rethink/`, `realign/`, `improve/`, `next/`: workflow skills, the commands a person runs. Each ends by naming the next step.
-- `skills/realign/notes/<version>.md`: what each release expects of existing projects, which `cruze realign` reads.
-- `skills/roles/`: prompts for fresh-context roles (design reviewer, code reviewer, verifier, researcher, auditor, surveyor), and the review procedure every workflow skill shares. `cruze review` runs them when the agent has no helper.
+- `skills/formats/`: the contract for every project document, with templates. Skills and the CLI both read it, so change a format there and nowhere else.
+- `skills/envision/`, `shape/`, `build/`, `review/`, `fix/`: workflow skills, the steps a person runs. Each ends by naming the next step.
+- `skills/asking/`, `hexagonal-design/`, `behavioural-testing/`, `dependency-approval/`, `research/`: knowledge skills, the standards that workflow skills load by installed path.
+- `skills/roles/`: prompts for the fresh-context code reviewer and researcher. `cruze review` runs them when the agent has no helper.
 - `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
-- `templates/`: files the CLI renders into projects, with `{{placeholders}}`.
-- `evals/`: checks of skills against real agent runs: the load check (`evals/README.md`), and eval cases from retros (`evals/cases/`). Not shipped.
-- `.agents/skills/cruze-retro/`: the maintainer skill that turns `cruze feedback export` bundles into proposed changes. It lives in this repository only, linked into `.claude/skills/`, and is not shipped.
-- `test/`: behaviour tests through the use cases, run against in-memory copies of `examples/console-access` (`test/support/harness.ts`), with fakes in `test/fakes/`; a lint of the shipped bundle, including every pointer between skill files; tests of the eval tools; and a CLI smoke test.
+- `templates/`: files `cruze init` renders into projects, with `{{placeholders}}`.
+- `test/`: behaviour tests through the use cases, run against in-memory copies of `examples/console-access` (`test/support/harness.ts`), with fakes in `test/fakes/`; a lint of the shipped bundle, including every pointer between skill files; and a CLI smoke test.
 
 ## Conventions
 
@@ -53,11 +48,11 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 
 ## Known pitfalls
 
-- Anything the CLI writes inside a managed block or a `- Status:` line must stay out of every hash, or routine bookkeeping will make designs look edited. When adding a CLI write, add a test that approvals stay current across it.
-
+- A feature's `- Status:` line must stay out of its hash, or marking a feature built will make its approved design look edited. When adding a CLI write to a document, add a test that its approval stays current across it.
 - Claude Code does not read `.agents/skills/`. It only finds Cruze skills through the links `cruze install` creates in `.claude/skills/`.
-- A change that adds a rule reporting on existing code lists it in `RULE_SINCE` (`src/domain/versions/rule_versions.ts`) with the coming version, and adds a note to `skills/realign/notes/<coming version>.md`. Any user-visible change gets a note too, even if only `Applies to: new work only`. `test/bundle.test.ts` enforces both.
+- Never run `cruze init` or `cruze install` with this repository as the working directory: install replaces every `cruze-*` skill it finds. Try them in a temporary directory.
 - Bumping the version in `package.json` also bumps `cruze:` in `examples/console-access/.cruze/config.yaml`, or the fixture reports a `cruze-version` warning and the tests fail.
 - A new CLI option goes in `parse_command.ts` and in the `options` of each command that takes it in `commands.ts`, or the CLI refuses it. `test/command_lines.test.ts` checks every command line the skills and templates spell out against those lists.
 - `npx <path-to-tarball>` fails. Use `npx --package=<tarball> cruze ...` to try a packed build.
 - The build is `scripts/build.mjs`: Node's type stripper over `src/`, with no dependencies. Don't add install scripts (`prepare`, `postinstall`). npm skips them for global installs, and a git install relies on `bin/cruze.mjs` building `dist/` on first run instead.
+- Every step, question and document an agent must read costs the user time. A change that adds one needs evidence from a real project that it catches what the user cares about.

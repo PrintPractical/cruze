@@ -2,13 +2,10 @@ import { parse as parseYaml } from "yaml";
 
 /** `.cruze/config.yaml`, as described in the cruze-formats skill. */
 export interface CruzeConfig {
-  version: 1;
+  version: 2;
   /** The Cruze version whose skills the project installed, recorded by `cruze install`. */
   cruze?: string;
-  /** The Cruze version whose expectations the code meets, moved forward by `realign`. */
-  standards?: string;
   project: string;
-  tracker: "markdown";
   source: string[];
   tests: string[];
   check: {
@@ -17,34 +14,12 @@ export interface CruzeConfig {
     exceptions: Array<{ path: string; reason: string }>;
   };
   layers: Layer[];
-  /** Named project commands, such as `test: cargo test`, shown in AGENTS.md. */
-  commands: Record<string, string>;
   /**
    * How `cruze review` starts an agent in a fresh context: the program and its arguments.
    * Without one, the calling agent runs the role's prompt in a helper of its own.
    */
-  review: { command?: string[]; decide: ReviewDecide };
-  /** The size band of a change, so each one is worth its own plan, review and verify. */
-  changes: ChangeLimits;
-  /** External documents the design must comply with, such as a protocol specification, each with what it governs. */
-  references: Array<{ path: string; use: string }>;
+  review: { command?: string[] };
 }
-
-/** Which review findings the user decides: only the exceptions, or every one. */
-export type ReviewDecide = "exceptions" | "all";
-
-export interface ChangeLimits {
-  /** A feature's change building fewer elements than this merges into a neighbour. */
-  minBuilds: number;
-  /** A change delivering more scenarios than this splits. */
-  maxScenarios: number;
-  /** A plan with more tasks than this splits. */
-  maxTasks: number;
-  /** Features and changes the user accepted outside the band, by ref, each with the reason. */
-  exceptions: Array<{ item: string; reason: string }>;
-}
-
-export const DEFAULT_CHANGE_LIMITS: ChangeLimits = { minBuilds: 3, maxScenarios: 30, maxTasks: 25, exceptions: [] };
 
 export interface Layer {
   name: string;
@@ -62,17 +37,14 @@ export function parseConfig(text: string): ConfigResult {
   } catch (error) {
     return { config: null, problems: [`not valid YAML: ${error instanceof Error ? error.message : String(error)}`] };
   }
-  const problems: string[] = [];
   const root = asRecord(raw);
   if (root === null) return { config: null, problems: ["the file must be a YAML mapping"] };
-
-  if (root["version"] !== 1) problems.push("version must be 1");
+  if (root["version"] === 1) return { config: null, problems: ["this config was created by an older Cruze, whose documents this release doesn't read; start the project's Cruze documents again with cruze init in a fresh checkout"] };
+  const problems: string[] = [];
+  if (root["version"] !== 2) problems.push("version must be 2");
   const cruze = root["cruze"];
-  if (cruze !== undefined && (typeof cruze !== "string" || cruze.trim() === "")) problems.push("cruze must be a version string, such as \"0.0.2\"");
-  const standards = root["standards"];
-  if (standards !== undefined && (typeof standards !== "string" || standards.trim() === "")) problems.push("standards must be a version string, such as \"0.0.2\"");
+  if (cruze !== undefined && (typeof cruze !== "string" || cruze.trim() === "")) problems.push("cruze must be a version string, such as \"0.0.14\"");
   if (typeof root["project"] !== "string" || root["project"] === "") problems.push("project must be a non-empty string");
-  if (root["tracker"] !== "markdown") problems.push("tracker must be markdown");
   const source = stringList(root["source"], "source", problems);
   const tests = stringList(root["tests"], "tests", problems);
 
@@ -104,69 +76,21 @@ export function parseConfig(text: string): ConfigResult {
     }
   }
 
-  const commands: Record<string, string> = {};
-  const rawCommands = root["commands"];
-  if (rawCommands !== undefined && rawCommands !== null) {
-    const record = asRecord(rawCommands);
-    if (record === null) problems.push("commands must be a mapping of names to commands");
-    for (const [name, command] of Object.entries(record ?? {})) {
-      if (typeof command === "string" && command.trim() !== "") commands[name] = command;
-      else problems.push(`commands.${name} must be a command string`);
-    }
-  }
   const review = asRecord(root["review"]) ?? {};
   const reviewCommand = review["command"] === undefined ? undefined : stringList(review["command"], "review.command", problems);
   if (reviewCommand?.length === 0) problems.push("review.command needs at least the program to run");
-  const decide = review["decide"] ?? "exceptions";
-  if (decide !== "exceptions" && decide !== "all") problems.push("review.decide must be exceptions or all");
-  const limits = asRecord(root["changes"]) ?? {};
-  const changes: ChangeLimits = {
-    minBuilds: positiveInt(limits["min_builds"], "changes.min_builds", problems) ?? DEFAULT_CHANGE_LIMITS.minBuilds,
-    maxScenarios: positiveInt(limits["max_scenarios"], "changes.max_scenarios", problems) ?? DEFAULT_CHANGE_LIMITS.maxScenarios,
-    maxTasks: positiveInt(limits["max_tasks"], "changes.max_tasks", problems) ?? DEFAULT_CHANGE_LIMITS.maxTasks,
-    exceptions: (Array.isArray(limits["exceptions"]) ? limits["exceptions"] : []).flatMap((entry: unknown, i: number) => {
-      const record = asRecord(entry);
-      if (typeof record?.["item"] !== "string" || typeof record["reason"] !== "string" || record["reason"].trim() === "") {
-        problems.push(`changes.exceptions[${i}] needs an item and a non-empty reason`);
-        return [];
-      }
-      return [{ item: record["item"], reason: record["reason"] }];
-    }),
-  };
-
-  const references = (Array.isArray(root["references"]) ? root["references"] : root["references"] === undefined ? [] : [null]).flatMap((entry: unknown, i: number) => {
-    const record = asRecord(entry);
-    if (typeof record?.["path"] !== "string" || record["path"].trim() === "" || typeof record["use"] !== "string" || record["use"].trim() === "") {
-      problems.push(`references[${i}] needs a path and a non-empty use`);
-      return [];
-    }
-    return [{ path: record["path"], use: record["use"] }];
-  });
 
   const config: CruzeConfig = {
-    version: 1,
+    version: 2,
     ...(typeof cruze === "string" && cruze.trim() !== "" ? { cruze } : {}),
-    ...(typeof standards === "string" && standards.trim() !== "" ? { standards } : {}),
     project: typeof root["project"] === "string" ? root["project"] : "",
-    tracker: "markdown",
     source,
     tests,
-    check: { maxLines: maxLines ?? 250, maxTypes: maxTypes ?? 5, exceptions },
+    check: { maxLines: maxLines ?? 600, maxTypes: maxTypes ?? 12, exceptions },
     layers,
-    commands,
-    review: {
-      ...(reviewCommand === undefined || reviewCommand.length === 0 ? {} : { command: reviewCommand }),
-      decide: decide === "all" ? "all" : "exceptions",
-    },
-    changes,
-    references,
+    review: reviewCommand === undefined || reviewCommand.length === 0 ? {} : { command: reviewCommand },
   };
   return { config, problems };
-}
-
-/** The first layer whose paths match the file, as the formats define. */
-export function layerOf(config: CruzeConfig, path: string, matches: (path: string, globs: string[]) => boolean): Layer | undefined {
-  return config.layers.find((layer) => matches(path, layer.paths));
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {

@@ -13,7 +13,6 @@ export const INIT_SCAFFOLD: readonly ScaffoldEntry[] = [
   { path: "AGENTS.md", template: "init/AGENTS.md" },
   { path: ".cruze/config.yaml", template: "init/config.yaml" },
   { path: ".github/workflows/ci.yml", template: "init/ci.yml" },
-  { path: ".gitattributes", template: "init/gitattributes" },
 ];
 
 /**

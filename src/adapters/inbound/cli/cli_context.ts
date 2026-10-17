@@ -34,36 +34,9 @@ export interface Options {
   text: boolean;
   title?: string;
   feature?: string;
-  roadmap?: string;
-  change?: string;
-  commit?: string;
-  summary?: string;
-  goals?: string;
-  reason?: string;
-  set: string[];
-  item?: string;
-  event?: string;
-  out?: string;
-  redact: boolean;
-  all: boolean;
-  file: string[];
   ci: boolean;
-  gate?: string;
-  override?: string;
-  overlap: boolean;
-  full: boolean;
-  replan: string[];
-  rebase: string[];
-  byAgent: boolean;
-  restampUnchanged: boolean;
-  index: boolean;
-  notes: boolean;
-  kind?: string;
-  about?: string;
-  round?: string;
   package?: string;
   base?: string;
-  blockers?: string;
 }
 
 export type Handler = (context: CliContext, args: string[], options: Options) => Promise<CommandResult>;

@@ -1,6 +1,6 @@
 ---
 name: cruze-dependency-approval
-description: The rule for adding dependencies to a Cruze project, covering which need the user's approval, how to ask, and where each is recorded. Use when a design or plan would add a library, package, crate, framework, tool or vendored code; before editing a dependency manifest; when build needs something the design didn't name; and when reviewing a diff that changes dependency declarations.
+description: The rule for adding dependencies to a Cruze project, covering which need the user's approval, how to ask, and where each is recorded. Use when a design would add a library, package, crate, framework, tool or vendored code; before editing a dependency manifest; when build needs something the design didn't name; and when reviewing a diff that changes dependency declarations.
 ---
 
 # Dependency approval
@@ -24,8 +24,8 @@ None of these needs approval or a record beyond the manifest: a feature of a pac
 
 For a significant dependency:
 
-1. Establish the need: the capability, and the design with it and without it, as short code sketches following `.agents/skills/cruze-grilling/illustrating.md`.
-2. Choose a recommendation, following `.agents/skills/cruze-research/SKILL.md`, which also says where versions come from. Say which module owns it, and the port that keeps it out of the core when it is infrastructure.
+1. Establish the need: the capability, and the design with it and without it, as short code sketches following `.agents/skills/cruze-asking/SKILL.md`.
+2. Choose a recommendation, following `.agents/skills/cruze-research/SKILL.md`, which also says where versions come from. Say which adapter owns it, and the port that keeps it out of the core when it is infrastructure.
 3. Name the realistic alternatives, including writing it yourself and what owning that code would cost. Never offer a hand-written alternative for cryptography, TLS or a security protocol.
 4. Ask, then wait. Nothing is declared, installed or written against it until the user answers.
 
@@ -33,12 +33,12 @@ For a significant dependency:
 **Dependency: `russh` for SSH hops** (significant: security protocol)
 - Why not std or existing: the standard library has no SSH client, and no dependency the project uses provides one.
 - Checked: <version from the registry> (released <date>), Apache-2.0, <release cadence>, pure Rust, <n> transitive crates.
-- Sits in: ADP-access.ssh-connector, behind PORT-access.hop-connector.
+- Sits in: the SSH transport adapter, behind the console transport port.
 - Alternatives: `ssh2` binds libssh2 (C, needs OpenSSL on macOS); shelling out to `ssh` loses error detail.
 Recommended: adopt `russh`. Approve?
 ```
 
-The user approves by naming the dependency ("use serde"), or by approving a design whose `## Adopt or build` table or `Adopts` fact names it.
+The user approves by naming the dependency ("use serde"), or by approving an architecture whose Technology table names it.
 
 ## Weighing
 
@@ -49,15 +49,10 @@ The user approves by naming the dependency ("use serde"), or by approving a desi
 
 ## Recording
 
-- A feature or standalone change records each new package as a row in `## Adopt or build`: the component, `adopt`, the package, and the reason. The adapter that uses it carries an `Adopts` fact in the architecture delta.
-- At project scope, the adapter's `Adopts` fact in `docs/architecture.md` records it, and a dependency no adapter owns, such as a test framework or a build tool, goes in the foundation change's `## Adopt or build`. A significant choice that is hard to reverse also gets an ADR.
-- A `build` row records a choice to hand-write commodity functionality, with the concrete reason for owning the code.
-- When build needs a package the design didn't name, and it isn't significant, adopt it and record a deviation naming the package and its purpose. When it is significant, stop the task and ask as above. The answer is a detail, as `.agents/skills/cruze-rethink/levels.md` says, unless the package needs a new element or port operation. A refusal keeps the decision open: don't add the package provisionally, and don't hand-write a replacement unless the user chooses that.
+- The architecture's `## Technology` table records each significant dependency and each framework, with why. An ordinary library needs no record beyond the manifest.
+- Hand-writing commodity functionality is recorded in the feature's `## Decisions`, with the concrete reason for owning the code.
+- When build needs a significant package the architecture doesn't name, stop and ask as above. A refusal keeps the decision open: don't add the package provisionally, and don't hand-write a replacement unless the user chooses that.
 
 ## Checking
 
-Before a change is verified, compare the diff of every place dependencies are declared with the records in the feature, the change, its deviations and the architecture: manifests such as `Cargo.toml` or `package.json`, CMake `FetchContent` and `find_package` calls, `.gitmodules`, and third-party code copied into the tree.
-
-- A significant package without the user's approval is a blocker, even when the build passes. Any other new package without a row, fact or deviation is a finding.
-- Features, declarations of a package the project already uses, and lockfile churn need no record.
-- Done when you can list each new package next to its record.
+When reviewing a diff, compare every place dependencies are declared, such as `Cargo.toml` or `package.json`, CMake `FetchContent`, `.gitmodules` and copied third-party code, with the architecture's Technology table. A significant package without the user's approval is a blocker, even when the build passes.

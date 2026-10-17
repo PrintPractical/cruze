@@ -10,7 +10,7 @@ import { ProcessAgentRunner } from "./adapters/outbound/process_agent_runner.ts"
 import { SystemClock } from "./adapters/outbound/system_clock.ts";
 import { DefaultAnswerPrompter, TerminalPrompter } from "./adapters/outbound/terminal_prompter.ts";
 
-// A reader that stops early, such as `cruze journal list | head`, closes the pipe; that is not an error worth a stack trace.
+// A reader that stops early, such as `cruze status --text | head`, closes the pipe; that is not an error worth a stack trace.
 process.stdout.on("error", (error: NodeJS.ErrnoException) => {
   if (error.code === "EPIPE") process.exit(0);
   throw error;

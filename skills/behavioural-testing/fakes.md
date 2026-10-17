@@ -4,7 +4,7 @@ A fake is a real, working implementation of a driven port that keeps its state i
 
 ## Writing a fake
 
-1. Read the port's `Operations`, with `cruze show <PORT ID>`. The fake implements every operation with the guarantees and failures listed there, and nothing more. That includes every way the real adapter ends on its own, such as a session closed when its stream ends or its server shuts down.
+1. Read the port's operations in `docs/architecture.md`. The fake implements every operation with the guarantees and failures listed there, and nothing more. That includes every way the real adapter ends on its own, such as a session closed when its stream ends or its server shuts down.
 2. Keep state in plain in-memory structures: a map for a catalog, a list for recorded effects, a settable value for a clock.
 3. Give tests a way to arrange state and to inject each failure the contract lists. Use a constructor that takes the initial state, and a method such as `fail_next_with(HopError::Refused)`. When a use case writes through the port, also let a test stall an operation, and fail one that writes several things partway through, so each partial failure and cancellation can be tested from every state it can leave.
 4. Record effects the contract makes observable, such as the order hops were closed in, so tests can assert them.
@@ -21,7 +21,7 @@ A contract test states the port's contract once and runs it against every implem
 3. Run the suite against the fake in the ordinary test run.
 4. Run it against each real adapter too. When the real adapter needs something external, such as an SSH server, a serial device or a database, use a local stand-in (a test server, a pseudo-terminal, a container), and mark the run so CI can provide it.
 
-When the contract changes, the port's `Operations` change first through a delta, then the contract suite, then the fake and the adapters.
+When the contract changes, the port's operations in `docs/architecture.md` change first, then the contract suite, then the fake and the adapters.
 
 ## What a fake is not
 

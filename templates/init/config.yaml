@@ -1,33 +1,24 @@
 # Cruze project configuration, created by cruze {{cruze_version}}.
-# The format is described in .agents/skills/cruze-formats/reference/config.md.
-version: 1
+# The format is described in .agents/skills/cruze-formats/config.md.
+version: 2
 # The Cruze whose skills this project installed. `cruze install` keeps it current.
 cruze: "{{cruze_version}}"
-# The Cruze whose expectations the code meets. `realign` moves it forward.
-standards: "{{cruze_version}}"
 project: {{project_name_quoted}}
 
-# Where work items are tracked. V1 supports markdown in the repository only.
-tracker: markdown
-
-# Source files `cruze check` inspects, and files `cruze trace` searches for
-# scenario IDs. Project-scope architecture design sets these.
+# Source files `cruze check` inspects, and test files `cruze trace` searches
+# for scenario IDs. The foundation feature sets these.
 source: []
 tests: []
 
-# Budgets enforced by `cruze check`: a backstop against a file that has
-# outgrown one responsibility, not a size to design to. List a file under
-# exceptions, with a reason, to allow it past a budget.
+# Budgets `cruze check` warns on: a backstop against a file that has outgrown
+# one responsibility, not a size to design to. List a file under exceptions,
+# with a reason, to allow it past a budget.
 check:
   max_lines: 600
   max_types: 12
   exceptions: []
 
-# Layer rules, written by project-scope architecture design from the module map.
+# Layer rules from docs/architecture.md: which layer may import which.
 layers: []
-
-# The project's commands, by name, such as `test: cargo test`. The
-# foundation change fills them in; `cruze land` copies them into AGENTS.md.
-commands: {}
 
 {{review_setting}}

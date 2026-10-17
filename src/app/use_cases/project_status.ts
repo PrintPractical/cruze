@@ -1,82 +1,58 @@
-import { CruzeError } from "../../domain/cruze_error.ts";
+import { approvalState, type ApprovalState } from "../../domain/approvals.ts";
 import { PATHS } from "../../domain/project/layout.ts";
-import { readProgress } from "../../domain/project/progress.ts";
-import { buildProjectView } from "../../domain/project/project_view.ts";
-import { findWorkItem, type WorkItem } from "../../domain/project/work_items.ts";
-import { nextSteps, type NextReport } from "../../domain/status/next_step.ts";
-import { activeChange, buildGateReasons, projectStatus, touchedIds, type ProjectStatus } from "../../domain/status/work_status.ts";
-import { appendJournal, loadView, type ProjectDeps } from "../project_context.ts";
+import type { MarkdownDoc } from "../../domain/markdown.ts";
+import { nextStep, type NextStep } from "../../domain/next_step.ts";
+import type { FeatureStatus } from "../../domain/project/features.ts";
+import { loadDocs, type ProjectDeps } from "../project_context.ts";
 
-export interface StatusReport extends ProjectStatus {
-  branch: string | null;
+export interface DocumentStatus {
+  path: string;
+  state: ApprovalState | "missing";
 }
 
+export interface FeatureReport {
+  slug: string;
+  path?: string;
+  /** Missing when the release lists it but nobody has shaped it yet. */
+  status: FeatureStatus | "not-shaped" | "unknown";
+  approval: ApprovalState | "missing";
+  inRelease: boolean;
+  needs: string[];
+  scenarios: number;
+}
+
+export interface StatusReport {
+  documents: DocumentStatus[];
+  features: FeatureReport[];
+  next: NextStep;
+}
+
+/** Each document's approval, and each feature's progress, in release order. */
 export async function showStatus(deps: ProjectDeps): Promise<StatusReport> {
-  const branch = await deps.repository.currentBranch();
-  return { branch, ...projectStatus(await loadView(deps.files), branch) };
+  const docs = await loadDocs(deps.files);
+  const state = (path: string, doc: MarkdownDoc | undefined): ApprovalState | "missing" => (doc === undefined ? "missing" : approvalState(docs.approvals, path, doc));
+  const documents = [
+    { path: PATHS.vision, state: state(PATHS.vision, docs.vision) },
+    { path: PATHS.architecture, state: state(PATHS.architecture, docs.architecture) },
+  ];
+  const slugs = [...docs.release.map((r) => r.slug), ...docs.features.map((f) => f.slug).filter((s) => !docs.release.some((r) => r.slug === s))];
+  const features = slugs.map((slug): FeatureReport => {
+    const feature = docs.features.find((f) => f.slug === slug);
+    const row = docs.release.find((r) => r.slug === slug);
+    return {
+      slug,
+      ...(feature === undefined ? {} : { path: feature.path }),
+      status: feature === undefined ? "not-shaped" : (feature.status ?? "unknown"),
+      approval: feature === undefined ? "missing" : approvalState(docs.approvals, feature.path, feature.doc),
+      inRelease: row !== undefined,
+      needs: row?.needs ?? [],
+      scenarios: feature?.scenarios.length ?? 0,
+    };
+  });
+  return { documents, features, next: nextStep(docs) };
 }
 
-/** The step to run next on this branch, and other work that could proceed. */
-export async function suggestNext(deps: ProjectDeps): Promise<NextReport & { branch: string | null }> {
-  const branch = await deps.repository.currentBranch();
-  return { branch, ...nextSteps(await loadView(deps.files), branch) };
-}
-
-export interface GateReport {
-  gate: "build";
-  passed: boolean;
-  reasons: string[];
-  overridden: boolean;
-}
-
-/**
- * The build gate: the change bound to this branch, its feature and the architecture are
- * all approved and current. An override passes the gate and is journaled with its reason.
- */
-export async function checkBuildGate(deps: ProjectDeps, override?: string): Promise<GateReport> {
-  const view = await loadView(deps.files);
-  const branch = await deps.repository.currentBranch();
-  const reasons = buildGateReasons(view, branch);
-  if (reasons.length === 0) return { gate: "build", passed: true, reasons, overridden: false };
-  if (override === undefined) return { gate: "build", passed: false, reasons, overridden: false };
-  if (override.trim() === "") throw new CruzeError("override-reason", "an override needs a reason");
-  const folder = activeChange(view, branch)?.folder ?? ".cruze";
-  await appendJournal(deps, folder, "override", { gate: "build", reason: override, blocked_by: reasons });
-  return { gate: "build", passed: true, reasons, overridden: true };
-}
-
-export interface Overlap {
-  branch: string;
-  item: string;
-  shared: string[];
-}
-
-/** In-flight work on other branches that touches the same elements as this branch's change. */
-export async function findOverlaps(deps: ProjectDeps, ref?: string): Promise<{ change: string; overlaps: Overlap[] }> {
-  const view = await loadView(deps.files);
-  const branch = await deps.repository.currentBranch();
-  const change = ref === undefined ? activeChange(view, branch) : view.items.find((item) => item.ref === ref);
-  if (change === undefined) throw new CruzeError("no-active-change", "no change is bound to this branch; name one with --change");
-  const mine = touchedIds(view, change);
-  const overlaps: Overlap[] = [];
-  for (const other of await deps.repository.otherBranches()) {
-    // Landed work is archived, so a branch's work in flight is under features/ and changes/ only.
-    const inFlight = [...(await deps.repository.filesOnBranch(other, PATHS.featuresDir)), ...(await deps.repository.filesOnBranch(other, PATHS.changesDir))];
-    const theirs = buildProjectView(new Map([...view.snapshot].filter(([p]) => p.startsWith("docs/")).concat(inFlight)));
-    // Work in flight on a branch is the change bound to it that hasn't landed, there or here.
-    const boundThere = theirs.items.filter((i) => {
-      const bound = readProgress(i.doc).branch;
-      const here = findWorkItem(view.items, i.ref);
-      return !landed(i) && (here === undefined || !landed(here)) && i.ref !== change.ref && bound !== undefined && (other === bound || other.endsWith(`/${bound}`));
-    });
-    for (const item of boundThere) {
-      const shared = [...touchedIds(theirs, item)].filter((id) => mine.has(id));
-      if (shared.length > 0) overlaps.push({ branch: other, item: item.ref, shared: shared.sort() });
-    }
-  }
-  return { change: change.ref, overlaps };
-}
-
-function landed(item: WorkItem): boolean {
-  return item.archived || readProgress(item.doc).landed !== undefined;
+/** The step to run next, and why. */
+export async function suggestNext(deps: ProjectDeps): Promise<NextStep> {
+  return nextStep(await loadDocs(deps.files));
 }

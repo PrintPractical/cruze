@@ -1,36 +1,29 @@
-import type { ProjectView } from "../project/project_view.ts";
-import { futureProblems } from "./future_rules.ts";
-import { livingProblems } from "./living_rules.ts";
+import { PATHS } from "../project/layout.ts";
+import type { ProjectDocs } from "../project/project_docs.ts";
+import { documentProblems } from "./document_rules.ts";
 import { error, sortProblems, type Problem } from "./problem.ts";
-import { configProblems, readmeProblems, roadmapProblems, templateLeftovers } from "./project_rules.ts";
-import { visionProblems } from "./vision_rules.ts";
-import { workItemProblems } from "./work_item_rules.ts";
+import { releaseProblems } from "./release_rules.ts";
 
 /** Every rule in the cruze-formats skill, applied to the whole project. */
-export function validateProject(view: ProjectView): Problem[] {
-  const approvalProblems = [...view.approvalProblems].map(([path, message]) => error(path, undefined, "approvals-file", message));
-  const journalProblems = [...view.journalProblems].flatMap(([path, lines]) =>
-    lines.map((line) => error(path, line - 1, "journal-line", "this journal line is not a valid entry")),
-  );
-  return sortProblems([
-    ...configProblems(view),
-    ...livingProblems(view),
-    ...visionProblems(view),
-    ...futureProblems(view),
-    ...roadmapProblems(view),
-    ...workItemProblems(view),
-    ...templateLeftovers(view),
-    ...readmeProblems(view),
-    ...approvalProblems,
-    ...journalProblems,
-  ]);
-}
-
-/** Problems that concern one document. */
-export function problemsFor(problems: Problem[], path: string): Problem[] {
-  return problems.filter((problem) => problem.path === path);
+export function validateProject(docs: ProjectDocs): Problem[] {
+  const config = docs.config === undefined
+    ? [error(PATHS.config, undefined, "config", "the project has no config; run cruze init")]
+    : docs.config.problems.map((message) => error(PATHS.config, undefined, "config", message));
+  const approvals = approvalsFileProblems(docs.snapshot.get(PATHS.approvals));
+  return sortProblems([...config, ...approvals, ...documentProblems(docs), ...releaseProblems(docs)]);
 }
 
 export function hasErrors(problems: Problem[]): boolean {
   return problems.some((problem) => problem.severity === "error");
+}
+
+function approvalsFileProblems(text: string | undefined): Problem[] {
+  if (text === undefined) return [];
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (!Array.isArray((parsed as { approvals?: unknown }).approvals)) return [error(PATHS.approvals, undefined, "approvals-file", "needs an approvals list; only cruze approve writes this file")];
+    return [];
+  } catch {
+    return [error(PATHS.approvals, undefined, "approvals-file", "not valid JSON; only cruze approve writes this file")];
+  }
 }

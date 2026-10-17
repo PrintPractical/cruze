@@ -1,9 +1,8 @@
-import { approveArtifact } from "../../../../app/use_cases/approve_artifact.ts";
-import { PROJECT_DOC_KINDS, createNote, createProjectDoc, type ProjectDocKind } from "../../../../app/use_cases/new_project_doc.ts";
-import { createWorkItem, type NewKind } from "../../../../app/use_cases/new_work_item.ts";
+import { approveDocument } from "../../../../app/use_cases/approve_document.ts";
+import { DOCUMENT_KINDS, createDocument, type DocumentKind } from "../../../../app/use_cases/new_document.ts";
 import { validate } from "../../../../app/use_cases/validate_project.ts";
 import type { Problem } from "../../../../domain/validation/problem.ts";
-import { UsageError, requireArgs, requireOption, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
+import { UsageError, requireArgs, type CliContext, type CommandResult, type Options } from "../cli_context.ts";
 
 export async function runValidate(context: CliContext): Promise<CommandResult> {
   const report = await validate(context);
@@ -11,44 +10,19 @@ export async function runValidate(context: CliContext): Promise<CommandResult> {
   return { json: report, human: [...report.problems.map(formatProblem), summary].join("\n"), failed: !report.valid };
 }
 
-export async function runApprove(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
+export async function runApprove(context: CliContext, args: string[]): Promise<CommandResult> {
   requireArgs(args, ["document"]);
-  if (options.byAgent && options.restampUnchanged) throw new UsageError("--by-agent and --restamp-unchanged are alternatives");
-  const agent = options.byAgent ? "plan-review" : options.restampUnchanged ? "rethink" : undefined;
-  const report = await approveArtifact(context, args[0] ?? "", { replan: options.replan, rebase: options.rebase, ...(agent === undefined ? {} : { agent }) });
-  const lines = [`Approved ${report.artifact} (${report.hash.slice(0, 19)}), pinned to ${report.upstream.length} upstream element(s).`];
-  if (report.basis === "plan-review") lines.push("Approved for the user: its plan review closed with no blocker open.");
-  if (report.restamped !== undefined) lines.push(`Re-stamped for the user: its own design is unchanged, and only ${report.restamped.join(", ")} changed.`);
-  if (report.stamped.length > 0) lines.push(`Marked ${report.stamped.length} element(s) planned.`);
-  if (report.bound !== undefined) lines.push(`Bound the change to branch ${report.bound}.`);
-  if (report.replanned.length > 0) lines.push(`Set back to planned: ${report.replanned.join(", ")}.`);
-  if (report.rebased.length > 0) lines.push(`Accepted the current living text of: ${report.rebased.join(", ")}.`);
-  return { json: report, human: lines.join("\n") };
+  const record = await approveDocument(context, args[0] ?? "");
+  return { json: record, human: `Approved ${record.path} (${record.hash.slice(0, 19)}).` };
 }
 
 export async function runNew(context: CliContext, args: string[], options: Options): Promise<CommandResult> {
   requireArgs(args, ["kind"]);
-  if (PROJECT_DOC_KINDS.includes(args[0] as ProjectDocKind)) {
-    const report = await createProjectDoc(context, args[0] as ProjectDocKind);
-    return { json: report, human: `Created ${report.path}` };
-  }
-  requireArgs(args, ["kind", "slug"]);
-  if (args[0] === "note") {
-    const report = await createNote(context, args[1] ?? "", requireOption(options.title, "--title"), requireOption(options.kind, "--kind"), requireOption(options.about, "--about"));
-    return { json: report, human: `Created ${report.path}` };
-  }
-  const kind = args[0] as NewKind;
-  if (!["feature", "change", "adr"].includes(kind)) {
-    throw new UsageError(`cruze new takes ${PROJECT_DOC_KINDS.join(", ")}, feature, change, adr or note, not "${args[0]}"`);
-  }
-  const report = await createWorkItem(context, {
-    kind,
-    slug: args[1] ?? "",
-    title: requireOption(options.title, "--title"),
-    ...(options.feature === undefined ? {} : { feature: options.feature }),
-    ...(options.roadmap === undefined ? {} : { roadmap: options.roadmap }),
-  });
-  return { json: report, human: `Created ${report.kind} ${report.ref} at ${report.path}` };
+  const kind = args[0] as DocumentKind;
+  if (!DOCUMENT_KINDS.includes(kind)) throw new UsageError(`cruze new takes ${DOCUMENT_KINDS.join(", ")}, not "${args[0]}"`);
+  if (kind === "feature") requireArgs(args, ["kind", "slug"]);
+  const report = await createDocument(context, kind, args[1], options.title);
+  return { json: report, human: `Created ${report.path}` };
 }
 
 export function formatProblem(problem: Problem): string {

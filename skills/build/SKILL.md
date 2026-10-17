@@ -1,64 +1,60 @@
 ---
 name: cruze-build
-description: Builds the change bound to this branch task by task, each one test-first, checked with cruze check and committed, stopping to rethink when reality diverges from the design.
+description: Builds an approved feature test-first, one scenario at a time, with ports and adapters as the architecture maps them, stopping for the user only when a scenario or the public API has to change.
 ---
 
 # Build
 
-Build turns an approved plan into code, one task at a time. Each task starts with a failing test at the seam the plan names and ends as a green, checked commit. The design is settled, so build follows it. When the code shows the design is wrong, build stops and says so.
+Build turns an approved feature into working, tested code without asking the user anything, unless what they approved has to change. Each scenario starts as a failing behaviour test and ends as a green, checked commit.
 
 ## Steps
 
-1. **Pass the gate.** Run `cruze status --gate build` and quote its result.
-   - When it is blocked, stop, and show the reasons with the step that fixes them (`cruze next` names it).
-   - Override it only when the user explicitly asks, with `cruze status --gate build --override "<their reason>"`. The override is journaled.
-2. **Load the standards.** Read these, and follow them for every task:
+1. **Check the approval.** Run `cruze status`. The feature must be `approved`; when it is `unapproved` or `edited`, stop and run `shape` first.
+2. **Load the standards** and follow them throughout:
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-dependency-approval/SKILL.md`
-3. **Read the plan and the design.** Read the change's `change.md`. Run `cruze show <ref>` and read its output: the full body of every element the change builds, every scenario it delivers, and the settled decisions. Read an element it lists as cited only when the task calls it, with `cruze show <ID>`, never `feature.md` or `docs/architecture.md` whole. Read a reference it lists at the sections the change's elements cite. Read `commands:` in `.cruze/config.yaml`.
-4. **Build each open task in order,** following the task loop below. Skip the tasks already ticked in `## Progress`.
-5. **Finish.** When every task is ticked:
-   - Run the format, lint and build commands and the full suite, as `.agents/skills/cruze-formats/reference/config.md` defines it under `commands`.
-   - Run `cruze check --ci` and `cruze trace`, and quote their results.
-   - When all of them pass, record the commit they ran at with `cruze journal add checks --set commit=<commit> --item <ref>`, where the commit is the output of `git rev-parse --short HEAD`. Verify quotes this instead of running the suite again.
-   - Commit the progress record with a message such as `chore: record progress on <change>`.
-   - Done when all of them pass and the checks are recorded.
+3. **Read the design:** the feature file, and the sections of `docs/architecture.md` its stack sketch touches. Done when you can name, for each scenario, the use case it runs and the ports it crosses.
+4. **Build the foundation first,** when this is the release's first feature. See "The foundation" below.
+5. **Build each scenario in order,** with the loop below.
+6. **Finish.** Run the formatter, the linter, the build and the full test suite, then `cruze check --ci` and `cruze trace <slug>`, and fix what they report. Set the feature's status line to `- Status: built`, and commit. Done when every one of them passes.
 
-## The task loop
+## The loop
 
-For task `T<n>`:
+For each scenario:
 
-1. **Read it.** Note its owner, its files, the IDs it proves, and the test plan rows for those IDs.
-2. **Red.** Write the tests for the IDs it proves, at the seams the test plan names, carrying the IDs. Run them, and see them fail for the reason you expect. When the task names a break, use it, or any break that compiles and turns the same assertion red.
-3. **Green.** Write the least code that makes them pass, in the task's files. Code that belongs to another task, or another change, waits for it, even when the next change will need it.
-4. **Check.** Run `cruze check --ci <the task's files>`, the formatter and the linter, and fix what they report. Meet a budget as the budget rule in `.agents/skills/cruze-hexagonal-design/SKILL.md` says, never by bending the code. Run the tests the task touched. When `commands:` has a `test_full`, run `test` too, since it is the fast tier. Otherwise run the rest of the suite only when it is quick.
-5. **Commit** with a Conventional Commit message naming the task, such as `feat(access): console session state machine (T2)`.
-6. **Tick it.** Run `cruze task done T<n>`, which records the commit. Its progress edit rides along in the next commit.
+1. **Red.** Write the behaviour test at the seam the testing skill names, carrying the scenario's ID in a comment or string, with the scenario's values as its expected values. Run it, and see it fail for the reason you expect.
+2. **Green.** Write the code that makes it pass, inside out: domain types, then the use case, then the port, then the adapter, then the wiring in the composition root. Each port the stack sketch names gets a fake that honours its contract, and a contract test that both the fake and the real adapter pass.
+3. **Check.** Run `cruze check --ci` on the files you touched, the formatter and the linter, and the tests near what you changed.
+4. **Commit** with a Conventional Commit message, such as `feat(export): write rows as CSV (SCN-export-csv.basic)`.
 
-A task with no behaviour of its own, such as a package manifest or a plain data type, has no red step. Build it, check it, commit it and tick it, and the first task whose test uses it covers it. Neither has a prefactor's task: run the tests its plan names under `## Risks` before the first task, and after each task, and they pass unchanged.
+Done for a scenario when its test passes, the checks pass and the commit exists.
 
-Done for a task when its tests pass, `cruze check --ci` passes for its files, the commit exists and the task is ticked.
+## Deciding as you go
 
-## Deviations
+Decide everything local yourself: private helpers, file splits, internal types, test fixtures, an ordinary library. Note any choice a reviewer or the user might question in the feature's `## Decisions`, one line with the reason. Ask nothing about these.
 
-The plan is design. Within a task you decide only what is local and reversible.
+Stop and run `shape` when the code needs any of these:
 
-- **Record it and carry on** for a task-level choice: a private helper in another file of the same module, a new file of the owner's module that splits off a responsibility, a `check.exceptions` entry with its reason, a private type, a fixture or harness added to the test support module that the task's tests need, a dependency that isn't significant, as `.agents/skills/cruze-dependency-approval/SKILL.md` defines it, or two tasks' commits swapped for a reason. The test support module is in every test-writing task's scope, so extend it rather than writing a private helper in a test file. Run `cruze task deviation T<n> "<what you did and why>"`.
-- **Stop and offer `rethink`** when the code needs any of these:
-  - a new element, port operation or scenario;
-  - a file outside the owner's module, other than the test support module;
-  - a change to an approved scenario's behaviour, or to its test.
+- a scenario's behaviour or message to change, or a new scenario;
+- a change to the public API the user approved;
+- a significant dependency the architecture doesn't name;
+- a port or a runtime change the architecture doesn't allow.
 
-  Explain what you found, with the evidence, and don't work around it. Completed tasks keep their commits.
-- **Settle a detail with the user,** as "Detail" in `.agents/skills/cruze-rethink/levels.md` says, when the code needs a limit, timeout, buffer size, message or error case the design doesn't give, or a significant dependency. Never offer a deviation instead: two projects settled 35 details as deviations.
-- **Read a deviation back before you record it.** One naming a value, text, error or outcome the design doesn't give is a detail; one saying the code can't keep a promise a port or use case makes is a rethink.
-- Never edit `feature.md`, `docs/architecture.md` or `docs/specs/` during build. Design changes go through `rethink`, a detail included.
+Show the user what changed, as code or output, before and after, and get the approval again. Then carry on; finished scenarios keep their commits.
+
+## The foundation
+
+The first feature of a release also sets up what every later feature relies on:
+
+- the project's build, with the layers of `docs/architecture.md` as directories and `source`, `tests` and `layers` in `.cruze/config.yaml` matching them;
+- CI in `.github/workflows/ci.yml` that runs the formatter, the linter, the build, the full test suite, and a line coverage gate, such as `cargo llvm-cov --fail-under-lines 80`, alongside the Cruze checks already there;
+- `## Commands` and `## Layout` in `AGENTS.md`, filled in from what exists.
 
 ## Protecting the check
 
-Never weaken, skip or delete a behaviour, contract or smoke test for an approved scenario, port or flow to get green. A failing one means the code is wrong, or the spec is. A wrong spec goes through `rethink`.
+Never weaken, skip or delete a test to get green. A failing test means the code is wrong, or the scenario is, and a wrong scenario goes through `shape`.
 
 ## Next step
 
-`verify`, once every task is ticked and the finishing checks pass.
+`review`, once the finishing checks pass.

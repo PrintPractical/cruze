@@ -8,11 +8,25 @@
 
 - <Who, and in what situation they use it.>
 
-## Goals
+## Terms
 
-| ID | Goal | Measure |
+| Term | Meaning | Avoid |
 | --- | --- | --- |
-| GOAL-<name> | <What the product achieves for its users.> | <How you would know it's met.> |
+| <term> | <What it means in this product.> | <Synonyms that would confuse.> |
+
+## Release
+
+<What a user can do when this release ships, in one sentence.>
+
+| Feature | Summary | Needs |
+| --- | --- | --- |
+| <slug> | <What the user can do once it is built.> | <Slugs of the features it can't be built without, or blank.> |
+
+## Future features
+
+| Feature | Summary | Must stay possible |
+| --- | --- | --- |
+| <slug> | <What it would let the user do.> | <What no design may rule out. Never how to build it.> |
 
 ## Non-goals
 
@@ -20,30 +34,4 @@
 
 ## Constraints
 
-- <Platform, language, dependency, performance, security or legal limit.>
-
-## Principles
-
-| ID | Principle | Why |
-| --- | --- | --- |
-| PRINCIPLE-<name> | <A rule every design follows, such as "state is the truth; events are hints".> | <Why it holds, in the user's words.> |
-
-## Must stay possible
-
-| ID | Capability | Likelihood | Why | Leave room for |
-| --- | --- | --- | --- | --- |
-| LATER-<name> | <A capability the product may need after this release.> | <likely or possible> | <Why the user may want it.> | <What no design may close off. Never how to build it.> |
-
-<!-- cruze:managed -->
-## Feature map
-
-### Implemented
-
-| Feature | Release | Summary |
-| --- | --- | --- |
-
-### Future
-
-| Feature | Summary | Goals |
-| --- | --- | --- |
-<!-- /cruze:managed -->
+- <A platform, language, dependency, performance, security or legal limit.>

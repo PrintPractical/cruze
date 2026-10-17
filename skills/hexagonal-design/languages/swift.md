@@ -1,6 +1,6 @@
 # Swift
 
-These add to the hexagonal design rules for Swift projects, such as iOS and macOS apps and Swift packages. The module map decides the layout; this file never does.
+These add to the hexagonal design rules for Swift projects, such as iOS and macOS apps and Swift packages. The architecture's layers decide the layout; this file never does.
 
 ## Packages and targets
 
@@ -43,4 +43,4 @@ These add to the hexagonal design rules for Swift projects, such as iOS and macO
 
 - Format with `swift format format --in-place --recursive`, and lint with `swift format lint --strict --recursive`.
 - Package tests live in `Tests/<Target>Tests/`. They import the target with `@testable import`, which makes its `internal` declarations visible, so nothing is made `public` only for tests. UI tests live in the app's UI test target.
-- Put the package's tests in the `test` command and the app's UI tests in `test_full`, as `.agents/skills/cruze-formats/reference/config.md` describes, since UI tests run through the simulator and are by far the slowest.
+- Run the package's tests on every change and the app's UI tests before review, since UI tests run through the simulator and are by far the slowest. Name both commands in `AGENTS.md`.

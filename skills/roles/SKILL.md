@@ -1,71 +1,20 @@
 ---
 name: cruze-roles
-description: Prompts for Cruze's fresh-context roles (the design reviewer, code reviewer, verifier and researcher), how to run one, and how to take a review through its two rounds to a disposition for every finding, with the user deciding only the exceptions. Use when a Cruze workflow step says to run a role, a review or research in a fresh context.
+description: Prompts for Cruze's fresh-context roles, the code reviewer and the researcher, and how to run one. Use when a Cruze step says to run a review or research in a fresh context.
 ---
 
 # Roles
 
-A role is a prompt with fixed inputs and a report as its only output. It runs in a fresh context, so it judges the documents rather than the conversation that produced them. It never edits files.
+A role is a prompt with fixed inputs and a report as its only output. It runs in a fresh context, so it judges the work rather than the conversation that produced it. It never edits files.
 
 | Role | File | Used by |
 | --- | --- | --- |
-| Design reviewer | [design-reviewer.md](design-reviewer.md), with [design-rubric.md](design-rubric.md) for a design or [plan-rubric.md](plan-rubric.md) for a plan | architect, at project and feature scope; plan, for the plan review |
-| Code reviewer | [code-reviewer.md](code-reviewer.md) | verify, for the code review |
-| Verifier | [verifier.md](verifier.md) | verify, to run the system |
-| Researcher | [researcher.md](researcher.md) | architect, for adopt-or-build decisions |
-| Auditor | [auditor.md](auditor.md) | realign, to compare existing code with what a release now expects |
-| Surveyor | [surveyor.md](surveyor.md) | improve, to find structure that departs from the standards or keeps causing friction |
+| Code reviewer | [code-reviewer.md](code-reviewer.md) | review and fix |
+| Researcher | [researcher.md](researcher.md) | envision, for technology choices; any step with a question that needs evidence |
 
 ## Running a role
 
-1. Read the role file and gather exactly the inputs it lists. Done when you have every input path, plus any command output the role asks for.
-2. Start a fresh context: a helper agent with no conversation history, where the agent can start one. Give it the role file's full text and the inputs the role lists, including draft documents it names, and nothing else. Your own opinions, the conversation and your reasons for the design stay out.
-3. If the agent can't start a helper, run `cruze review <role> --item <ref>`, where the role is `design-reviewer`, `code-reviewer`, `verifier`, `researcher`, `auditor` or `surveyor`. Add `--base <commit>` for the code under review. It starts the agent configured under `review:` in `.cruze/config.yaml` in a fresh context and prints the role's report. When no agent is configured, or it isn't installed, it reports `status: run-in-helper` with the role's full prompt instead: start a helper, such as a subagent, and give it exactly that prompt. The configured agent can run only the commands `review.command` allows: before running the verifier, or a design reviewer whose design spells out commands to check against their `--help`, add those commands with the user's agreement. If no fresh context can run, the reviewers, the verifier and the auditor must still run fresh: tell the user, and have them run the role in a new session. The researcher may run in your own context, since its evidence is checkable; say that you did.
-4. Take the report as it comes back. Check its evidence against the files before you act on any finding.
-
-## Running a review
-
-A review has at most two rounds. Only blockers can force the second one.
-
-### Round 1
-
-1. Commit the documents under review (`docs: <artifact> for design review`), so the fixes in round 2 have a diff. Then run the reviewer on the complete artifact.
-2. Record the round: `cruze journal add review --set review=<design|plan|code> --set round=1 --set blockers=<n> --set concerns=<n> --set nits=<n>`, with the counts from the report's last line, adding `--item <ref>` for a feature or change.
-3. **Sort the findings.** A finding is an **exception**, which the user decides, when any of these holds:
-   - Its fix changes behaviour: it adds, removes or rewrites a requirement or scenario, or changes what a person sees or does beyond what the spec says. Making the code or the plan meet a scenario as written is not a change of behaviour.
-   - Its fix changes a port, a port's `Operations` or a public contract that the approved design names.
-   - Its fix changes another decision the grilling skill leaves to the user: a context, dependency direction or a significant dependency.
-   - You recommend anything but `fixed`: waiving, deferring or rejecting it, or a rethink because it needs a design change. A fix through a detail amendment is an exception too.
-   - You would fix it differently from the reviewer's proposed fix.
-
-   Every other finding is yours, blockers included: you fix it as the reviewer proposes. When `review.decide` in `.cruze/config.yaml` is `all`, every finding is an exception. Nits are a count, not findings: when a report lists any, they get no disposition and you don't bring them to the user.
-4. **Present them in one message,** written to be read cold and illustrated as `.agents/skills/cruze-grilling/illustrating.md` says. First each exception: what goes wrong, shown as the reviewer's failure scenario played out (the interaction, the code or the diagram), what the fix changes, shown before and after, and your recommended disposition and why:
-   - `fixed`: you will change the work as the finding proposes.
-   - `waived`: the finding is right, but the user accepts the risk.
-   - `deferred`: it belongs to later work. When it is future scope, add it with `cruze features add <slug> --summary <text> --goals <ids>`.
-   - `rejected`: the finding is wrong, with the reason.
-
-   A finding whose fix would change an approved element, such as one marked `Needs design change`, is never `waived`. Recommend `fixed` through a detail amendment when it qualifies, as "Detail" in `.agents/skills/cruze-rethink/levels.md` says, otherwise `rethink` at that element's level now, or `deferred` for a concern later work can carry. Once the rethink is done and the code follows it, record the finding as `fixed`. When the user wants the rethink later, record it as `rethink` instead, with `--item` naming the feature or change it amends: `cruze next` and the build gate hold that work until a rethink is recorded for it.
-
-   Then one line for each finding you are fixing yourself. When there are no exceptions, say what you are fixing and carry on without waiting. The user can object to any line until the work is approved, and that finding becomes an exception: revert its fix and let them decide it.
-5. **Record every disposition:** `cruze journal add disposition --set finding="<rubric item>: <summary>" --set disposition=<fixed|waived|deferred|rejected|rethink> --set reason="<reason>" --set review=<design|plan|code> --set decided=<agent|user>`, with the same `--item`. Use `decided=user` for each exception, once the user decides it, and `decided=agent` for each finding you fixed yourself. The CLI refuses `decided=agent` for anything but `fixed`. A recorded disposition is never raised again.
-6. Apply every `fixed` change, then run `cruze validate`. Done when it reports no errors.
-7. When a finding could be caught by a tool, such as a layering, naming or size rule, tell the user which `cruze check` rule or linter setting would catch it next time.
-
-### Round 2
-
-Run round 2 only when a round-1 blocker was fixed. It checks only whether those blockers are fixed, and raises nothing new. You check them: in 49 recorded rounds across two projects, no reviewer re-reading a fix found a blocker still open, and the user sees every fix at the walkthrough, in the plan, or in verify's report.
-
-1. **Check each blocker** against the diff of its fix, and run `cruze validate`. A blocker is fixed when the diff does what the proposal says and validate reports no new errors. When a fix differs from the proposal or reaches past what the finding names, say so in the message that presents it, so the user can object.
-2. Record the round with `round=2`, the blockers still open, `concerns=0` and `checked_by=agent`.
-3. Take any blocker still open to the user, who fixes it now, waives it or starts a rethink. There is no round 3.
-
-Done when every finding has a journaled disposition, and every exception, and every blocker left open in round 2, has the user's decision.
-
-## The settled ledger
-
-Reviewers read the settled ledger so they never re-raise a decision. It consists of:
-
-- The `## Settled decisions` of the feature or change under review.
-- The `D<n>` lines in the `## Decisions` section of `docs/architecture.md`, and the accepted ADRs in `docs/adr/`.
-- Earlier dispositions of the item under review, from `cruze journal list --event disposition --item <ref>`. `cruze show <ref>` includes them. Never list the whole project's: two projects' reviewers read every disposition ever recorded, about 36k tokens a time, a hundred times each.
+1. **Start a fresh context:** a helper agent with no conversation history, where the agent can start one. Give it the role file's full text, the feature slug and the base commit, and nothing else: your opinions and your reasons for the code stay out.
+2. **Or let the CLI start one:** `cruze review <role> --feature <slug> --base <commit>`, where the role is `code-reviewer` or `researcher`. It runs the agent configured under `review:` in `.cruze/config.yaml` and prints the role's report. When no agent is configured, or it isn't installed, it prints `status: run-in-helper` with the full prompt instead: give exactly that prompt to a helper.
+3. **When no fresh context can run,** the code reviewer must still run fresh: tell the user, and have them run the prompt in a new session. The researcher may run in your own context, since its evidence is checkable; say that you did.
+4. **Take the report** as it comes back, and check each finding's evidence against the files before you act on it.
