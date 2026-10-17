@@ -4,25 +4,38 @@
   <img src="docs/assets/cruze-logo.jpg" alt="Cruze" width="720">
 </p>
 
-Cruze is a spec-driven development framework for coding agents. It keeps one living model of your system (vision, glossary, architecture and behaviour specs) and delivers work as small changes against that model. Each change is merged back into the model when it lands, so the architecture an agent reads on the tenth change is as current as it was on the first.
+Cruze is a lightweight spec-driven workflow for coding agents. You and the agent put the product's vision and future features on paper, break the release into features, and agree on an architecture map. Then, one feature at a time, you agree on what it does and what its public API looks like, and the agent builds it test-first with ports and adapters, reviews it in a fresh context, and opens a pull request.
 
-It works with any agent that supports the [Agent Skills](https://agentskills.io) format. It ships as one npm package: a `cruze` CLI that owns every deterministic step (IDs, approvals, checks, merges) and a set of skills that guide the agent through design and delivery.
+It works with any agent that supports the [Agent Skills](https://agentskills.io) format. It ships as one npm package: a small `cruze` CLI for the deterministic parts (approvals, the next step, scenario-to-test tracing, layer rules) and a set of skills that guide the agent.
 
 ## Status
 
-Version 0.0.13 is the thirteenth preview. A project starts with the first chunk you choose, its foundation: a product shell, a core component or a walking skeleton. Architect still designs the whole release end to end, in full for the foundation and at the boundaries for the rest. Early development. The CLI is complete for the V1 lifecycle. The document formats ship as the `cruze-formats` skill, the standards an agent designs and codes to ship as knowledge skills, and the whole workflow, from explore to land, ships as workflow skills. Claude Code is the agent tested so far.
+Version 0.0.14 is a rewrite. The earlier previews ran thirteen steps with design reviews, plans, verifiers, journals and merged living specs. Measured across nine projects, they took about twice the time of a plain design doc and plan for code of the same quality, and asked the user so many questions that most answers were a bare "agree". This version keeps what paid off and drops the rest. Nothing is compatible with 0.0.13 projects. Claude Code is the agent tested so far.
 
-## Why
+## The flow
 
-Spec-driven workflows tend to fail in the same few ways:
+```
+envision ──► shape ──► build ──► review ──► pull request
+(project start or a major shift)
 
-- The architecture drifts after a few changes, because design decisions die with the change that made them.
-- Stepping back to fix a design mid-implementation breaks the workflow's state.
-- Code lands in a handful of oversized files, because nothing owns module structure before code is written.
-- Everything is "fully specified", yet the result fails when a person actually uses it.
-- Review loops keep finding new things to change and never converge.
+fix:  reproduce ──► failing test ──► fix ──► review ──► pull request
+```
 
-Cruze answers each of these with a specific mechanism. A living `docs/architecture.md` is read at every step and updated by every change. Approvals are bound to document content, so stepping back is just editing. Every task names the file it touches, and `cruze check` enforces layer rules. Scenarios are traced to behavioural tests, and the system is actually run. Reviews use a closed rubric with a hard limit of two rounds, and bring you only the findings that are yours to decide: changes to behaviour or to the designed contracts.
+| Step | Who | What comes out | Your part |
+| --- | --- | --- | --- |
+| `envision` | you and the agent | `docs/vision.md`: the problem, users, the release's features and what each needs, future features and what must stay possible. `docs/architecture.md`: ports, adapters, runtime, technology, layers | Answer one round of questions, approve both documents |
+| `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took | Approve it, or say what to change |
+| `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | Nothing, unless a scenario or the public API has to change; then you see the change and approve again |
+| `review` | a fresh-context reviewer | Fixes for what it finds, a note on how to try the feature, a pull request | Decide only findings that would change what you approved |
+| `fix` | the agent | A failing test that reproduces the bug, the fix, a review, a pull request | Nothing, unless the right behaviour is your call |
+
+What it holds to:
+
+- **You decide behaviour and public APIs; the agent decides the rest.** The agent asks at most one round of questions per step, and lists the choices it made in the document you approve, so nothing about the stack surprises you at the end.
+- **The architecture is designed for what's coming.** Future features shape the boundaries, such as where a port goes, but nothing is built for them until they join a release.
+- **Ports and adapters.** `cruze check` enforces the layer rules in CI.
+- **Behavioural tests.** Every scenario has a test carrying its ID, and `cruze trace` fails CI when one is missing.
+- **Approvals follow the text.** An approved feature edited later shows as edited until you approve it again.
 
 ## Quick start
 
@@ -32,10 +45,10 @@ Requires Node.js 22.18 or later, and git.
 
 The skills run `cruze` commands, so the agent needs `cruze` on its path. Install it globally, in one of three ways. `cruze --version` confirms which version you have.
 
-From a GitHub Release, without npm. Each release attaches the packed package:
+From a GitHub Release, without npm:
 
 ```sh
-npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.13/printpractical-cruze-0.0.13.tgz
+npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.14/printpractical-cruze-0.0.14.tgz
 ```
 
 From npm, once a version is published there:
@@ -44,10 +57,10 @@ From npm, once a version is published there:
 npm install -g @printpractical/cruze
 ```
 
-From the git repository, at a tag or `#main`. This needs git and access to the repository. npm 11 needs `--install-links` for a global git install, and the first `cruze` command builds the CLI, which takes a moment:
+From the git repository, at a tag or `#main`. npm 11 needs `--install-links` for a global git install, and the first `cruze` command builds the CLI:
 
 ```sh
-npm install -g --install-links github:PrintPractical/cruze#v0.0.13
+npm install -g --install-links github:PrintPractical/cruze#v0.0.14
 ```
 
 ### 2. Set up a repository
@@ -58,129 +71,59 @@ In the root of the repository:
 cruze init
 ```
 
-When you didn't install from npm, tell `init` where Cruze came from, so the CI it writes runs the same source instead of the npm package:
+When you didn't install from npm, tell `init` where Cruze came from, so the CI it writes runs the same source:
 
 ```sh
-cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.13/printpractical-cruze-0.0.13.tgz
+cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.14/printpractical-cruze-0.0.14.tgz
 ```
 
-`init` asks for the project name, and which coding agent you use: `claude` for Claude Code, or `other` for any agent that reads `AGENTS.md` and `.agents/skills/`, such as Codex or OpenCode. It doesn't ask when you pass `--agent claude` or `--agent other`, or when the repository already has `CLAUDE.md` or `.claude/`. With `--yes`, or without a terminal, it sets up Claude Code. Then it creates:
+`init` asks for the project name and your coding agent: `claude` for Claude Code, or `other` for any agent that reads `AGENTS.md` and `.agents/skills/`. It creates `README.md`, `CHANGELOG.md`, `AGENTS.md` (and `CLAUDE.md` for Claude Code), `.cruze/config.yaml`, a CI workflow that runs `cruze validate`, `check` and `trace`, and the skills in `.agents/skills/`, linked into `.claude/skills/` for Claude Code. It never overwrites an existing file.
 
-| Path | Purpose |
-| --- | --- |
-| `README.md` | Titled with the project name |
-| `CHANGELOG.md` | In [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format |
-| `AGENTS.md` | Agent instructions; Cruze keeps its managed sections current |
-| `CLAUDE.md` | For Claude Code only: a link to `AGENTS.md` |
-| `.cruze/config.yaml` | Project configuration, including the Cruze version whose skills the project uses, and for Claude Code the command `cruze review` runs |
-| `.github/workflows/ci.yml` | CI that runs `cruze validate`, `check` and `trace`; the foundation change adds the language's build and test steps |
-| `.gitattributes` | Merges Cruze's journals line by line, so parallel branches don't conflict on them |
-| `.agents/skills/cruze-*` | The Cruze skills, also linked into `.claude/skills/` for Claude Code |
+### 3. Start
 
-Existing files are never overwritten, so it is safe to run in an existing repository.
-
-The CLI writes its result to stdout: JSON when stdout isn't a terminal, and text on a terminal. Pass `--json` to get JSON on a terminal, or `--text` to get text through a pipe, as in `cruze journal list --text | grep review`. Errors and notes go to stderr.
+Ask your agent to envision the project, and give it whatever you have: a sentence, a design document, a conversation. From then on, `cruze next` says what comes next.
 
 ## Upgrading
 
-A repository runs three copies of Cruze: the CLI on your path, the skills in `.agents/skills/`, and the CLI that CI runs. `.cruze/config.yaml` records the version the skills came from, as `cruze: "0.0.2"`. When the CLI you run differs from it, every `cruze` command says so in a note on stderr, and `cruze validate` reports it as a `cruze-version` warning.
+1. Upgrade the CLI the same way you installed it, naming the new version.
+2. In each repository, run `cruze install`. It replaces the Cruze skills (those named `cruze-*`) and leaves your own alone, records the version in `.cruze/config.yaml`, and moves the CI workflow to the new version when CI runs a published package, a release tarball or a release tag.
+3. Commit the skills, the config and the CI workflow together.
 
-It also records `standards:`, the version whose expectations the code meets. A release can expect more of existing code, such as where tests live. Its new rules report on your code right away, but they fail CI only once you realign to that release, so upgrading never turns CI red.
-
-1. **Upgrade the CLI** the same way you installed it, naming the new version, then check it with `cruze --version`:
-
-   ```sh
-   npm install -g https://github.com/PrintPractical/cruze/releases/download/v<version>/printpractical-cruze-<version>.tgz
-   npm install -g @printpractical/cruze@<version>
-   npm install -g --install-links github:PrintPractical/cruze#v<version>
-   ```
-
-2. **Update each repository.** In its root, run:
-
-   ```sh
-   cruze install
-   ```
-
-   `install` does three things:
-   - It replaces the Cruze skills (those named `cruze-*`) and leaves your own skills alone. Pass `--agent claude` to link them for Claude Code in a repository without `CLAUDE.md` or `.claude/`.
-   - It records the new version in `.cruze/config.yaml`.
-   - It moves `.github/workflows/ci.yml` to the new version when CI runs the npm package, a release tarball or a release tag. It names any other source, such as a branch, for you to update by hand.
-
-3. **Commit** the skills, the config and the CI workflow together, with a message such as `chore: upgrade Cruze to <version>`, so CI runs the version the skills were written for.
-
-4. **Realign the code** when it suits you, with the `realign` skill. `cruze realign status` lists what each release since `standards:` expects of existing code: what its CLI rules find, and the questions a fresh-context auditor answers. You decide each finding: fix it in a prefactor change, waive it for good, or defer it. `cruze realign done` then moves `standards:` up. Findings still waiting for their prefactor are listed under `check.exceptions` until it lands, so CI stays green. Add `--full` to audit against every release, such as for a project that adopted Cruze partway. `cruze next` suggests realigning when nothing else is due.
-
-An older CLI refuses to install over a repository that already moved to a newer version, so a stale CLI on another machine can't roll it back. To go back on purpose, set `cruze:` in `.cruze/config.yaml` to the older version first, then run that version's `cruze install`.
+When the CLI you run differs from the version the project records, every command notes it on stderr, and `cruze validate` warns.
 
 ## Commands
 
-Skills call these at fixed points, and CI runs `check` and `trace` on every push. Run `cruze help` for every option.
-
 | Command | What it does |
 | --- | --- |
-| `cruze validate` | Checks every document against the formats: IDs, elements, deltas, scope rules, task lines, test plans, roadmap and config, and warns when a change falls outside the size band in `changes:` or a document cites a decision recorded elsewhere |
-| `cruze approve <doc>` | Records an approval as a fingerprint: the document's design hash plus the hash of every upstream element it cites. `--replan` sets built elements a rethink changed back to planned; `--rebase` accepts living text a feature must now build on. `--by-agent` approves a change for you once its plan review has closed, and `--restamp-unchanged` re-stamps work a rethink didn't change; both record that the agent gave the approval |
-| `cruze next` | Names the step to run next on this branch, and why, from computed status: for stale work, whether a re-stamp or a rebase is due |
-| `cruze show <ref>` | Prints the design a change builds, or a feature's delta: each element's full body, the delivered scenarios, what they cite with where to find it, the settled decisions and the item's dispositions, so a step reads its scope instead of the whole architecture |
-| `cruze show <ID>...` | Prints the chosen elements' bodies, with each in-flight delta's version beside the living one |
-| `cruze show --notes [<target>]` | Lists every note with its kind and what it is about, and the parts of the user's input envision handed to each step or feature; with a target, such as `architect` or a feature slug, only those for it |
-| `cruze show --index [<context>]` | Lists every element of the architecture and specs on one line, with its status, module and the work in flight that changes it, or one context or capability in full, and gives the size of the living docs |
-| `cruze status` | Computes each document's state (approved, edited, upstream changed or unapproved) from content, never from stored state, and counts the findings waiting on a rethink |
-| `cruze diff <ref>` | Shows what changed upstream of a document since its approval, each element's approved text against its current text, and whether the work's delta needs a rebase |
-| `cruze status --gate build` | Passes only when this branch's change, its feature and the architecture are approved and current, and no finding on them waits on a rethink |
-| `cruze status --overlap` | Lists changes on other branches that touch the same elements as this branch's change |
-| `cruze new <kind>` | Creates a project document (`vision`, `glossary`, `architecture`, `roadmap`) or work (`feature`, `change`, `adr`, `note`) from its template, with a dated ID that is never reused; a note says its kind and what it is about (`--kind`, `--about`) |
-| `cruze task done <T#>` | Ticks a task with its commit; `cruze task reopen` unticks one a rethink changed, and `cruze task deviation` records a small departure from the plan |
-| `cruze features <add\|update\|drop>` | Edits the feature map: adds or drops a future feature, or corrects a summary |
-| `cruze roadmap prune` | Clears landed items from the roadmap's status when a release closes |
-| `cruze trace` | Fails when a delivered scenario has no test carrying its ID; `--all` checks every built scenario |
-| `cruze check` | Enforces the layer rules and the file budgets, and warns on decision numbers in code comments; `--ci` also fails on warnings |
-| `cruze review <role>` | Runs a role (design reviewer, code reviewer, verifier, researcher or auditor) in a fresh agent context, through the command in `.cruze/config.yaml`. When no command is set, or its program isn't installed, it prints the role's prompt for the agent to run in a helper of its own |
-| `cruze land` | Merges a verified change into the living docs, re-stamps the approvals the merge would make stale, fills the Commands and Layout sections of `AGENTS.md`, and archives finished work |
-| `cruze realign status` | Lists what the installed Cruze expects of existing code since its `standards:` version, with what the CLI rules find now; `--full` covers every release |
-| `cruze realign done` | Moves `standards:` up once every finding is fixed, waived or scheduled in a change named with `--change` |
-| `cruze abandon <ref>` | Archives a feature or standalone change that stops for good, with its reason, and puts a feature back on the future list |
-| `cruze journal add <event>` | Records a rethink, review round, disposition, verification, override, bug or lesson; `cruze journal list` reads the work in flight's entries, or landed work's too with `--all`; `cruze feedback export` bundles the journal for improving Cruze itself |
+| `cruze init` | Sets up the repository and installs the skills |
+| `cruze install` | Installs or updates the skills |
+| `cruze new vision\|architecture\|feature <slug>` | Starts a document from its template |
+| `cruze validate` | Checks the documents: required sections, scenario IDs, the release's features and needs, size, leftover template text |
+| `cruze approve <vision\|architecture\|slug>` | Records that you approved a document as it reads now |
+| `cruze status` | Each document's approval and each feature's progress, in release order, and the next step |
+| `cruze next` | The step to run next, and why |
+| `cruze trace [<slug>]` | Fails when a built feature's scenario has no test carrying its ID, or a test names a scenario no feature defines |
+| `cruze check [<file>...] [--ci]` | Enforces the layer rules, and warns on file budgets (fails on them with `--ci`) |
+| `cruze review code-reviewer --feature <slug> --base <commit>` | Runs the code reviewer in a fresh agent context, through the command in `.cruze/config.yaml` |
 
-Stepping back is editing: change an upstream document and every approval that cites a changed element shows as stale, with the element named. Re-approving is the rewind; there are no phases to reset.
+Every command prints JSON when stdout isn't a terminal, and text on a terminal; `--json` and `--text` choose. Errors and notes go to stderr.
 
 ## Skills
 
-`cruze init` and `cruze install` put these into `.agents/skills/`. Agents load them when a situation calls for them, and the workflow skills will load them by path at the step that needs them.
-
 | Skill | What it holds |
 | --- | --- |
-| `cruze-explore` | Optional thinking partner before any step: options and trade-offs, captured as a note only when you ask |
-| `cruze-envision` | The what: the project's vision, goals, principles, what must stay possible later and feature map, asking about the capabilities the product may grow into, or one feature's intent and requirements with scenarios |
-| `cruze-architect` | The how: the architecture, a feature's architecture delta and its changes, or a tweak; ends with a design review and a walkthrough for your approval |
-| `cruze-roadmap` | Orders the release into phases with blocking edges and goal coverage, and closes a release |
-| `cruze-plan` | Turns a change into a test plan and ordered tasks with file targets, reviewed in a fresh context and approved once the review closes |
-| `cruze-build` | Builds the change task by task, each test-first, checked and committed, and stops to rethink when the design is wrong |
-| `cruze-verify` | Runs the checks, a fresh-context verifier that uses the real system, a two-lane code review and a manual test script, then asks you to accept |
-| `cruze-land` | Merges the change into the living docs and updates the changelog, README and `AGENTS.md`; also lands bug fixes |
-| `cruze-triage` | Reproduces a bug, finds its root cause against the living docs, and fixes it test-first or routes it to architect or rethink |
-| `cruze-rethink` | Steps back to the level a discovery touches, keeps completed work, re-approves what went stale and records why |
-| `cruze-realign` | Brings existing code up to what a new Cruze expects: audits it against each release's notes, decides every finding with you, and schedules the fixes as prefactor changes |
-| `cruze-improve` | Restructures existing code to meet today's standards: surveys it for structure that departs from them or keeps causing friction, lets you pick any or all of the candidates, and schedules the moves as prefactor changes |
-| `cruze-next` | Says which step to run next and why |
-| `cruze-roles` | The fresh-context design reviewer, code reviewer, verifier, researcher, auditor and surveyor, and how a review runs to a disposition for every finding |
-| `cruze-formats` | The format of every Cruze document, with templates |
-| `cruze-hexagonal-design` | Ports and adapters with domain-driven design: who owns each rule, dependency direction, many small modules, contracts, runtime ownership, layouts by kind of system, and notes for Rust, Swift and C++ |
-| `cruze-behavioural-testing` | Which tests to write and at which seam, fakes instead of mocks, and protecting approved scenarios' tests |
-| `cruze-grilling` | Interviewing the user in rounds until decisions settle, and challenging once before deferring |
-| `cruze-domain-language` | Building the glossary and using its words in documents, IDs and code |
-| `cruze-dependency-approval` | Adopt libraries freely, ask you only for significant ones (hard to reverse, native code, licence, security), and where each is recorded |
-| `cruze-research` | Adopting a mature library before building, and answering questions from primary sources at the right version |
-
-## Reporting back
-
-Cruze improves from what goes wrong in real projects. Every rethink, review finding, bug and override is recorded in the project's journal, along with each repeated lesson about Cruze's own steps. To send them back, with the `## Known pitfalls` of `AGENTS.md`:
-
-```sh
-cruze feedback export --out cruze-feedback.json
-```
-
-The export replaces the project name, and the name of whoever approved or recorded each entry, with placeholders. Read it before sharing: summaries can still mention your domain or people. Attach it to an issue at https://github.com/PrintPractical/cruze/issues. Maintainers turn it into changes with the `cruze-retro` skill in this repository.
+| `cruze-envision` | The vision with future features, the release broken into features with their needs, and the architecture map |
+| `cruze-shape` | One feature's behaviour, public API and stack sketch, self-checked and approved by you |
+| `cruze-build` | Building an approved feature test-first, scenario by scenario, and the foundation's CI |
+| `cruze-review` | The fresh-context code review, fixes, and the pull request |
+| `cruze-fix` | A bug from report to reviewed fix |
+| `cruze-asking` | When to ask you and when to decide, and how to show a question with code and diagrams |
+| `cruze-formats` | The format of each document, with templates |
+| `cruze-hexagonal-design` | Ports and adapters with domain-driven design, contracts, runtime ownership, layouts by kind of system, and notes for Rust, Swift and C++ |
+| `cruze-behavioural-testing` | Which tests to write and at which seam, and fakes instead of mocks |
+| `cruze-dependency-approval` | Adopt libraries freely; ask only for significant ones |
+| `cruze-research` | Adopting a mature library before building, and answering questions from primary sources |
+| `cruze-roles` | The fresh-context code reviewer and researcher, and how to run them |
 
 ## Development
 
