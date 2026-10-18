@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.14] - 2026-10-18
+
 A rewrite around five steps: envision, shape, build, review and fix. Measured across nine projects, 0.0.13 took about twice the time of a plain design document and plan, wrote about ten words of documents per line of code, and asked so many questions that 71% of answers were a bare "agree", for code of the same quality. The verifier found one problem in 23.6 hours, and most rethinks came from Cruze's own rules. This release keeps what paid off and cuts the rest. Projects started on 0.0.13 or earlier aren't compatible: their config is refused, and their documents would need writing again.
 
 ### Changed
@@ -24,7 +26,7 @@ A rewrite around five steps: envision, shape, build, review and fix. Measured ac
 ### Removed
 
 - The explore, architect, roadmap, plan, verify, land, triage, rethink, realign, improve, next, about, grilling and domain-language skills; the design reviewer, verifier, auditor and surveyor roles; and the commands `land`, `journal`, `feedback`, `realign`, `show`, `diff`, `roadmap`, `features`, `task` and `abandon`, with change folders, deltas, the journal, managed blocks and element IDs other than scenarios.
-- The skills shrank from 45,800 words to 17,400, and the CLI from 7,600 lines to 2,800.
+- The skills shrank from 45,800 words to 17,600, and the CLI from 7,600 lines to 2,800.
 
 ## [0.0.13] - 2026-10-13
 
@@ -311,7 +313,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.13...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.14...HEAD
+[0.0.14]: https://github.com/PrintPractical/cruze/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/PrintPractical/cruze/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/PrintPractical/cruze/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/PrintPractical/cruze/compare/v0.0.10...v0.0.11
