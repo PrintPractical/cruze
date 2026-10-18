@@ -14,7 +14,7 @@ A concrete function or type can be a fine seam. Use a port to keep a technology 
 
 ## Obligations
 
-In a `PORT` element, each item under `Operations` gives the signature in the project's language, then the rows below that apply.
+For each port in `docs/architecture.md`, and each public API in a feature, give each operation's signature in the project's language, then the rows below that apply.
 
 | Concern | What the caller can rely on |
 | --- | --- |
@@ -30,7 +30,7 @@ In a `PORT` element, each item under `Operations` gives the signature in the pro
 
 Add compatibility machinery (versioning, extension points, binary stability) only for a concrete reason: existing callers, stored data, peers that upgrade independently, or an explicit requirement. Name the supported callers or versions when it matters.
 
-A contract lives in one place: the `PORT` or `UC` element in `docs/architecture.md`, a schema, or a header. Deltas replace that element's body rather than writing a second competing definition.
+A contract lives in one place: the port in `docs/architecture.md`, the feature's public API, a schema, or a header. A change edits it there rather than writing a second competing definition.
 
 ## Compose guarantees, not just types
 
@@ -43,7 +43,7 @@ Suppose an operation saves a document and then notifies subscribers. It must dec
 - Separate what a component owns from what it borrows. A reusable component never shuts down its caller's runtime or closes a borrowed connection.
 - Treat retry permission, deadlines and partial success as behaviour the caller sees, not details an adapter picks.
 
-A `FLOW` element shows the composition for a key scenario. Its `Failure paths` say what each failure leaves behind.
+A feature's stack sketch shows the composition for its main scenario, and its failure scenarios say what each failure leaves behind.
 
 ## IPC and stored formats
 

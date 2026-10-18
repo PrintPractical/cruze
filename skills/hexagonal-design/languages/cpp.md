@@ -1,6 +1,6 @@
 # C++
 
-These add to the hexagonal design rules for C++ projects. The module map decides the layout; this file never does.
+These add to the hexagonal design rules for C++ projects. The architecture's layers decide the layout; this file never does.
 
 ## Files
 

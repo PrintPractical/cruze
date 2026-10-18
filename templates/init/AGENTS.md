@@ -1,28 +1,20 @@
 # {{project_name}}
 
-Instructions for coding agents working in this repository. Cruze keeps the managed sections current as changes land; edit everything else freely.
+Instructions for coding agents working in this repository.
 
 ## Workflow
 
-This project uses [Cruze](https://github.com/PrintPractical/cruze) for spec-driven development. Durable documents live in `docs/`: vision, glossary, architecture, ADRs, specs and roadmap. Work in progress lives in `.cruze/`. Before changing code, read the design the change builds with `cruze show <change>`, once it exists. The Cruze skills run the `cruze` command; when it is missing, install it as https://github.com/PrintPractical/cruze#quick-start describes.
+This project uses [Cruze](https://github.com/PrintPractical/cruze). `docs/vision.md` says what the product is for and which features the release holds; `docs/architecture.md` maps its ports, adapters and runtime; each `docs/features/<slug>.md` holds one feature's behaviour, public API and stack sketch, approved by the user before it is built. Run `cruze next` to see what comes next. The Cruze skills run the `cruze` command; when it is missing, install it as https://github.com/PrintPractical/cruze#quick-start describes.
 
 ## Commands
 
-<!-- cruze:managed -->
-No build or test commands yet. `cruze land` fills this in when the foundation change lands.
-<!-- /cruze:managed -->
+No build or test commands yet. The foundation feature fills this in.
 
 ## Layout
 
-<!-- cruze:managed -->
-Not defined yet. `cruze land` fills this in from the module map in `docs/architecture.md`.
-<!-- /cruze:managed -->
+Not defined yet. The foundation feature fills this in from `docs/architecture.md`.
 
 ## Conventions
 
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
 - Record notable changes under `[Unreleased]` in `CHANGELOG.md`.
-
-## Known pitfalls
-
-None recorded yet. `land` adds a line here when the same review finding or defect about this project's code happens twice.

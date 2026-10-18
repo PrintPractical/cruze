@@ -1,51 +1,33 @@
-# Cruze project configuration, created by cruze 0.1.0.
-# The format is described in .agents/skills/cruze-formats/reference/config.md.
-version: 1
-cruze: "0.0.13"
-standards: "0.0.13"
+# Cruze project configuration, created by cruze 0.0.14.
+# The format is described in .agents/skills/cruze-formats/config.md.
+version: 2
+cruze: "0.0.14"
 project: "Console Access"
-
-# Where work items are tracked. V1 supports markdown in the repository only.
-tracker: markdown
 
 source: ["src/**/*.rs"]
 tests: ["src/**/*.rs", "tests/**/*.rs"]
 
 check:
-  max_lines: 250
-  max_types: 5
+  max_lines: 600
+  max_types: 12
   exceptions:
     - path: src/cli/args.rs
       reason: the clap derive struct lists every command and flag in one place
 
-# The size band of a change. The example keeps SSH hops as a small second
-# change, so it can show work that depends on an earlier one.
-changes:
-  min_builds: 2
-
-# From the module map and dependency rules in docs/architecture.md.
+# From the Layers section of docs/architecture.md.
 layers:
-  - name: inventory-domain
-    paths: ["src/inventory/domain/**"]
+  - name: domain
+    paths: ["src/domain/**"]
     may_import: []
-  - name: inventory-app
-    paths: ["src/inventory/app/**"]
-    may_import: [inventory-domain]
-  - name: inventory-adapters
-    paths: ["src/inventory/adapters/**"]
-    may_import: [inventory-app, inventory-domain]
-  - name: access-domain
-    paths: ["src/access/domain/**"]
-    may_import: [inventory-domain]
-  - name: access-app
-    paths: ["src/access/app/**"]
-    may_import: [access-domain, inventory-app, inventory-domain]
-  - name: access-adapters
-    paths: ["src/access/adapters/**"]
-    may_import: [access-app, access-domain, inventory-domain]
+  - name: app
+    paths: ["src/app/**"]
+    may_import: [domain]
+  - name: adapters
+    paths: ["src/adapters/**"]
+    may_import: [app, domain]
   - name: cli
     paths: ["src/cli/**"]
-    may_import: [inventory-app, inventory-domain, access-app, access-domain]
+    may_import: [app, domain]
   - name: main
-    paths: ["src/main.rs", "src/lib.rs"]
-    may_import: [cli, inventory-adapters, inventory-app, inventory-domain, access-adapters, access-app, access-domain]
+    paths: ["src/main.rs"]
+    may_import: [cli, adapters, app, domain]

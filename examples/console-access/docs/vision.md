@@ -9,53 +9,39 @@ Reaching a lab device's console means remembering which jump host it hangs off, 
 - Engineers who open device consoles many times a day while developing and debugging router software.
 - Coding agents that need to run a command on a device and read the output as part of a task.
 
-## Goals
+## Terms
 
-| ID | Goal | Measure |
+| Term | Meaning | Avoid |
 | --- | --- | --- |
-| GOAL-one-command | Reach any configured device's console with one command | `consolectl open <device>` works for every console path in the configuration |
-| GOAL-paths-in-config | Console paths live in configuration, not in people's heads | Adding a device needs only a configuration entry |
-| GOAL-agent-commands | An agent can run a command on a device and get its output | `consolectl run <device> -- <command>` returns output as JSON |
+| device | A machine in the lab with a console, named in the configuration | host, target |
+| console path | The ordered hops that reach a device's console: SSH hops, then at most one serial port | route, chain |
+| hop | One step of a console path: an SSH connection or a serial port | jump |
+
+## Release
+
+The first release: an engineer or an agent reaches any configured device's console with one command, over serial, SSH or both.
+
+| Feature | Summary | Needs |
+| --- | --- | --- |
+| list-devices | List the configured devices and how each is reached | |
+| open-serial | Open an interactive console on a device's local serial port | list-devices |
+| ssh-hops | Reach a console through a chain of SSH hosts | open-serial |
+| run-commands | Run one command on a device and get its output as JSON | open-serial |
+
+## Future features
+
+| Feature | Summary | Must stay possible |
+| --- | --- | --- |
+| shared-sessions | Several engineers watch one console session at once | A session's output can reach more than one terminal; nothing assumes the console belongs to one local process |
+| session-log | Record console sessions to a file | Every byte a session reads passes one place that could also write it elsewhere |
 
 ## Non-goals
 
 - Provisioning or managing devices; the tool only reaches consoles.
 - Windows support; the users work on macOS and Linux.
 - Storing secrets; authentication uses the SSH agent and key files.
-- A long-running daemon; every invocation stands alone.
 
 ## Constraints
 
 - One static binary for macOS and Linux, written in Rust.
 - SSH host keys are verified against `known_hosts`; unknown hosts are refused.
-- Opening a console adds no noticeable delay beyond the hops themselves.
-
-## Principles
-
-| ID | Principle | Why |
-| --- | --- | --- |
-| PRINCIPLE-config-is-truth | Every console path comes from the configuration, never from a guess or a cache | An engineer reading the configuration must see exactly how a console is reached |
-
-## Must stay possible
-
-| ID | Capability | Likelihood | Why | Leave room for |
-| --- | --- | --- | --- | --- |
-| LATER-shared-sessions | Several engineers watch one console session at once | possible | Lab devices are shared, and debugging is often done in pairs | A session's output can reach more than one terminal; nothing assumes the console belongs to one local process |
-
-<!-- cruze:managed -->
-## Feature map
-
-### Implemented
-
-| Feature | Release | Summary |
-| --- | --- | --- |
-
-### Future
-
-| Feature | Summary | Goals |
-| --- | --- | --- |
-| open-console | Interactive console over local serial and SSH hop chains | GOAL-one-command, GOAL-paths-in-config |
-| remote-serial | Serial consoles attached to a jump host | GOAL-one-command |
-| run-commands | Run one command on a device and return its output | GOAL-agent-commands |
-| session-log | Record console sessions to a file | GOAL-one-command |
-<!-- /cruze:managed -->

@@ -1,21 +1,21 @@
 ---
 name: cruze-hexagonal-design
-description: The architecture standard for a Cruze project, covering hexagonal ports and adapters with domain-driven design, the owner of each rule, dependency direction, many small modules and composition. Use when designing or reviewing the architecture or an architecture delta, when placing a new element in the module map, when naming a port, adapter or module, when writing code that adds a type, file or import between modules, or when reviewing code for layering and structure.
+description: The architecture standard for a Cruze project, covering hexagonal ports and adapters with domain-driven design, the owner of each rule, dependency direction, many small modules and composition. Use when designing or reviewing the architecture map or a feature's stack sketch, when naming a port, adapter or module, when writing code that adds a type, file or import between modules, or when reviewing code for layering and structure.
 ---
 
 # Hexagonal design
 
-The system is a hexagon. A domain and an application form the core, and adapters reach the outside world through ports. Every rule has one owner, dependencies point inward, and the module map in `docs/architecture.md` says where each owner lives. Designs, plans, code and reviews are all held to this standard.
+The system is a hexagon. A domain and an application form the core, and adapters reach the outside world through ports. Every rule has one owner, dependencies point inward, and `docs/architecture.md` maps the ports, adapters and layers. Designs, code and reviews are all held to this standard.
 
 ## Placing an owner
 
-Follow these steps whenever a design or a task introduces behaviour, such as a rule, a workflow, a mapping or an integration.
+Follow these steps whenever a design or the code introduces behaviour, such as a rule, a workflow, a mapping or an integration.
 
 1. Describe one representative operation in the caller's terms before choosing any structure. Done when you can say who calls, with what, and what they get back or see fail.
-2. Search the living docs and the code for an existing owner of the same behaviour. Reuse or extend it when it is correct. Done when you can name the owner, or can say that none exists.
-3. Name the owner by what it means, in the glossary's terms. A rule or invariant goes to a domain concept (`ENT`), a workflow to a use case (`UC`), a capability the application needs to a port (`PORT`), and a technology to an adapter (`ADP`).
-4. Place it in the module map. Its `Module` names a `MOD` whose `Layer` matches its role, and its `File` names the real path. Done when every new element has both, and its module's layer may import everything the element uses.
-5. Check the direction of every new dependency against the `RULE` elements and the `layers:` in `.cruze/config.yaml`. Done when no dependency points outward.
+2. Search the architecture map and the code for an existing owner of the same behaviour. Reuse or extend it when it is correct. Done when you can name the owner, or can say that none exists.
+3. Name the owner by what it means, in the vision's terms. A rule or invariant goes to a domain concept, a workflow to a use case, a capability the application needs to a port, and a technology to an adapter.
+4. Place it in the layer its role belongs to, in a module named for the concept. Done when you can name its file, and its layer may import everything it uses.
+5. Check the direction of every new dependency against the `layers:` in `.cruze/config.yaml`. Done when no dependency points outward.
 6. Name the tests that will prove it, following `.agents/skills/cruze-behavioural-testing/SKILL.md`. When a plausible wrong outcome exists, make sure a scenario step rules it out, such as `AND the first hop is closed`.
 
 Stop when the behaviour and its boundaries are covered. A pure library needs no application layer or ports, so don't invent layers to complete the recipe.
@@ -70,7 +70,7 @@ Layers are dependency boundaries, not runtime hops. A port can be a plain functi
 ### Ports
 
 - A driven port names a capability the application needs, not a technology: `DeviceCatalog`, `Clock` and `HopConnector`, not `TomlFile`, `TokioTimer` or `Ssh2Client`.
-- The application owns each port's contract and shapes it around what the core needs, never mirroring an SDK. Read [contracts.md](contracts.md) before writing a port's `Operations`.
+- The application owns each port's contract and shapes it around what the core needs, never mirroring an SDK. Read [contracts.md](contracts.md) before writing a port's operations.
 - A port that keeps a technology out of the core is justified with one adapter. An interface over an internal policy with one strategy is not.
 - Declare a driving port only when several inbound adapters share it or the application promises a stable contract. Otherwise an inbound adapter calls the use case directly.
 - Name each thing once. Never produce `Foo`, `FooPort`, `FooService` and `FooImpl` families.
@@ -94,8 +94,8 @@ Layers are dependency boundaries, not runtime hops. A port can be a plain functi
 - Entry-point and namespace files, such as `main`, `lib.rs`, `mod.rs` and `index.ts`, hold only wiring and declarations.
 - Don't create generic modules such as `utils`, `helpers`, `common`, `services`, `models`, `types` or `manager`. Shared behaviour belongs with the concept that owns it.
 - Duplication is semantic. Two implementations of one rule are duplication even when the text differs, so consolidate them in the owner, not in a helper.
-- Structure follows the module map, never a per-language template. Write idiomatic code for the language and use its standard tooling. [languages/rust.md](languages/rust.md), [languages/swift.md](languages/swift.md) and [languages/cpp.md](languages/cpp.md) add rules for those languages.
-- In an existing codebase, its established layout and naming win over these structure rules until the user restructures it with the improve skill. Ownership and dependency direction still apply.
+- Structure follows the architecture's layers and the domain's concepts, never a per-language template. Write idiomatic code for the language and use its standard tooling. [languages/rust.md](languages/rust.md), [languages/swift.md](languages/swift.md) and [languages/cpp.md](languages/cpp.md) add rules for those languages.
+- In an existing codebase, its established layout and naming win over these structure rules until the user chooses to restructure it. Ownership and dependency direction still apply.
 
 ## Representations and errors
 
@@ -126,7 +126,7 @@ These are review signals, not automatic failures. When one could be checked mech
 ## Further reading
 
 - [shapes.md](shapes.md): choosing the layout for a library, a daemon or service, a mobile or desktop app, or a CLI.
-- [contracts.md](contracts.md): writing a port's `Operations`, a public API, an IPC protocol or a stored format.
+- [contracts.md](contracts.md): writing a port's operations, a public API, an IPC protocol or a stored format.
 - [runtime.md](runtime.md): concurrency, long-lived resources (connections, sessions, devices, subprocesses), state machines, cancellation or a hot path.
 - [fundamentals.md](fundamentals.md): choosing a data structure, a state representation or an abstraction mechanism; defining equality or ordering; bounding loops, retries and fan-out.
 - `.agents/skills/cruze-dependency-approval/SKILL.md`: before any design or code adds a dependency.

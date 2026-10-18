@@ -1,6 +1,6 @@
 # Runtime ownership
 
-Runtime architecture decides how work executes and who owns resources. It is independent of the hexagonal layers: a port is not a thread, and a use case is not a task. Record runtime decisions in an `XC-concurrency` element under the architecture's cross-cutting concerns, and in the `Operations` contracts of the ports involved.
+Runtime architecture decides how work executes and who owns resources. It is independent of the hexagonal layers: a port is not a thread, and a use case is not a task. Record runtime decisions in the architecture's `## Runtime`, and in the operations of the ports involved.
 
 ## Choose the execution model
 
@@ -34,7 +34,7 @@ Every long-lived, mutable, stateful or exclusive resource has one named owner. T
 
 ## Cross-cutting infrastructure
 
-Centralize repeated tracing and context propagation, authentication metadata, instrumentation, protocol error mapping and serialization conventions in middleware, wrappers or a dedicated adapter component. Record each as an `XC` element. Business policy, such as an authorization decision, stays in the core even when it recurs.
+Centralize repeated tracing and context propagation, authentication metadata, instrumentation, protocol error mapping and serialization conventions in middleware, wrappers or a dedicated adapter component. Record each in the architecture's `## Runtime`. Business policy, such as an authorization decision, stays in the core even when it recurs.
 
 ## Performance
 

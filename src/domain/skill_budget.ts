@@ -7,11 +7,11 @@ import type { SkillFiles } from "./skill_links.ts";
 export const MAX_FILE_WORDS = 2100;
 
 /**
- * The words agents may read across the whole bundle. Every retro adds rules, and between 0.0.1 and
- * 0.0.10 the skills grew by half while nothing was removed. Lower this when text is cut. Raising it
- * is the maintainer's decision, with the reason in the commit that raises it.
+ * The words agents may read across the whole bundle. By 0.0.13 the skills had grown to 45,800 words
+ * as every fix added rules and nothing was removed; 0.0.14 cut them to this. Lower it when text is
+ * cut. Raising it is the maintainer's decision, with the reason in the commit that raises it.
  */
-export const BUNDLE_WORD_BUDGET = 45810;
+export const BUNDLE_WORD_BUDGET = 17605;
 
 /** Data the CLI reads or renders, rather than instructions an agent reads. */
 const NOT_INSTRUCTIONS = /(^|\/)(templates|notes)\//;

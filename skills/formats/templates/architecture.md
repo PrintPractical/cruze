@@ -2,99 +2,43 @@
 
 ## Overview
 
-<One paragraph: what the system is and what kind (a library, a daemon or service, a mobile or desktop app, a CLI, or several deliverables), how it is used, and the architectural style.>
-
-### VIEW-context: System context
+<What the system is, in two sentences. Then the diagram: inbound adapters on the left, the application core in the middle, the ports and the adapters behind them on the right.>
 
 ```mermaid
 flowchart LR
-  user([<User>]) --> cli[<Inbound adapter>]
-  cli --> ctx[<Bounded context>]
-  ctx --> ext[(<External system>)]
 ```
-
-## Bounded contexts
-
-### CTX-<name>: <Context title>
-- Purpose: <what this context is responsible for>
-- Depends on: <CTX ID and what it uses, or "nothing">
-
-## Domain model
-
-### VIEW-domain-model: Domain model
-
-```mermaid
-classDiagram
-  class <Entity>
-```
-
-### ENT-<context>.<name>: <Entity title>
-- Kind: <aggregate | entity | value | service | policy | event>
-- Invariants:
-  - <a rule that always holds>
-- Relationships:
-  - <verb> <ENT ID> (<cardinality>)
-- Module: <MOD ID>
-- File: `<path>`
-
-## Use cases
-
-### UC-<context>.<name>: <Use case title>
-- Input: <what the caller provides>
-- Output: <what the caller gets>
-- Errors: <each failure the caller can see>
-- Uses: <PORT IDs>
-- Module: <MOD ID>
-- File: `<path>`
 
 ## Ports
 
-### PORT-<context>.<name>: <Port title>
-- Direction: <driven | driving>
-- Operations:
-  - `<signature>`: <guarantee; failure cases; who owns cleanup>
-- Implemented by: <ADP IDs>
-- Module: <MOD ID>
-- File: `<path>`
+<One subsection per port: what the core needs from the outside world, or offers to it.>
+
+### <Port name>
+
+<What it is for, and who drives it. Then its operations as code, each with its errors.>
+
+```text
+```
 
 ## Adapters
 
-### ADP-<context>.<name>: <Adapter title>
-- Implements: <PORT ID>
-- Technology: <library, protocol or system>
-- Adopts: <library, and why adopt rather than build>
-- Module: <MOD ID>
-- File: `<path>`
+| Adapter | Implements | Technology |
+| --- | --- | --- |
+| <name> | <port, or the inbound side it serves> | <library, protocol or device> |
 
-## Flows
+## Runtime
 
-### FLOW-<context>.<name>: <Flow title>
-- Serves: <SCN IDs>
-- Elements: <IDs of every participant>
+<The threading or async model and how work is scheduled. Every limit and timeout with its number. What happens on overload, when a dependency fails, and at shutdown.>
 
-```mermaid
-sequenceDiagram
-  participant A as <Element title>
-```
+## Technology
 
-## Modules
+| Choice | For | Why |
+| --- | --- | --- |
+| <language, framework or significant dependency> | <what it does here> | <why it, in one line> |
 
-### MOD-<context>.<name>: <Module title>
-- Path: `<directory or file>`
-- Layer: <core | domain | application | adapter | composition>
+## Layers
 
-## Dependency rules
-
-### RULE-<name>: <Rule title>
-<One or two sentences stating what may depend on what.>
-- Enforced by: <config layer names>
-
-## Cross-cutting concerns
-
-### XC-<name>: <Concern title>
-<How the system handles it, and where.>
+<The layers, what each holds, and which may import which. The rules are in .cruze/config.yaml, where cruze check enforces them.>
 
 ## Decisions
 
-- ADR-<stem>: <one-line summary>
-- D1: <a project-level decision below the ADR bar> (<reason>)
+- <A choice that shapes the whole system, and why.>

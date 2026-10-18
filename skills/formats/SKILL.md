@@ -1,95 +1,47 @@
 ---
 name: cruze-formats
-description: The formats and templates of every Cruze project document. Use when reading, writing or reviewing any file under docs/ or .cruze/ in a Cruze project.
+description: The formats of every Cruze project document, with templates. Use when reading, writing or reviewing docs/vision.md, docs/architecture.md, docs/features/, or .cruze/config.yaml in a Cruze project.
 ---
 
 # Cruze document formats
 
-Every Cruze document is Markdown that people read and the `cruze` CLI parses. Write them exactly in these formats: `cruze validate` rejects documents that drift, and approvals, staleness and merges all depend on the structure.
+A Cruze project has three kinds of document, all Markdown that people read and `cruze` parses. Create each with `cruze new`, which starts it from its template ([vision](templates/vision.md), [architecture](templates/architecture.md) or [feature](templates/feature.md)), and replace every `<angle-bracket>` guide. `cruze validate` reports what drifts.
 
-## Where documents live
-
-| Path | Document | Written by |
+| Path | What it holds | Written by |
 | --- | --- | --- |
-| `docs/vision.md` | Problem, users, goals, non-goals, constraints, feature map | envision (project scope) |
-| `docs/glossary.md` | Domain terms and terms to avoid | any step, as terms settle |
-| `docs/architecture.md` | Contexts, domain model, use cases, ports, adapters, flows, modules, rules | architect (project scope), rethink, land |
-| `docs/adr/<date>-<slug>.md` | One decision that is hard to reverse, surprising and a real trade-off | architect, rethink |
-| `docs/specs/<capability>.md` | Living behaviour: requirements and scenarios | land, from spec deltas |
-| `docs/roadmap.md` | The current release: phases, items, coverage | architect (project scope), roadmap |
-| `.cruze/features/<id>/feature.md` | One feature: intent, deltas, its ordered changes | envision and architect (feature scope) |
-| `.cruze/features/<id>/changes/<NN-slug>/change.md` | One change of a feature: scope, test plan, tasks | plan |
-| `.cruze/changes/<id>/change.md` | A standalone change, carrying its own deltas | architect (tweak scope) |
-| `.cruze/config.yaml` | Project configuration | `cruze init`, architect |
-| `.cruze/notes/<date>-<slug>.md` | The user's input, envision's intake and its hand-off, an explore note, or research evidence. Free-form under a title and `- Kind:` (`input`, `intake`, `explore` or `research`) and `- About:` lines, which say the work it informs: `project`, feature slugs, or contexts | the user, envision, explore, research |
+| `docs/vision.md` | The problem, users, terms, the release's features and what each needs, future features and what must stay possible, non-goals, constraints | envision |
+| `docs/architecture.md` | The map: an overview diagram, ports with their operations, adapters, the runtime model, technology, layers, decisions | envision; shape when a feature moves a boundary |
+| `docs/features/<slug>.md` | One feature: intent, behaviour as scenarios, public API as code, a stack sketch, decisions | shape; build marks it built |
+| `.cruze/config.yaml` | Project configuration; see [config.md](config.md) | `cruze init`, the foundation feature |
 
-Only the CLI writes `approvals.json`, `journal.jsonl` and anything under `.cruze/archive/`.
+Only `cruze approve` writes `.cruze/approvals.json`.
 
-## IDs
+## The vision's Release table
 
-An ID names one element for its whole life. Other documents cite it, tests carry it, and approvals hash it.
+`## Release` holds a table with the columns `Feature | Summary | Needs`, one row per feature of the release, in the order they should be built. Feature is the slug of its `docs/features/` file. Needs lists the slugs, comma-separated, of the features it can't be built without; leave it blank when there are none. `cruze next` picks the first feature not yet shaped whose needs are all built, and `cruze validate` refuses an unknown slug and a circle of needs.
 
-- Grammar: `<KIND>-<name>` or `<KIND>-<scope>.<name>`. `scope` and `name` are lowercase words joined by single hyphens, such as `REQ-access.open-console`.
-- Elements that belong to a bounded context or a capability carry it as their scope. Elements outside every context, such as the CLI shell and the composition root, use the scope `system`.
-- IDs are named, never numbered, so parallel branches never race for the next number.
-- An ID is never reused, even after its element is removed. Rename the title freely; the ID stays.
+`## Future features` uses `Feature | Summary | Must stay possible`. These shape boundaries in the architecture; nothing is built for them until they join a release.
 
-| Kind | Element | Lives in | Scope |
-| --- | --- | --- | --- |
-| `GOAL` | A goal of the product | vision | none |
-| `PRINCIPLE` | A rule every design follows | vision | none |
-| `LATER` | A capability that must stay possible after this release | vision | none |
-| `CTX` | Bounded context | architecture | none |
-| `ENT` | Domain concept: aggregate, entity, value object, domain service, policy or domain event | architecture | context |
-| `UC` | Use case (the application's driving API) | architecture | context |
-| `PORT` | Port, driven or driving | architecture | context |
-| `ADP` | Adapter | architecture | context |
-| `FLOW` | Interaction flow, as a sequence diagram | architecture | context |
-| `MOD` | Module: a directory or file with one role | architecture | context, or none for shared modules |
-| `RULE` | Dependency rule | architecture | none |
-| `VIEW` | Overview diagram | architecture | none |
-| `XC` | Cross-cutting concern | architecture | none |
-| `REQ` | Requirement | specs | capability |
-| `SCN` | Scenario of a requirement | specs | capability |
-| `ADR` | Decision record, named by its file stem | `docs/adr/` | none |
+## Features
 
-## Elements
+A feature file starts with its title and a status line:
 
-- A **heading element** is a heading whose text is exactly `<ID>: <Title>`. It extends to the next heading of the same or a higher level.
-- A **row element** is a table row whose first cell is exactly an ID. Only the vision's goals, principles and must-stay-possible capabilities use rows.
-- Element facts are list items of the form `- Key: value`, directly in the element's body. Sub-items hold lists of values.
-- An element cites another by writing its ID anywhere in its body. Every ID a document mentions counts as cited.
-- A cited ID must exist, either in the living docs or in a delta of the same feature or change. Design at project scope cites only what it defines; the feature that adds scenarios links them to flows and use cases through `MODIFIED` operations.
+```markdown
+# Sign in
 
-## Decisions
+- Status: shaped
+```
 
-A settled decision is a bullet `D<n>: <decision> (<reason>)` in the architecture's `## Decisions`, a feature or a change. Each document numbers its own from D1, and a feature or change is archived when it finishes, so a number means something only inside the document that records it.
+The status is `shaped` until build finishes the feature, then `built`. The sections are `## Intent`, `## Behaviour`, `## Public API`, `## Stack sketch` and `## Decisions`, in that order.
 
-- Cite a decision by number only inside that document. The architecture cites its own. A feature cites its own, and a change cites its own and its feature's.
-- A delta's elements merge into the living docs, so they cite only a project decision that the work's own `## Settled decisions` doesn't also number. Write what any other decision settled into the element, or record it as an ADR and cite the ADR.
-- Code comments cite no decision by number. Say what was decided, or cite the element or ADR that holds it.
-- `cruze validate` and `cruze check` report a citation that breaks these rules as `decision-citation`, and `cruze approve` refuses a feature or standalone change whose delta has one (`decision-cited`).
+Each scenario under `## Behaviour` is a heading `### SCN-<slug>.<name>: <title>`, where `<slug>` is the feature's and `<name>` is lowercase words joined by hyphens, followed by Given, When and Then bullets in the user's words. A scenario ID is never reused, even after its scenario is removed, and the test that proves a scenario carries its ID in a comment or string, such as `// SCN-sign-in.wrong-password`. `cruze trace` fails when a built feature's scenario has no test, or a test names a scenario no feature defines.
 
-## Managed content
+A later feature that changes an earlier one's behaviour edits that feature's file in place, and git keeps the history.
 
-The CLI owns some content so that routine bookkeeping never changes a design:
+## Approvals
 
-- A block between `<!-- cruze:managed -->` and `<!-- /cruze:managed -->` is written only by the CLI.
-- A `- Status: planned` or `- Status: built` item in an element body is written only by the CLI. Elements that have code (`ENT`, `UC`, `PORT`, `ADP`, `FLOW`, `MOD`) and scenarios (`SCN`) carry one.
-- Both are excluded from every hash. Read them freely; change them only through `cruze` commands:
-  - `cruze approve` adds missing statuses to the architecture, sets built elements back to planned with `--replan`, and binds a change to its branch. With `--by-agent` it approves a change whose plan review closed, and with `--restamp-unchanged` it re-stamps work a rethink left unchanged, recording that the agent gave the approval.
-  - `cruze task` records progress, and `cruze features` edits the feature map.
-  - `cruze land` merges work, marks it built and fills the Commands and Layout sections of `AGENTS.md`.
-  - `cruze roadmap prune` and `cruze abandon` update the roadmap's status.
+`cruze approve <vision|architecture|slug>` records a hash of the document's content as the user approved it. Any later edit shows it as `edited` in `cruze status` until it is approved again. The status line and a feature's `## Decisions` are left out of the hash, so marking a feature built or recording a decision never counts as an edit. Approve only on the user's word.
 
-## Reference files
+## Size
 
-Read the one that matches the document in front of you:
-
-- [reference/architecture.md](reference/architecture.md) for `docs/architecture.md` and architecture deltas.
-- [reference/specs.md](reference/specs.md) for `docs/specs/`, requirements, scenarios and spec deltas.
-- [reference/work-items.md](reference/work-items.md) for `feature.md`, `change.md`, test plans and task lines.
-- [reference/durable-docs.md](reference/durable-docs.md) for vision, glossary, ADRs and the roadmap.
-- [reference/config.md](reference/config.md) for `.cruze/config.yaml`.
-
-Create documents with `cruze new`: `cruze new vision`, `glossary`, `architecture` or `roadmap` for the project documents, and `cruze new feature`, `change`, `adr` or `note <slug> --title <title>` for the rest. It starts each one from the matching file in `templates/` and fills the `{{placeholders}}`. Replace every `<angle-bracket>` guide.
+A document is for a person to read in one sitting. `cruze validate` warns past 1,500 words for the vision, 3,000 for the architecture and 2,500 for a feature. Cut what the agent decided that the user needn't read, or split the feature.

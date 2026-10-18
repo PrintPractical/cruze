@@ -1,16 +1,11 @@
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
 import { describe, it } from "node:test";
-import { fileURLToPath } from "node:url";
 import { PackageBundle } from "../src/adapters/outbound/package_bundle.ts";
 import { parseConfig } from "../src/domain/config.ts";
 import { INIT_AGENTS, INIT_SCAFFOLD, renderTemplate, reviewSettingTemplate } from "../src/domain/scaffold.ts";
 import { SKILL_FILE, agentToolProblems, skillProblems } from "../src/domain/skill.ts";
 import { BUNDLE_WORD_BUDGET, MAX_FILE_WORDS, budgetProblems } from "../src/domain/skill_budget.ts";
 import { skillLinkProblems, type SkillFiles } from "../src/domain/skill_links.ts";
-import { compareVersions } from "../src/domain/versions/cruze_version.ts";
-import { parseRealignNotes, type RealignNote } from "../src/domain/versions/realign_notes.ts";
-import { RULE_SINCE } from "../src/domain/versions/rule_versions.ts";
 
 // Lints the real package contents: what `npm publish` would ship.
 describe("the shipped bundle", () => {
@@ -31,7 +26,7 @@ describe("the shipped bundle", () => {
     assert.deepEqual(skillLinkProblems(await bundle.skills()), []);
   });
 
-  // Between 0.0.1 and 0.0.10 the skills grew by half, and no retro removed anything.
+  // Between 0.0.1 and 0.0.13 the skills grew to 45,800 words; 0.0.14 cut them to 17,400.
   it("keeps every instruction file, and the bundle as a whole, within their word budgets", async () => {
     const bundle = await PackageBundle.locate();
     assert.deepEqual(budgetProblems(await bundle.skills()), []);
@@ -59,41 +54,6 @@ describe("the shipped bundle", () => {
         assert.equal(parsed.config?.review.command?.[0], agent === "claude" ? "claude" : undefined);
       }
     }
-  });
-});
-
-// Realign brings existing projects up to each release, so a release must say what it expects of them.
-describe("the realign notes", () => {
-  const notesOf = async (): Promise<{ notes: RealignNote[]; problems: string[]; versions: string[] }> => {
-    const skill = (await (await PackageBundle.locate()).skills()).find((s) => s.folder === "realign");
-    const files = (skill?.files ?? []).filter((f) => f.path.startsWith("notes/"));
-    const parsed = files.map((f) => ({ version: /^notes\/(.+)\.md$/.exec(f.path)?.[1] ?? "", text: f.text }));
-    const results = parsed.map((p) => parseRealignNotes(p.version, p.text));
-    const badNames = parsed.filter((p) => !/^\d+\.\d+\.\d+$/.test(p.version)).map((p) => `notes/${p.version}.md is not named for a version`);
-    return { notes: results.flatMap((r) => r.notes), problems: [...badNames, ...results.flatMap((r) => r.problems)], versions: parsed.map((p) => p.version) };
-  };
-
-  it("are well formed", async () => {
-    assert.deepEqual((await notesOf()).problems, []);
-  });
-
-  it("give every rule that reports on existing code a note in the release that introduced it", async () => {
-    const { notes } = await notesOf();
-    const missing = Object.entries(RULE_SINCE).filter(([key, since]) => !notes.some((n) => n.detect === key && n.version === since)).map(([key, since]) => `${key} has no note in notes/${since}.md`);
-    const unknown = notes.filter((n) => n.detect !== undefined && RULE_SINCE[n.detect] === undefined).map((n) => `${n.version} ${n.id} detects ${n.detect}, which RULE_SINCE doesn't list`);
-    assert.deepEqual([...missing, ...unknown], []);
-  });
-
-  it("include a notes file for the coming release whenever the changelog has unreleased changes", async () => {
-    const bundle = await PackageBundle.locate();
-    const changelog = readFileSync(fileURLToPath(new URL("../CHANGELOG.md", import.meta.url)), "utf8");
-    const unreleased = changelog.slice(changelog.indexOf("## [Unreleased]"), changelog.indexOf("\n## [", changelog.indexOf("## [Unreleased]") + 1));
-    if (!/^- /m.test(unreleased)) return;
-    const { versions } = await notesOf();
-    assert.ok(
-      versions.some((v) => compareVersions(v, bundle.version) > 0),
-      `the changelog has unreleased changes, so add skills/realign/notes/<next version>.md, newer than ${bundle.version}`,
-    );
   });
 });
 
@@ -161,22 +121,5 @@ describe("checking skills for agent-specific tools", () => {
       "plan/SKILL.md:3: names a Claude Code tool name; describe the action instead",
       "plan/SKILL.md:4: names a tool name in backticks; describe the action instead",
     ]);
-  });
-});
-
-// Maintainer skills live in this repository's own .agents/skills/, are not shipped, and follow the same rules.
-describe("the maintainer skills", () => {
-  it("are valid skills whose pointers resolve and that name no agent-specific tool", () => {
-    const root = fileURLToPath(new URL("../.agents/skills/", import.meta.url));
-    const skills = readdirSync(root, { withFileTypes: true }).filter((e) => e.isDirectory()).map((dir) => ({
-      folder: dir.name.replace(/^cruze-/, ""),
-      files: readdirSync(`${root}${dir.name}`).filter((f) => f.endsWith(".md")).map((f) => ({ path: f, text: readFileSync(`${root}${dir.name}/${f}`, "utf8") })),
-    }));
-    assert.ok(skills.some((skill) => skill.folder === "retro"));
-    const problems = skills.flatMap((skill) => [
-      ...skillProblems(skill.folder, skill.files.find((f) => f.path === SKILL_FILE)?.text ?? ""),
-      ...skill.files.flatMap((f) => agentToolProblems(`${skill.folder}/${f.path}`, f.text)),
-    ]);
-    assert.deepEqual([...problems, ...skillLinkProblems(skills)], []);
   });
 });
