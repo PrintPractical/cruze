@@ -27,9 +27,9 @@ jobs:
           repo="$(mktemp -d)"
           git -C "$repo" init -q
           (cd "$repo" && npx --yes --package="$tarball" cruze init --name "CI Smoke" --yes)
-          test -f "$repo/.claude/skills/cruze-about/SKILL.md"
+          test -f "$repo/.claude/skills/cruze-envision/SKILL.md"
           test -f "$repo/.cruze/config.yaml"
           # The steps the generated CI runs pass on a fresh repository.
-          for step in validate "check --ci" "trace --all"; do
+          for step in validate "check --ci" trace; do
             (cd "$repo" && npx --yes --package="$tarball" cruze $step)
           done
