@@ -1,6 +1,5 @@
-import { serializeApprovals, withApproval, type ApprovalRecord } from "../../domain/approvals.ts";
+import { approvalHash, serializeApprovals, withApproval, type ApprovalRecord } from "../../domain/approvals.ts";
 import { CruzeError } from "../../domain/cruze_error.ts";
-import { designHash } from "../../domain/hashing.ts";
 import { parseMarkdown } from "../../domain/markdown.ts";
 import { PATHS } from "../../domain/project/layout.ts";
 import { resolveDocument } from "../../domain/project/project_docs.ts";
@@ -21,7 +20,7 @@ export async function approveDocument(deps: ProjectDeps, ref: string): Promise<A
   }
   const record: ApprovalRecord = {
     path,
-    hash: designHash(parseMarkdown(docs.snapshot.get(path) ?? "")),
+    hash: approvalHash(path, parseMarkdown(docs.snapshot.get(path) ?? "")),
     approvedAt: deps.clock.now().toISOString(),
     by: (await deps.repository.userName()) ?? "unknown",
   };

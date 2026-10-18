@@ -17,6 +17,9 @@ A rewrite around five steps: envision, shape, build, review and fix. Measured ac
 - `cruze approve` hashes one document; an edit after approval shows it as edited until it is approved again. `cruze trace` checks every built feature, or one named feature. `cruze review` runs the code reviewer or the researcher. The config is version 2.
 - The first feature of a release sets up CI with the language's build, tests and a line coverage gate.
 - Envision writes the README once the vision and architecture are approved: what the project is, its status and the release's features, how it is built, and where the documents live. Review keeps its status and usage current as features land.
+- A feature's `## Decisions` stays out of its approval, so build and review recording a choice no longer show the feature as edited; your approval covers its intent, behaviour, public API and stack sketch. The architecture's decisions still count.
+- The first feature adds the project's test and lint commands to `review.command`, so the fresh-context reviewer can run the tests rather than only read the code.
+- A bug found and not fixed straight away is filed as an issue in the project's tracker, and `fix` starts from it. Review files the findings it leaves the same way.
 
 ### Removed
 

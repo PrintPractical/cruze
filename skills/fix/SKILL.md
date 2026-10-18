@@ -1,6 +1,6 @@
 ---
 name: cruze-fix
-description: Takes a reported bug from symptom to a merged fix, reproducing it with a failing test first, fixing the root cause, and reviewing the fix, going back to the user only when the fix changes approved behaviour.
+description: Takes a reported bug, from the user or an issue, from symptom to a merged fix, reproducing it with a failing test first, fixing the root cause, and reviewing the fix, going back to the user only when the fix changes approved behaviour.
 ---
 
 # Fix
@@ -9,7 +9,7 @@ A bug report becomes a failing test, then a fix, then a reviewed pull request. M
 
 ## Steps
 
-1. **Capture the symptom:** the exact steps, what happened (output, error, exit code), what the user expected, and the environment. Done when you can write the steps as commands.
+1. **Capture the symptom** from the user or the issue: the exact steps, what happened (output, error, exit code), what the user expected, and the environment. Done when you can write the steps as commands.
 2. **Reproduce it** against the real system. Done when you can make it fail on demand and have quoted the output. When you can't, ask the user what differs in their environment, and stop until you can.
 3. **Find the scenario** in `docs/features/` that covers this behaviour, and classify the bug:
    - **The code is wrong:** a scenario says what should happen, and the code does something else.
@@ -27,6 +27,7 @@ A bug report becomes a failing test, then a fix, then a reviewed pull request. M
 - A missing test is part of the cause. When the scenario had a test that passed anyway, say why it missed the bug, and strengthen it in the same fix.
 - Fix the cause only. Clean-ups you notice go to the user as suggestions.
 - Never change a scenario to match the code without the user's approval.
+- A bug found during other work and not fixed then becomes an issue in the project's tracker, such as GitHub: the symptom, how to reproduce it, the cause when known, and the scenario it breaks. `fix` starts from it later; an agent's memory is no place for it.
 
 ## Next step
 

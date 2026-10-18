@@ -29,6 +29,17 @@ describe("approving a document", () => {
     assert.equal(JSON.parse(h.files.files.get(".cruze/approvals.json") ?? "").approvals.length, 1);
   });
 
+  // wifi-motion-2: decisions build and review recorded left every feature edited, and the user re-approved each one.
+  it("keeps a feature approved when build or review records a decision, but not the architecture", async () => {
+    const h = await exampleProject();
+    await approveDocument(h.deps, "open-serial");
+    await approveDocument(h.deps, "architecture");
+    edit(h.files, OPEN_SERIAL, "## Decisions\n", "## Decisions\n\n- The port opens in exclusive mode (another program can't steal it).\n");
+    assert.equal(await stateOf(h.deps, "open-serial"), "approved");
+    edit(h.files, "docs/architecture.md", "## Decisions\n", "## Decisions\n\n- Logs go to stderr.\n");
+    assert.equal((await showStatus(h.deps)).documents[1]?.state, "edited");
+  });
+
   it("keeps a feature approved when build marks it built", async () => {
     const h = await exampleProject();
     await approveDocument(h.deps, "open-serial");

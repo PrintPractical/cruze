@@ -1,5 +1,6 @@
 import { designHash } from "./hashing.ts";
 import type { MarkdownDoc } from "./markdown.ts";
+import { slugOfFeaturePath } from "./project/layout.ts";
 
 /** One approval of one document: the hash of its design content when the user approved it. */
 export interface ApprovalRecord {
@@ -34,9 +35,17 @@ export function withApproval(records: ApprovalRecord[], record: ApprovalRecord):
   return [...records.filter((r) => r.path !== record.path), record];
 }
 
+/**
+ * The hash an approval records. A feature's `## Decisions` is the agent's record of what it chose,
+ * which build and review add to, so it stays out: the user's approval covers the rest.
+ */
+export function approvalHash(path: string, doc: MarkdownDoc): string {
+  return designHash(doc, slugOfFeaturePath(path) === undefined ? [] : ["Decisions"]);
+}
+
 /** Whether the document still reads as it did when it was approved. */
 export function approvalState(records: readonly ApprovalRecord[], path: string, doc: MarkdownDoc): ApprovalState {
   const record = records.find((r) => r.path === path);
   if (record === undefined) return "unapproved";
-  return record.hash === designHash(doc) ? "approved" : "edited";
+  return record.hash === approvalHash(path, doc) ? "approved" : "edited";
 }

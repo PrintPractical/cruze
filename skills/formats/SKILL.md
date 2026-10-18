@@ -40,7 +40,7 @@ A later feature that changes an earlier one's behaviour edits that feature's fil
 
 ## Approvals
 
-`cruze approve <vision|architecture|slug>` records a hash of the document's content as the user approved it. Any later edit shows it as `edited` in `cruze status` until it is approved again; the status line is left out of the hash, so marking a feature built never counts as an edit. Approve only on the user's word.
+`cruze approve <vision|architecture|slug>` records a hash of the document's content as the user approved it. Any later edit shows it as `edited` in `cruze status` until it is approved again. The status line and a feature's `## Decisions` are left out of the hash, so marking a feature built or recording a decision never counts as an edit. Approve only on the user's word.
 
 ## Size
 

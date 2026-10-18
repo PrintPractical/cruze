@@ -49,7 +49,8 @@ The first feature of a release also sets up what every later feature relies on:
 
 - the project's build, with the layers of `docs/architecture.md` as directories and `source`, `tests` and `layers` in `.cruze/config.yaml` matching them;
 - CI in `.github/workflows/ci.yml` that runs the formatter, the linter, the build, the full test suite, and a line coverage gate, such as `cargo llvm-cov --fail-under-lines 80`, alongside the Cruze checks already there;
-- `## Commands` and `## Layout` in `AGENTS.md`, filled in from what exists.
+- `## Commands` and `## Layout` in `AGENTS.md`, filled in from what exists;
+- the project's test and lint commands added to `review.command` in `.cruze/config.yaml`, such as `Bash(cargo test:*) Bash(cargo clippy:*)` for Claude Code, so the reviewer can run them.
 
 ## Protecting the check
 
