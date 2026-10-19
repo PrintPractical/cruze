@@ -43,6 +43,31 @@ describe("checking source code", () => {
     assert.deepEqual(report.findings.map((f) => f.message), ["domain may not import app (src/app/ports.rs)"]);
   });
 
+  it("follows imports between a workspace's crates, and leaves outside crates alone", async () => {
+    const h = await exampleProject();
+    const config = h.files.files.get(".cruze/config.yaml") ?? "";
+    h.files.files.set(".cruze/config.yaml", `${config.slice(0, config.indexOf("source:"))}source: ["crates/*/src/**/*.rs"]
+tests: []
+layers:
+  - name: core
+    paths: ["crates/motion/src/core/**"]
+    may_import: []
+  - name: adapters
+    paths: ["crates/motion/src/adapters/**", "crates/motion-cli/src/**"]
+    may_import: [core]
+`);
+    h.files.files.set("crates/motion/src/lib.rs", "pub mod core;\npub mod adapters;\n");
+    h.files.files.set("crates/motion/src/core/state.rs", "pub struct State;\n");
+    h.files.files.set("crates/motion/src/adapters/control.rs", "use crate::core::state::State;\n");
+    h.files.files.set("crates/motion-cli/src/lib.rs", "use motion::core::state::State;\nuse serde::Serialize;\n");
+    assert.deepEqual((await checkCode(h.deps, { ci: false })).findings.filter((f) => f.rule === "layer"), []);
+
+    h.files.files.set("crates/motion-cli/src/commands/watch.rs", "pub struct Watch;\n");
+    h.files.files.set("crates/motion/src/core/state.rs", "use motion_cli::Thing;\nuse motion_cli::commands::watch::Watch;\npub struct State;\n");
+    const findings = (await checkCode(h.deps, { ci: false })).findings.filter((f) => f.rule === "layer");
+    assert.deepEqual(findings.map((f) => [f.line, f.message]), [[2, "core may not import adapters (crates/motion-cli/src/commands/watch.rs)"]]);
+  });
+
   it("warns on budgets locally and fails them in CI, except for files listed with a reason", async () => {
     const h = await exampleProject();
     const long = `${"// line\n".repeat(610)}`;

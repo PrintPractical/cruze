@@ -44,4 +44,4 @@ review:
 | `layers` | Each layer has a `name`, the `paths` it covers, and `may_import`, the layers it may depend on. |
 | `review.command` | The program and arguments `cruze review` runs to start an agent in a fresh context, with the prompt on standard input. Without it, `cruze review` hands the prompt back for the calling agent to run in a helper of its own. |
 
-A source file belongs to the first layer whose paths match it, and `cruze check` fails an import into a layer its own layer may not import. A layer may import itself, and code outside the project, such as the standard library and dependencies, is always allowed. Keep every source file in a layer: `cruze check` warns on one that isn't.
+A source file belongs to the first layer whose paths match it, and `cruze check` fails an import into a layer its own layer may not import. In a Cargo workspace it follows `use other_crate::…` into that crate, named by its directory. A layer may import itself, and code outside the project, such as the standard library and dependencies, is always allowed. Keep every source file in a layer: `cruze check` warns on one that isn't.

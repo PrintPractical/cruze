@@ -12,11 +12,11 @@ export interface SourceImport {
 const JS = /\.(?:[cm]?[jt]sx?)$/;
 const JS_EXTENSIONS = ["", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", "/index.ts", "/index.js"];
 
-/** Imports that point inside the project. Imports of libraries and the standard library are left out. */
-export function importsOf(path: string, text: string): SourceImport[] {
+/** Imports that point inside the project, among `files`. Imports of libraries and the standard library are left out. */
+export function importsOf(path: string, text: string, files: readonly string[]): SourceImport[] {
   if (JS.test(path)) return jsImports(path, text);
   if (path.endsWith(".py")) return pythonImports(path, text);
-  if (path.endsWith(".rs")) return rustImportCandidates(path, text).map((i) => ({ ...i, bySuffix: false }));
+  if (path.endsWith(".rs")) return rustImportCandidates(path, text, files).map((i) => ({ ...i, bySuffix: false }));
   if (/\.(?:c|h|cc|cpp|cxx|hh|hpp|hxx)$/.test(path)) return matches(text, /^\s*#\s*include\s+"([^"]+)"/gm, (target) => [target], true);
   if (path.endsWith(".go")) return goImports(text);
   if (/\.(?:java|kt)$/.test(path)) return matches(text, /^import\s+(?:static\s+)?([\w.]+)(?:\.\*)?;?\s*$/gm, (t) => [`${t.replace(/\./g, "/")}.java`, `${t.replace(/\./g, "/")}.kt`], true);

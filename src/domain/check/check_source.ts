@@ -37,7 +37,7 @@ export function checkSource(input: CheckInput): CheckFinding[] {
       findings.push({ path, rule: "no-layer", severity: "warning", message: "the file is in no layer, so its imports are unchecked" });
     }
     if (layer !== undefined) {
-      for (const found of importsOf(path, text)) {
+      for (const found of importsOf(path, text, all)) {
         const target = resolveImport(found, all);
         const targetLayer = target === undefined ? undefined : layerOf(target);
         if (target === undefined || targetLayer === undefined || targetLayer.name === layer.name) continue;
