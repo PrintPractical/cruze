@@ -98,7 +98,7 @@ When the CLI you run differs from the version the project records, every command
 | `cruze init` | Sets up the repository and installs the skills |
 | `cruze install` | Installs or updates the skills |
 | `cruze new vision\|architecture\|feature <slug>` | Starts a document from its template |
-| `cruze validate` | Checks the documents: required sections, scenario IDs, the release's features and needs, size, leftover template text |
+| `cruze validate` | Checks the documents: required sections, scenario IDs, the release's features and needs, leftover template text |
 | `cruze approve <vision\|architecture\|slug>` | Records that you approved a document as it reads now |
 | `cruze status` | Each document's approval and each feature's progress, in release order, and the next step |
 | `cruze next` | The step to run next, and why |

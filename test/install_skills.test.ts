@@ -72,6 +72,17 @@ describe("installing skills", () => {
     assert.equal(files.files.has(".agents/skills/cruze-plan/obsolete.md"), false);
   });
 
+  it("notes when a built project's reviewer may still run only what cruze init allowed", async () => {
+    const setting = `review:\n  command: ["claude", "-p"]\n`;
+    const files = new MemoryProjectFiles({
+      ".cruze/config.yaml": `version: 2\ncruze: "0.0.1"\nproject: "Demo"\n${setting}`,
+      "docs/features/demo.md": "# Demo\n\n- Status: built\n",
+    });
+    const report = await installSkills({ files, bundle: new FakeBundle({ templates: { "init/review/claude.yaml": setting } }) }, { agents: [] });
+
+    assert.match(report.notes.join("\n"), /can't run the project's tests/);
+  });
+
   it("refuses a bundle with an invalid skill and writes nothing", async () => {
     const files = new MemoryProjectFiles();
     const bundle = new FakeBundle({ skills: [skillFixture("plan"), skillFixture("build", "build")] });

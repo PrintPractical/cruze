@@ -44,4 +44,4 @@ A later feature that changes an earlier one's behaviour edits that feature's fil
 
 ## Size
 
-A document is for a person to read in one sitting. `cruze validate` warns past 1,500 words for the vision, 3,000 for the architecture and 2,500 for a feature. Cut what the agent decided that the user needn't read, or split the feature.
+A document is for a person to read. Leave out what the agent decided that the user needn't read, and split a feature that has grown past one shape-and-build cycle. No length is enforced, so never trim a document to a word count.
