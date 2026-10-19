@@ -10,7 +10,7 @@ It works with any agent that supports the [Agent Skills](https://agentskills.io)
 
 ## Status
 
-Version 0.0.14 is a rewrite. The earlier previews ran thirteen steps with design reviews, plans, verifiers, journals and merged living specs. Measured across nine projects, they took about twice the time of a plain design doc and plan for code of the same quality, and asked the user so many questions that most answers were a bare "agree". This version keeps what paid off and drops the rest. Nothing is compatible with 0.0.13 projects. Claude Code is the agent tested so far.
+Version 0.0.14 was a rewrite. The earlier previews ran thirteen steps with design reviews, plans, verifiers, journals and merged living specs. Measured across nine projects, they took about twice the time of a plain design doc and plan for code of the same quality, and asked the user so many questions that most answers were a bare "agree". It kept what paid off and dropped the rest. Nothing is compatible with 0.0.13 projects. Claude Code is the agent tested so far.
 
 ## The flow
 
@@ -48,7 +48,7 @@ The skills run `cruze` commands, so the agent needs `cruze` on its path. Install
 From a GitHub Release, without npm:
 
 ```sh
-npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.14/printpractical-cruze-0.0.14.tgz
+npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.15/printpractical-cruze-0.0.15.tgz
 ```
 
 From npm, once a version is published there:
@@ -60,7 +60,7 @@ npm install -g @printpractical/cruze
 From the git repository, at a tag or `#main`. npm 11 needs `--install-links` for a global git install, and the first `cruze` command builds the CLI:
 
 ```sh
-npm install -g --install-links github:PrintPractical/cruze#v0.0.14
+npm install -g --install-links github:PrintPractical/cruze#v0.0.15
 ```
 
 ### 2. Set up a repository
@@ -74,7 +74,7 @@ cruze init
 When you didn't install from npm, tell `init` where Cruze came from, so the CI it writes runs the same source:
 
 ```sh
-cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.14/printpractical-cruze-0.0.14.tgz
+cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.15/printpractical-cruze-0.0.15.tgz
 ```
 
 `init` asks for the project name and your coding agent: `claude` for Claude Code, or `other` for any agent that reads `AGENTS.md` and `.agents/skills/`. It creates `README.md`, `CHANGELOG.md`, `AGENTS.md` (and `CLAUDE.md` for Claude Code), `.cruze/config.yaml`, a CI workflow that runs `cruze validate`, `check` and `trace`, and the skills in `.agents/skills/`, linked into `.claude/skills/` for Claude Code. It never overwrites an existing file.
