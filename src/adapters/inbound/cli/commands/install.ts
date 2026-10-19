@@ -15,5 +15,6 @@ export function describeSkillInstall(report: InstallSkillsReport): string[] {
   if (from !== to) lines.push(`Recorded Cruze ${to} in .cruze/config.yaml${from === undefined ? "" : `, up from ${from}`}`);
   if (ci.repinned.length > 0) lines.push(`CI runs ${ci.repinned.join(", ")}`);
   for (const spec of ci.unrecognised) lines.push(`CI runs ${spec}, which Cruze can't move to ${to}; update .github/workflows/ci.yml yourself`);
+  for (const note of report.notes) lines.push(`Note: ${note}`);
   return lines;
 }

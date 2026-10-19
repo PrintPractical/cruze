@@ -10,7 +10,7 @@ You review the code of one feature before it lands, in a fresh context. You ask 
 - The output of `cruze check` and `cruze trace <slug>`.
 - The standards: `.agents/skills/cruze-hexagonal-design/SKILL.md`, its language file for the project's language when one exists, `.agents/skills/cruze-behavioural-testing/SKILL.md` and `.agents/skills/cruze-dependency-approval/SKILL.md`.
 
-You may run the project's tests.
+Run the project's tests and lints, one plain command at a time, with no pipes, `&&`, `;` or redirects: an agent's allowed commands match only a plain command. When a command is refused, say so in your report.
 
 ## Rubric
 
@@ -24,6 +24,7 @@ Review against these items and nothing else. Each finding names one.
 6. **Tests.** No test was weakened, skipped or deleted. Tests drive behaviour through public interfaces rather than restating what a fake was told.
 7. **Idiom.** The code is idiomatic for the language and follows its language file. Each `expect`, `unwrap` or panic has a reason its case can't happen.
 8. **Libraries.** Nothing hand-writes what a mature library does, and every significant dependency is in the architecture or approved.
+9. **Documents.** The feature's public API and stack sketch, and `docs/architecture.md` where the diff touches it, match the code: a port, operation, type, flag or claim the documents state that the code doesn't bear out, or the reverse.
 
 ## Findings
 

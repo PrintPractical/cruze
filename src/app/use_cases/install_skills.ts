@@ -1,9 +1,12 @@
 import { posix } from "node:path";
 import { CruzeError } from "../../domain/cruze_error.ts";
 import { AGENT_SKILL_HOMES, SHARED_SKILLS_DIR, agentSkillHome, knownAgents } from "../../domain/agent_skill_homes.ts";
+import { reviewSettingTemplate } from "../../domain/scaffold.ts";
 import { SKILL_FILE, installedSkillName, isInstalledSkillName, skillProblems } from "../../domain/skill.ts";
+import { reviewCommandProblems } from "../../domain/validation/review_rules.ts";
 import type { Bundle, BundledSkill } from "../ports/bundle.ts";
 import type { ProjectFiles } from "../ports/project_files.ts";
+import { loadDocs } from "../project_context.ts";
 import { recordVersion, refuseDowngrade, type VersionRecord } from "./record_version.ts";
 
 export interface InstallSkillsRequest {
@@ -18,6 +21,8 @@ export interface InstallSkillsReport {
   linked: Array<{ agent: string; dir: string }>;
   /** The version recorded in .cruze/config.yaml, and the CI workflow's Cruze pin. */
   recorded: VersionRecord;
+  /** What the project still has to change by hand, such as letting the reviewer run its tests. */
+  notes: string[];
 }
 
 /**
@@ -55,7 +60,8 @@ export async function installSkills(
   }
 
   const recorded = await recordVersion(files, bundle.version);
-  return { version: bundle.version, installed: names, removed, linked, recorded };
+  const notes = reviewCommandProblems(await loadDocs(files), await bundle.template(reviewSettingTemplate("claude"))).map((problem) => problem.message);
+  return { version: bundle.version, installed: names, removed, linked, recorded, notes };
 }
 
 function assertValid(skills: BundledSkill[]): void {

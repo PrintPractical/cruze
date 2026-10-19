@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.15] - 2026-10-18
+
+Fixes from the first project to reach a release on 0.0.14.
+
+### Changed
+
+- `cruze validate` no longer warns on a document's length. On the first project to reach a release, the vision went through about eleven rounds of trimming to land under its limit, and every later document passed its limit with the user's blessing. The formats skill still asks for documents a person can read, without a count to trim to.
+- The code reviewer checks that the feature's public API and stack sketch, and the architecture where the change touches it, match the code, and review corrects the documents that drifted, showing the user each change to an approved one.
+- The code reviewer runs the project's tests and lints one plain command at a time, since an agent's allowed commands match only a plain command, and says in its report when one was refused.
+
+### Fixed
+
+- `cruze check` follows `use other_crate::…` between a Cargo workspace's crates, so a layer rule holds across crates, not only within one.
+- `cruze validate` warns, and `cruze install` notes, when a feature is built but `review.command` is still the one `cruze init` wrote, which lets the reviewer read the code but not run its tests.
+
 ## [0.0.14] - 2026-10-18
 
 A rewrite around five steps: envision, shape, build, review and fix. Measured across nine projects, 0.0.13 took about twice the time of a plain design document and plan, wrote about ten words of documents per line of code, and asked so many questions that 71% of answers were a bare "agree", for code of the same quality. The verifier found one problem in 23.6 hours, and most rethinks came from Cruze's own rules. This release keeps what paid off and cuts the rest. Projects started on 0.0.13 or earlier aren't compatible: their config is refused, and their documents would need writing again.
@@ -313,7 +328,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.14...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.15...HEAD
+[0.0.15]: https://github.com/PrintPractical/cruze/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/PrintPractical/cruze/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/PrintPractical/cruze/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/PrintPractical/cruze/compare/v0.0.11...v0.0.12

@@ -40,16 +40,27 @@ describe("validating the documents", () => {
     assert.deepEqual(problems.map((p) => p.message), ["list-devices needs teleport, which isn't a feature of this release", "features need each other in a circle: list-devices → run-commands → open-serial → list-devices"]);
   });
 
-  it("warns on a document too long to read in one sitting, and on leftover template guides", async () => {
+  it("reports leftover template guides, and never a document's length", async () => {
     const h = await exampleProject();
     setVersion(h.files, h.deps.bundle.version);
-    edit(h.files, OPEN_SERIAL, "## Decisions\n", `## Decisions\n\n${"word ".repeat(2600)}\n\n- <A choice>\n`);
-    assert.deepEqual(await rules(h.deps), [[OPEN_SERIAL, "too-long"], [OPEN_SERIAL, "template-leftover"]]);
+    edit(h.files, OPEN_SERIAL, "## Decisions\n", `## Decisions\n\n${"word ".repeat(5000)}\n\n- <A choice>\n`);
+    assert.deepEqual(await rules(h.deps), [[OPEN_SERIAL, "template-leftover"]]);
+  });
+
+  it("warns once a feature is built while the reviewer may still run only what cruze init allowed", async () => {
+    const h = await exampleProject();
+    setVersion(h.files, h.deps.bundle.version);
+    const initCommand = `["claude", "-p", "--allowedTools", "Read Grep Glob Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(cruze:*)"]`;
+    const config = h.files.files.get(".cruze/config.yaml") ?? "";
+    h.files.files.set(".cruze/config.yaml", `${config}\nreview:\n  command: ${initCommand}\n`);
+    assert.deepEqual(await rules(h.deps), [[".cruze/config.yaml", "review-tests"]]);
+    edit(h.files, ".cruze/config.yaml", "Bash(cruze:*)", "Bash(cruze:*) Bash(cargo test:*)");
+    assert.deepEqual(await rules(h.deps), []);
   });
 
   it("refuses a config from an older Cruze, and warns when the skills don't match this CLI", async () => {
     const h = await exampleProject();
-    assert.deepEqual(await rules(h.deps), h.deps.bundle.version === "0.0.14" ? [] : [[".cruze/config.yaml", "cruze-version"]]);
+    assert.deepEqual(await rules(h.deps), h.deps.bundle.version === "0.0.15" ? [] : [[".cruze/config.yaml", "cruze-version"]]);
     setVersion(h.files, "0.0.1");
     assert.deepEqual(await rules(h.deps), [[".cruze/config.yaml", "cruze-version"]]);
     edit(h.files, ".cruze/config.yaml", "version: 2", "version: 1");

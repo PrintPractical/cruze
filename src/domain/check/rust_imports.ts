@@ -1,10 +1,14 @@
-/** Resolves Rust `use` paths inside a crate to candidate source files. */
+/** Resolves Rust `use` paths, inside a crate and between a workspace's crates, to candidate source files. */
 
-/** Candidate files for each `use crate::…`, `use super::…` and `use self::…` path in a Rust file. */
-export function rustImportCandidates(path: string, text: string): Array<{ line: number; candidates: string[] }> {
+/**
+ * Candidate files for each `use crate::…`, `use super::…` and `use self::…` path in a Rust file,
+ * and for each `use other_crate::…` that names a library crate among `files`.
+ */
+export function rustImportCandidates(path: string, text: string, files: readonly string[]): Array<{ line: number; candidates: string[] }> {
   const root = crateRoot(path);
   if (root === null) return [];
   const own = moduleSegments(path, root);
+  const crates = libraryCrates(files);
   const results: Array<{ line: number; candidates: string[] }> = [];
   const pattern = /^\s*(?:pub(?:\([^)]*\))?\s+)?use\s+([^;]+);/gms;
   for (const match of text.matchAll(pattern)) {
@@ -12,9 +16,27 @@ export function rustImportCandidates(path: string, text: string): Array<{ line: 
     for (const segments of expandUse((match[1] ?? "").replace(/\s+/g, ""))) {
       const absolute = absoluteSegments(segments, own);
       if (absolute !== null) results.push({ line, candidates: candidatesFor(root, absolute) });
+      else {
+        const [head, ...rest] = segments;
+        const other = head === undefined ? undefined : crates.get(head);
+        if (other !== undefined && other !== root) results.push({ line, candidates: candidatesFor(other, rest) });
+      }
     }
   }
   return results;
+}
+
+/**
+ * Each library crate in the project by the name code imports it as: the directory
+ * holding `src/lib.rs`, with hyphens as underscores, as Cargo names it by default.
+ */
+function libraryCrates(files: readonly string[]): Map<string, string> {
+  const crates = new Map<string, string>();
+  for (const file of files) {
+    const match = /^(?:.*\/)?([^/]+)\/src\/lib\.rs$/.exec(file);
+    if (match !== null) crates.set((match[1] ?? "").replace(/-/g, "_"), file.slice(0, -"lib.rs".length));
+  }
+  return crates;
 }
 
 /** The directory holding the crate root: everything up to and including `src/`. */

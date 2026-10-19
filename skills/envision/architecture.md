@@ -1,6 +1,6 @@
 # Designing the architecture map
 
-The architecture map is what every feature's shape and build read first. It says where things live and how the system runs, for the whole release, and leaves room for the future features. Keep it to what changes how code is written: under 3,000 words.
+The architecture map is what every feature's shape and build read first. It says where things live and how the system runs, for the whole release, and leaves room for the future features. Keep it to what changes how code is written.
 
 Read `.agents/skills/cruze-hexagonal-design/SKILL.md` and its language file, and `.agents/skills/cruze-dependency-approval/SKILL.md`. When a choice needs evidence, such as which library fits or whether a platform supports something, follow `.agents/skills/cruze-research/SKILL.md`.
 
