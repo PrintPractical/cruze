@@ -18,7 +18,8 @@ Version 0.0.14 was a rewrite. The earlier previews ran thirteen steps with desig
 envision ──► shape ──► build ──► review ──► pull request
 (project start or a major shift)
 
-fix:  reproduce ──► failing test ──► fix ──► review ──► pull request
+fix:       reproduce ──► failing test ──► fix ──► review ──► pull request
+refactor:  map the change ──► small green steps ──► review ──► pull request
 ```
 
 | Step | Who | What comes out | Your part |
@@ -28,6 +29,7 @@ fix:  reproduce ──► failing test ──► fix ──► review ──► 
 | `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | Nothing, unless a scenario or the public API has to change; then you see the change and approve again |
 | `review` | a fresh-context reviewer | Fixes for what it finds, a note on how to try the feature, a pull request | Decide only findings that would change what you approved |
 | `fix` | the agent | A failing test that reproduces the bug, the fix, a review, a pull request | Nothing, unless the right behaviour is your call |
+| `refactor` | the agent | The code restructured in small steps with every test green and none weakened, a review, a pull request | Nothing, unless the architecture or a public API you approved changes; then you see it before and after and approve |
 
 What it holds to:
 
@@ -117,6 +119,7 @@ Every command prints JSON when stdout isn't a terminal, and text on a terminal; 
 | `cruze-build` | Building an approved feature test-first, scenario by scenario, and the foundation's CI |
 | `cruze-review` | The fresh-context code review, fixes, and the pull request |
 | `cruze-fix` | A bug from report to reviewed fix |
+| `cruze-refactor` | Restructuring code without changing what it does |
 | `cruze-asking` | When to ask you and when to decide, and how to show a question with code and diagrams |
 | `cruze-formats` | The format of each document, with templates |
 | `cruze-hexagonal-design` | Ports and adapters with domain-driven design, contracts, runtime ownership, layouts by kind of system, and notes for Rust, Swift and C++ |

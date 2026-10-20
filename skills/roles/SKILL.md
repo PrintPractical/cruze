@@ -9,7 +9,7 @@ A role is a prompt with fixed inputs and a report as its only output. It runs in
 
 | Role | File | Used by |
 | --- | --- | --- |
-| Code reviewer | [code-reviewer.md](code-reviewer.md) | review and fix |
+| Code reviewer | [code-reviewer.md](code-reviewer.md) | review, fix and refactor |
 | Researcher | [researcher.md](researcher.md) | envision, for technology choices; any step with a question that needs evidence |
 
 ## Running a role

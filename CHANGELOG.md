@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A `refactor` step restructures code without changing what it does, from the user's request or an issue. It maps the change, asks the user only when the architecture or an approved public API changes, keeps every test green and unweakened through small steps, and ends with a fresh-context review that treats a change in behaviour as a blocker. `fix` files the clean-ups it notices as issues for it.
+
 ## [0.0.15] - 2026-10-18
 
 Fixes from the first project to reach a release on 0.0.14.
