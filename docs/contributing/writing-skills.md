@@ -23,7 +23,7 @@ Every word a step loads is context the agent spends before it reads the project,
 
 ## Two kinds of skill
 
-- **Workflow skills** are the steps a person runs: `envision`, `shape`, `build`, `review` and `fix`. The description is one plain sentence saying what the step does. Each one ends by naming the next step, or `cruze next` when the path isn't fixed.
+- **Workflow skills** are the steps a person runs: `envision`, `shape`, `build`, `review`, `fix` and `refactor`. The description is one plain sentence saying what the step does. Each one ends by naming the next step, or `cruze next` when the path isn't fixed.
 - **Knowledge skills** hold standards: `asking`, `hexagonal-design`, `behavioural-testing`, `dependency-approval` and `research`. The description says what the skill covers and lists the situations that should load it, one trigger per distinct situation. Workflow skills also load them explicitly, by installed path, at the step that needs them, so nothing depends on a trigger firing. A knowledge skill opens with the procedure an agent follows when it applies the standard, then the rules, and puts material only some runs need (a language, runtime concerns, worked examples) in sibling files.
 
 ## Agent neutrality

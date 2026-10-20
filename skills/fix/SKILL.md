@@ -25,7 +25,7 @@ A bug report becomes a failing test, then a fix, then a reviewed pull request. M
 ## Rules
 
 - A missing test is part of the cause. When the scenario had a test that passed anyway, say why it missed the bug, and strengthen it in the same fix.
-- Fix the cause only. Clean-ups you notice go to the user as suggestions.
+- Fix the cause only. A clean-up you notice becomes an issue, filed as the last rule says, that `refactor` starts from later.
 - Never change a scenario to match the code without the user's approval.
 - A bug found during other work and not fixed then becomes an issue in the project's tracker, such as GitHub: the symptom, how to reproduce it, the cause when known, and the scenario it breaks. `fix` starts from it later; an agent's memory is no place for it.
 

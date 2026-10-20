@@ -28,7 +28,7 @@ The CLI is hexagonal. Dependencies point inward, and only `src/main.ts` construc
 - `src/main.ts`: composition root. `bin/cruze.mjs` is the `cruze` bin: it runs `dist/main.js`, building it first when missing.
 - `skills/<folder>/SKILL.md`: bundled skills, installed into projects as `cruze-<folder>`.
 - `skills/formats/`: the contract for every project document, with templates. Skills and the CLI both read it, so change a format there and nowhere else.
-- `skills/envision/`, `shape/`, `build/`, `review/`, `fix/`: workflow skills, the steps a person runs. Each ends by naming the next step.
+- `skills/envision/`, `shape/`, `build/`, `review/`, `fix/`, `refactor/`: workflow skills, the steps a person runs. Each ends by naming the next step.
 - `skills/asking/`, `hexagonal-design/`, `behavioural-testing/`, `dependency-approval/`, `research/`: knowledge skills, the standards that workflow skills load by installed path.
 - `skills/roles/`: prompts for the fresh-context code reviewer and researcher. `cruze review` runs them when the agent has no helper.
 - `examples/console-access/`: a worked example project in those formats. It is not shipped. Keep it valid, because it serves as the CLI's test fixture.
