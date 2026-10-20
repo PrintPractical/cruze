@@ -4,7 +4,7 @@
 
 ```yaml
 version: 2
-cruze: "0.0.15"
+cruze: "0.0.16"
 project: "Console Access"
 
 source: ["src/**/*.rs"]
