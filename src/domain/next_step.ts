@@ -12,8 +12,8 @@ export interface NextStep {
 }
 
 /**
- * The step to run next, from the documents alone. Work in progress comes first, in release order,
- * then the first release feature not yet shaped whose needs are all built.
+ * The step to run next, from the documents alone. Work in progress whose needs are built comes
+ * first, in release order, then the first release feature not yet shaped whose needs are all built.
  */
 export function nextStep(docs: ProjectDocs): NextStep {
   if (docs.config === undefined) return { step: "init", reason: `${PATHS.config} is missing` };
@@ -22,17 +22,19 @@ export function nextStep(docs: ProjectDocs): NextStep {
   if (docs.architecture === undefined) return { step: "envision", reason: "the project has no architecture map yet" };
   if (approvalState(docs.approvals, PATHS.architecture, docs.architecture) !== "approved") return { step: "envision", reason: "the architecture map isn't approved as it stands" };
 
+  const built = new Set(docs.features.filter((f) => f.status === "built").map((f) => f.slug));
   const order = [...docs.release.map((r) => r.slug), ...docs.features.map((f) => f.slug).filter((slug) => !docs.release.some((r) => r.slug === slug))];
   for (const slug of order) {
     const feature = docs.features.find((f) => f.slug === slug);
     if (feature === undefined || feature.status === "built") continue;
+    // A feature in progress waits while something it needs, such as a piece split out of it, isn't built.
+    if (!(docs.release.find((r) => r.slug === slug)?.needs ?? []).every((need) => built.has(need))) continue;
     const state = approvalState(docs.approvals, feature.path, feature.doc);
     if (state === "unapproved") return { step: "shape", target: slug, reason: `${slug} is shaped but not approved` };
     if (state === "edited") return { step: "shape", target: slug, reason: `${slug} changed since its approval; show the user what changed and approve it again` };
     return { step: "build", target: slug, reason: `${slug} is approved and not built` };
   }
 
-  const built = new Set(docs.features.filter((f) => f.status === "built").map((f) => f.slug));
   const pending = docs.release.filter((r) => !built.has(r.slug));
   const ready = pending.find((r) => !docs.features.some((f) => f.slug === r.slug) && r.needs.every((need) => built.has(need)));
   if (ready !== undefined) return { step: "shape", target: ready.slug, reason: ready.needs.length === 0 ? `${ready.slug} is next in the release` : `${ready.slug} is next in the release, and everything it needs is built` };
