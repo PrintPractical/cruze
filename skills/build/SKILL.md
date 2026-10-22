@@ -1,6 +1,6 @@
 ---
 name: cruze-build
-description: Builds an approved feature test-first, one scenario at a time, with ports and adapters as the architecture maps them, stopping for the user only when a scenario or the public API has to change.
+description: Builds an approved feature test-first, one scenario at a time, with ports and adapters as the architecture maps them, checks its own code for failure modes, and stops for the user only when a scenario or the public API has to change.
 ---
 
 # Build
@@ -17,7 +17,8 @@ Build turns an approved feature into working, tested code without asking the use
 3. **Read the design:** the feature file, and the sections of `docs/architecture.md` its stack sketch touches. Done when you can name, for each scenario, the use case it runs and the ports it crosses.
 4. **Build the foundation first,** when this is the release's first feature. See "The foundation" below.
 5. **Build each scenario in order,** with the loop below.
-6. **Finish.** Run the formatter, the linter, the build and the full test suite, then `cruze check --ci` and `cruze trace <slug>`, and fix what they report. Set the feature's status line to `- Status: built`, and commit. Done when every one of them passes.
+6. **Check your own failure modes.** Read your diff for what tests rarely reach. For each task, loop, wait, lock, retry and queue you added: what happens when it is cancelled midway, when two failures fall due at once, when a notice arrives during a pass, and when the other side never answers. For each fake: does it do what the real adapter does on every platform the project runs on, including the states in between, such as an address not yet usable? Fix what you find, with a test. Done when you have asked each question of each one.
+7. **Finish.** Run the formatter, the linter, the build and the full test suite, then `cruze check --ci` and `cruze trace <slug>`, and fix what they report. Set the feature's status line to `- Status: built`, and commit. Done when every one of them passes.
 
 ## The loop
 
@@ -39,7 +40,8 @@ Stop and run `shape` when the code needs any of these:
 - a scenario's behaviour or message to change, or a new scenario;
 - a change to the public API the user approved;
 - a significant dependency the architecture doesn't name;
-- a port or a runtime change the architecture doesn't allow.
+- a port or a runtime change the architecture doesn't allow;
+- a shared piece that doesn't exist and that other features would use, which shape splits into a feature of its own, built first.
 
 Show the user what changed, as code or output, before and after, and get the approval again. Then carry on; finished scenarios keep their commits.
 

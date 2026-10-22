@@ -23,7 +23,7 @@ export const COMMANDS: Record<string, Command> = {
   next: { handler: runNext, options: [], usage: "next                                      the step to run next, and why" },
   trace: { handler: runTrace, options: [], usage: "trace [<feature slug>]                    link scenarios to the tests that carry their IDs" },
   check: { handler: runCheck, options: ["ci"], usage: "check [<file>...] [--ci]                  enforce layer rules and file budgets" },
-  review: { handler: runReviewCommand, options: ["feature", "base"], usage: "review <code-reviewer|researcher> [--feature <slug>] [--base <commit>]   run a role in a fresh agent context" },
+  review: { handler: runReviewCommand, options: ["feature", "base"], usage: "review <code-reviewer|doc-reviewer|researcher> [--feature <slug>] [--base <commit>]   run a role in a fresh agent context" },
 };
 
 export const USAGE = `Usage: cruze <command> [options]

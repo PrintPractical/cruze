@@ -20,16 +20,18 @@ envision ──► shape ──► build ──► review ──► pull request
 
 fix:       reproduce ──► failing test ──► fix ──► review ──► pull request
 refactor:  map the change ──► small green steps ──► review ──► pull request
+align:     review every document in parallel ──► fix form and drift ──► pull request
 ```
 
 | Step | Who | What comes out | Your part |
 | --- | --- | --- | --- |
 | `envision` | you and the agent | `docs/vision.md`: the problem, users, the release's features and what each needs, future features and what must stay possible. `docs/architecture.md`: ports, adapters, runtime, technology, layers | Answer one round of questions, approve both documents |
-| `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took | Approve it, or say what to change |
+| `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took, after research into what the code already has and a fresh-context review that runs while you read | Approve it, or say what to change; agree when a shared piece it needs should be a feature of its own, built first |
 | `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | Nothing, unless a scenario or the public API has to change; then you see the change and approve again |
 | `review` | a fresh-context reviewer | Fixes for what it finds, a note on how to try the feature, a pull request | Decide only findings that would change what you approved |
 | `fix` | the agent | A failing test that reproduces the bug, the fix, a review, a pull request | Nothing, unless the right behaviour is your call |
 | `refactor` | the agent | The code restructured in small steps with every test green and none weakened, a review, a pull request | Nothing, unless the architecture or a public API you approved changes; then you see it before and after and approve |
+| `align` | the agent | Every document brought up to the current format and conventions and up to date with the code, after upgrading Cruze or whenever you want | Approve the changes in meaning, each shown before and after |
 
 What it holds to:
 
@@ -106,7 +108,7 @@ When the CLI you run differs from the version the project records, every command
 | `cruze next` | The step to run next, and why |
 | `cruze trace [<slug>]` | Fails when a built feature's scenario has no test carrying its ID, or a test names a scenario no feature defines |
 | `cruze check [<file>...] [--ci]` | Enforces the layer rules, and warns on file budgets (fails on them with `--ci`) |
-| `cruze review code-reviewer --feature <slug> --base <commit>` | Runs the code reviewer in a fresh agent context, through the command in `.cruze/config.yaml` |
+| `cruze review <code-reviewer\|doc-reviewer\|researcher> [--feature <slug>] [--base <commit>]` | Runs a role in a fresh agent context, through the command in `.cruze/config.yaml` |
 
 Every command prints JSON when stdout isn't a terminal, and text on a terminal; `--json` and `--text` choose. Errors and notes go to stderr.
 
@@ -115,18 +117,19 @@ Every command prints JSON when stdout isn't a terminal, and text on a terminal; 
 | Skill | What it holds |
 | --- | --- |
 | `cruze-envision` | The vision with future features, the release broken into features with their needs, and the architecture map |
-| `cruze-shape` | One feature's behaviour, public API and stack sketch, self-checked and approved by you |
+| `cruze-shape` | One feature's behaviour, public API and stack sketch, reviewed in a fresh context and approved by you |
 | `cruze-build` | Building an approved feature test-first, scenario by scenario, and the foundation's CI |
 | `cruze-review` | The fresh-context code review, fixes, and the pull request |
 | `cruze-fix` | A bug from report to reviewed fix |
 | `cruze-refactor` | Restructuring code without changing what it does |
+| `cruze-align` | Bringing every document up to the current format and conventions, and up to date with the code |
 | `cruze-asking` | When to ask you and when to decide, and how to show a question with code and diagrams |
 | `cruze-formats` | The format of each document, with templates |
 | `cruze-hexagonal-design` | Ports and adapters with domain-driven design, contracts, runtime ownership, layouts by kind of system, and notes for Rust, Swift and C++ |
 | `cruze-behavioural-testing` | Which tests to write and at which seam, and fakes instead of mocks |
 | `cruze-dependency-approval` | Adopt libraries freely; ask only for significant ones |
 | `cruze-research` | Adopting a mature library before building, and answering questions from primary sources |
-| `cruze-roles` | The fresh-context code reviewer and researcher, and how to run them |
+| `cruze-roles` | The fresh-context code reviewer, document reviewer and researcher, and how to run them |
 
 ## Development
 

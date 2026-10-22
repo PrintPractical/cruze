@@ -18,7 +18,7 @@ Run the project's tests and lints, one plain command at a time, with no pipes, `
 Review against these items and nothing else. Each finding names one.
 
 1. **Scenarios.** Every scenario is implemented and has a test that carries its ID, drives a public seam, and takes its expected values from the scenario. Each failure scenario produces the message and leaves the state it specifies.
-2. **Public API.** What the code exposes matches the feature's public API section: names, types, errors, commands and output. Anything public it doesn't list is a finding.
+2. **Public API.** What users and other features can use matches the feature's public API section: names, types, errors, commands and output. Anything they can use that it doesn't list is a finding; an item public only between modules of one feature isn't.
 3. **Runtime.** Follow each request, message and event from its source to its consumer through every task, channel and queue. Look for what tests rarely reach: a hang, a spin, a leak of a task, handle or memory, a race, unbounded growth, a full queue holding up unrelated work, a lost result across a reconnect, shutdown that waits forever or drops work it promised to finish.
 4. **Failures.** Each external call's failure is handled as the feature and the architecture say: disks, networks, peers and user mistakes. Nothing is silently swallowed.
 5. **Ports and adapters.** Dependencies point inward and match the layers. No technology type crosses a port. Inbound adapters hold no domain rules. Each fake passes the same contract tests as its real adapter.

@@ -83,6 +83,16 @@ describe("installing skills", () => {
     assert.match(report.notes.join("\n"), /can't run the project's tests/);
   });
 
+  it("notes on an upgrade that documents from the older Cruze may need aligning, and not on a fresh install", async () => {
+    const config = (version: string) => `version: 2\ncruze: "${version}"\nproject: "Demo"\n`;
+    const upgraded = new MemoryProjectFiles({ ".cruze/config.yaml": config("0.0.1"), "docs/features/demo.md": "# Demo\n\n- Status: shaped\n" });
+    const report = await installSkills({ files: upgraded, bundle: new FakeBundle() }, { agents: [] });
+    assert.match(report.notes.join("\n"), /written with Cruze 0\.0\.1; .*cruze-align skill/);
+
+    const fresh = new MemoryProjectFiles({ ".cruze/config.yaml": config("0.0.1") });
+    assert.deepEqual((await installSkills({ files: fresh, bundle: new FakeBundle() }, { agents: [] })).notes, []);
+  });
+
   it("refuses a bundle with an invalid skill and writes nothing", async () => {
     const files = new MemoryProjectFiles();
     const bundle = new FakeBundle({ skills: [skillFixture("plan"), skillFixture("build", "build")] });

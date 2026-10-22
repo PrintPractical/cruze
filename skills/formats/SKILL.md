@@ -38,6 +38,14 @@ Each scenario under `## Behaviour` is a heading `### SCN-<slug>.<name>: <title>`
 
 A later feature that changes an earlier one's behaviour edits that feature's file in place, and git keeps the history.
 
+## One home for each thing
+
+Write each thing once, and name it everywhere else, so no copy drifts from the code:
+
+- A port's operations, with their errors, live in `docs/architecture.md`. A feature names the port and changes its operations there.
+- A public API lives in the feature that introduced it: what a user or another feature uses, such as commands and their output, file formats, messages, and the types and functions other features call. Internal types and modules aren't part of it.
+- A runtime rule or limit that crosses features lives in the architecture's Runtime.
+
 ## Approvals
 
 `cruze approve <vision|architecture|slug>` records a hash of the document's content as the user approved it. Any later edit shows it as `edited` in `cruze status` until it is approved again. The status line and a feature's `## Decisions` are left out of the hash, so marking a feature built or recording a decision never counts as an edit. Approve only on the user's word.
@@ -45,3 +53,7 @@ A later feature that changes an earlier one's behaviour edits that feature's fil
 ## Size
 
 A document is for a person to read. Leave out what the agent decided that the user needn't read, and split a feature that has grown past one shape-and-build cycle. No length is enforced, so never trim a document to a word count.
+
+## Keeping documents current
+
+Cruze's changelog says when a release changes the format, which `cruze` parses, or the conventions this skill describes. The `cruze-align` skill brings every document up to both, and up to date with the code.

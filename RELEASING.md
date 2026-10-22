@@ -28,7 +28,9 @@ Until this is set up, leave `NPM_PUBLISH` unset; releases then go to GitHub only
 1. From an up-to-date `main`, create a branch such as `release-<version>`.
 2. Run `npm version <version> --no-git-tag-version`. This updates `package.json` and `package-lock.json` without tagging a commit that may never reach `main`.
 3. Set `cruze:` in `examples/console-access/.cruze/config.yaml` to the version.
-4. Move the `[Unreleased]` entries in `CHANGELOG.md` under a new `## [<version>] - <date>` heading, and update the compare links at the bottom.
+4. Move the `[Unreleased]` entries in `CHANGELOG.md` under a new `## [<version>] - <date>` heading, and update the compare links at the bottom. When the release changes what projects' documents look like, open the entry with one line that says which kind of change it is, so a project upgrading mid-way knows what to do:
+   - **Format:** what `cruze` parses, such as a section, the status line, scenario IDs, the Release table or the config, changed. Old documents fail `cruze validate` until the project runs the `align` step.
+   - **Conventions:** only what the skills write inside the sections changed. Old documents stay valid; `align` brings them up to date when the user wants.
 5. Update the version in the README's install commands and status line.
 6. Run `npm run check`, commit with a message such as `chore: release <version>`, and open a pull request.
 7. Once it merges, tag the merge commit on `main` and push only the tag:
