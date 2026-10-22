@@ -2,7 +2,7 @@ import { CruzeError } from "../../domain/cruze_error.ts";
 import type { AgentRunner } from "../ports/agent_runner.ts";
 import { loadDocs, type ProjectDeps } from "../project_context.ts";
 
-export const ROLES = ["code-reviewer", "researcher"] as const;
+export const ROLES = ["code-reviewer", "doc-reviewer", "researcher"] as const;
 export type Role = (typeof ROLES)[number];
 
 export interface ReviewRequest {

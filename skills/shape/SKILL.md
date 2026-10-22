@@ -1,32 +1,36 @@
 ---
 name: cruze-shape
-description: Shapes one feature with the user before it is built, writing its behaviour as scenarios, its public API as code and a sketch of how it crosses the stack, and ends with the user's approval.
+description: Shapes one feature with the user before it is built, from research into what the code already has, writing its behaviour as scenarios, its public API as code and a sketch of how it crosses the stack, reviewed in a fresh context and approved by the user.
 ---
 
 # Shape
 
-Shape is where the user decides what a feature does and what it looks like from outside, before any code exists. It produces one document, `docs/features/<slug>.md`, and one approval. Everything the user would otherwise discover at the end, such as an internal type they wouldn't have chosen or a thread they didn't expect, is shown here instead.
+Shape is where the user decides what a feature does and what it looks like from outside, before any code exists. It produces one document, `docs/features/<slug>.md`, and one approval. Everything the user would otherwise discover at the end, such as an internal type they wouldn't have chosen, a thread they didn't expect, or a piece copied from another feature, is shown here instead.
 
 Read `.agents/skills/cruze-asking/SKILL.md` and `.agents/skills/cruze-formats/SKILL.md`, and `.agents/skills/cruze-hexagonal-design/SKILL.md` with its language file.
 
 ## Steps
 
 1. **Find the feature.** Run `cruze next`, or take the slug the user names. Read its row in the vision's Release table, `docs/architecture.md`, and the feature files of what it needs. Work on a branch named for the feature. Done when you know what the feature is for and what it builds on.
-2. **Start the document** with `cruze new feature <slug> --title "<title>"`, unless it exists.
-3. **Write the behaviour.** For the feature's intent, write the scenarios: the main case first, then each edge and each failure a user can meet, with concrete values. Each one is a Given, a When and a Then, in the user's words, with the exact message or output they see. Invent the edge cases a user would hit: empty input, a duplicate, the thing not there, the network gone, the limit reached.
-4. **Write the public API** as real code in the project's language: every public type, function, command, endpoint, message or file format this feature adds or changes, with its errors. For a command-line tool, the commands and their exact output. Write "No change." when the feature has none.
-5. **Sketch the stack.** A plain-text diagram of the main scenario crossing the stack: the inbound adapter, the use case, the domain, each port and the adapter behind it, marking what is new. Below it, one line per change to `docs/architecture.md`, such as a new port or a new runtime task, and make those changes there. Name any value the system's own components pass each other untyped or encoded, such as a JSON value, and any new thread, task or queue.
-6. **Check it yourself** against [self-check.md](self-check.md), and fix what it finds. Done when every item passes.
-7. **Ask what only the user can answer,** in at most one round, as the asking skill says. Write the answers in.
-8. **Show it.** In one message:
+2. **Research what exists,** in parallel helpers where you can:
+   - the code: the shared modules, ports and helpers this feature can use or extend, and features that already do something alike;
+   - when the feature drives a tool, protocol or library you haven't checked, the researcher role, as `.agents/skills/cruze-roles/SKILL.md` says.
+
+   Done when you can list what the feature reuses, what it extends, and what it needs that doesn't exist.
+3. **Check it is one feature.** When it needs a shared piece that doesn't exist and that other features would use, such as a kit, a port or a shared module, or when it won't fit one shape-and-build cycle, propose a split: the piece becomes a feature of its own, a row of the Release table ahead of this one, named in this one's Needs. Ask the user in one question, with the split as a table. When they agree, edit the table and approve the vision again on their word, keep this feature's draft, and shape the new feature first. `cruze next` holds this one until what it needs is built.
+4. **Start the document** with `cruze new feature <slug> --title "<title>"`, unless it exists.
+5. **Write the behaviour.** For the feature's intent, write the scenarios: the main case first, then each edge and each failure a user can meet, with concrete values. Each one is a Given, a When and a Then, in the user's words, with the exact message or output they see. Input errors that differ only in the input and the message are one scenario with a table of both.
+6. **Write the public API** as real code in the project's language: what a user or another feature uses, with its errors. That is commands and their exact output, file formats, messages, and the types and functions other features call. A port's operations live in `docs/architecture.md`; name the port here and change it there. Write "No change." when the feature has none.
+7. **Sketch the stack.** A plain-text diagram of the main scenario crossing the stack: the inbound adapter, the use case, the domain, each port and the adapter behind it, marking what is new and what step 2 found to reuse. Below it, one line per change to `docs/architecture.md`, such as a new port or a new runtime task, and make those changes there. Name any value the system's own components pass each other untyped or encoded, such as a JSON value, and any new thread, task or queue.
+8. **Review and show it, side by side.** Start the doc reviewer on the feature in a fresh context, as `.agents/skills/cruze-roles/SKILL.md` says: `cruze review doc-reviewer --feature <slug>`, in the background or in a helper. While it runs, show the user the draft in one message:
    - what the feature does, in two sentences;
    - each scenario in one line, as the user would see it;
    - the public API as code;
    - the stack sketch;
-   - the decisions you took, one line each.
-
-   End with: "Do you approve this feature, or what should change?" Apply changes, and say what moved. Done when the user approves.
-9. **Approve and commit.** Run `cruze approve <slug>`, then commit the feature file and any architecture change with a message such as `docs: shape <slug>`.
+   - the decisions you took, one line each;
+   - your questions, in at most one round, as the asking skill says.
+9. **Fold in both.** Apply the user's answers. Check each review finding against the documents and the code, and drop one whose evidence doesn't hold. Fix the rest: a case a user can meet becomes a scenario, an internal rule goes in the architecture's Runtime with its number, and a finding that changes behaviour or the public API beyond what the user said goes to them. Don't review again. Then show what changed since the draft, from the user and from the review, counted, with each changed scenario and public API as before and after. End with: "Do you approve this feature, or what should change?" Done when the user approves.
+10. **Approve and commit.** Run `cruze approve <slug>`, then commit the feature file and any architecture change with a message such as `docs: shape <slug>`.
 
 ## Changing an approved feature
 

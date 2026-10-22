@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.17] - 2026-10-21
+
+Conventions change; the format doesn't. Documents from 0.0.16 stay valid, and the `align` step brings them up to date.
+
+### Added
+
+- `shape` researches what the code already has before writing, in parallel helpers: the shared modules, ports and helpers a feature can reuse, and the researcher for any tool it drives. When a feature needs a shared piece that other features would use, shape proposes it as a feature of its own, ahead of this one in the release, and `cruze next` holds the feature until that piece is built. Build stops the same way when it finds one.
+- A document reviewer role reviews a feature in a fresh context before the user approves it, for contradictions, guesses an implementer would make, edge cases and failure modes (inputs their siblings refuse, limits that hold one way only, waits with no end, two failures at once, shutdown and restart), reuse, and anything built ahead of need. Shape runs it while the user reads the draft, folds its findings in with the user's answers, and shows what changed. It replaces shape's self-check, which on the last project found about one gap a feature while a fresh review found about 18. `cruze review doc-reviewer --feature <slug>` runs it.
+- An `align` step brings every document up to the current format and conventions and up to date with the code, from parallel document reviews, and shows the user each change in meaning before approving it. `cruze install` notes it after an upgrade.
+- Build checks its own diff for failure modes before finishing: cancellation midway, two failures at once, a notice during a pass, a side that never answers, and fakes that behave differently from the real adapter.
+
+### Changed
+
+- Each thing is written in one document: a port's operations in the architecture, a public API in the feature that introduced it, and a cross-feature runtime rule in the architecture's Runtime. A feature's public API is what users and other features use, not every internal type. Input errors that differ only in input and message can be one scenario with a table.
+
 ## [0.0.16] - 2026-10-20
 
 ### Added
@@ -334,7 +349,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.16...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.17...HEAD
+[0.0.17]: https://github.com/PrintPractical/cruze/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/PrintPractical/cruze/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/PrintPractical/cruze/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/PrintPractical/cruze/compare/v0.0.13...v0.0.14

@@ -60,7 +60,11 @@ export async function installSkills(
   }
 
   const recorded = await recordVersion(files, bundle.version);
-  const notes = reviewCommandProblems(await loadDocs(files), await bundle.template(reviewSettingTemplate("claude"))).map((problem) => problem.message);
+  const docs = await loadDocs(files);
+  const notes = reviewCommandProblems(docs, await bundle.template(reviewSettingTemplate("claude"))).map((problem) => problem.message);
+  if (recorded.from !== undefined && recorded.from !== recorded.to && (docs.architecture !== undefined || docs.features.length > 0)) {
+    notes.push(`the documents were written with Cruze ${recorded.from}; where Cruze's changelog lists format or convention changes since, the cruze-align skill brings them up to date`);
+  }
   return { version: bundle.version, installed: names, removed, linked, recorded, notes };
 }
 

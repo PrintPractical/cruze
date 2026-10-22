@@ -16,7 +16,7 @@
 
 ## Public API
 
-<Every public type, function, command, endpoint or message this feature adds or changes, as real code in the project's language. Write "No change." when there is none.>
+<What a user or another feature uses that this feature adds or changes: commands and their exact output, file formats, messages, and the types and functions other features call, as real code in the project's language, with their errors. Name a port here, and write its operations in docs/architecture.md. Write "No change." when there is none.>
 
 ```text
 ```

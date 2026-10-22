@@ -1,6 +1,6 @@
 ---
 name: cruze-asking
-description: When to ask the user and when to decide, and how to show a question so the user can answer it cold, with plain words, code sketches and diagrams. Use before asking the user anything during envision, shape, build, review, fix or refactor.
+description: When to ask the user and when to decide, and how to show a question so the user can answer it cold, with plain words, code sketches and diagrams. Use before asking the user anything during envision, shape, build, review, fix, refactor or align.
 ---
 
 # Asking the user

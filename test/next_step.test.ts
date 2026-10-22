@@ -53,6 +53,18 @@ describe("choosing the next step", () => {
     assert.equal((await suggestNext(h.deps)).target, "run-commands");
   });
 
+  it("holds a feature in progress while a piece split out of it isn't built, and shapes that piece first", async () => {
+    const h = await exampleProject();
+    edit(h.files, VISION, "| open-serial | Open an interactive console on a device's local serial port | list-devices |", "| serial-kit | Talk to a serial port | list-devices |\n| open-serial | Open an interactive console on a device's local serial port | list-devices, serial-kit |");
+    await approveEnvision(h.deps);
+    await approveDocument(h.deps, "open-serial");
+    assert.deepEqual(await suggestNext(h.deps), { step: "shape", target: "serial-kit", reason: "serial-kit is next in the release, and everything it needs is built" });
+    await createDocument(h.deps, "feature", "serial-kit");
+    assert.deepEqual(await suggestNext(h.deps), { step: "shape", target: "serial-kit", reason: "serial-kit is shaped but not approved" });
+    edit(h.files, "docs/features/serial-kit.md", "- Status: shaped", "- Status: built");
+    assert.deepEqual(await suggestNext(h.deps), { step: "build", target: "open-serial", reason: "open-serial is approved and not built" });
+  });
+
   it("asks envision for the next release once every release feature is built", async () => {
     const h = await exampleProject();
     await approveEnvision(h.deps);

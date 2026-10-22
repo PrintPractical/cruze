@@ -41,6 +41,18 @@ describe("running a role in a fresh context", () => {
     assert.match(run?.prompt ?? "", /run `git diff main`/);
   });
 
+  it("runs the document reviewer on a feature, and on the architecture and vision when no feature is named", async () => {
+    const h = await exampleProject();
+    configureReview(h, ["claude", "-p"]);
+    const runner = new ScriptedRunner();
+    await runReview({ ...h.deps, runner }, { role: "doc-reviewer", item: "open-serial" });
+    await runReview({ ...h.deps, runner }, { role: "doc-reviewer" });
+    const [feature, whole] = runner.runs;
+    assert.match(feature?.prompt ?? "", /^# Document reviewer\n[\s\S]*- Under review: the feature in `docs\/features\/open-serial\.md`/);
+    assert.match(whole?.prompt ?? "", /or, when none is named, `docs\/architecture\.md` and `docs\/vision\.md`/);
+    assert.doesNotMatch(whole?.prompt ?? "", /Under review:/);
+  });
+
   it("refuses an unknown role and an unknown feature, and reports a failed agent run with its error", async () => {
     const h = await exampleProject();
     configureReview(h, ["claude", "-p"]);
