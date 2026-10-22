@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.17] - 2026-10-21
+
 Conventions change; the format doesn't. Documents from 0.0.16 stay valid, and the `align` step brings them up to date.
 
 ### Added
@@ -347,7 +349,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.16...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.17...HEAD
+[0.0.17]: https://github.com/PrintPractical/cruze/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/PrintPractical/cruze/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/PrintPractical/cruze/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/PrintPractical/cruze/compare/v0.0.13...v0.0.14
