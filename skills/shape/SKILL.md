@@ -1,23 +1,28 @@
 ---
 name: cruze-shape
-description: Shapes one feature with the user before it is built, from research into what the code already has, writing its behaviour as scenarios, its public API as code and a sketch of how it crosses the stack, reviewed in a fresh context and approved by the user.
+description: Shapes one feature, or a change to features already built, with the user before it is built, from research into what the code and documents already have, writing its behaviour as scenarios, its public API as code and a sketch of how it crosses the stack, reviewed in a fresh context and approved by the user.
 ---
 
 # Shape
 
-Shape is where the user decides what a feature does and what it looks like from outside, before any code exists. It produces one document, `docs/features/<slug>.md`, and one approval. Everything the user would otherwise discover at the end, such as an internal type they wouldn't have chosen, a thread they didn't expect, or a piece copied from another feature, is shown here instead.
+Shape is where the user decides what a feature does and what it looks like from outside, before any code exists. It produces one document, `docs/features/<slug>.md`, and one approval, or, for a change to what exists, edits to the features it changes. Everything the user would otherwise discover at the end, such as an internal type they wouldn't have chosen, a thread they didn't expect, or a piece copied from another feature, is shown here instead.
 
 Read `.agents/skills/cruze-asking/SKILL.md` and `.agents/skills/cruze-formats/SKILL.md`, and `.agents/skills/cruze-hexagonal-design/SKILL.md` with its language file.
 
 ## Steps
 
-1. **Find the feature.** Run `cruze next`, or take the slug the user names. Read its row in the vision's Release table, `docs/architecture.md`, and the feature files of what it needs. Work on a branch named for the feature. Done when you know what the feature is for and what it builds on.
+1. **Find the work.** Run `cruze next`, or take the slug or change the user names. Read its row in the vision's Release table, `docs/architecture.md`, and the feature files of what it needs. Work on a branch named for the feature. Done when you know what the feature is for and what it builds on.
 2. **Research what exists,** in parallel helpers where you can:
    - the code: the shared modules, ports and helpers this feature can use or extend, and features that already do something alike;
+   - the documents: every one that describes what this work changes, found by searching for its names;
    - when the feature drives a tool, protocol or library you haven't checked, the researcher role, as `.agents/skills/cruze-roles/SKILL.md` says.
 
    Done when you can list what the feature reuses, what it extends, and what it needs that doesn't exist.
-3. **Check it is one feature.** When it needs a shared piece that doesn't exist and that other features would use, such as a kit, a port or a shared module, or when it won't fit one shape-and-build cycle, propose a split: the piece becomes a feature of its own, a row of the Release table ahead of this one, named in this one's Needs. Ask the user in one question, with the split as a table. When they agree, edit the table and approve the vision again on their word, keep this feature's draft, and shape the new feature first. `cruze next` holds this one until what it needs is built.
+3. **Decide what kind of work it is:** which documents would be wrong once it is done?
+   - **A change to what exists,** when it changes what a feature does, its public API or a concept it owns, such as merging two types: edit each owning feature in place, setting a built one back to `- Status: shaped` for build, and fix the other documents step 2 found. Steps 5 to 10 run over each, reviewed in parallel and shown as before and after. A new feature that needs the change names it in its Needs.
+   - **A shared piece to split out,** when it needs one that doesn't exist and other features would use, such as a kit, a port or a shared module, or won't fit one shape-and-build cycle: the piece becomes a feature of its own, a Release row ahead of this one, named in this one's Needs.
+
+   Otherwise it is one new feature. For a change or a split, ask the user in one question, with the documents it changes or the split as a table. For a split, once they agree, edit the table, approve the vision again on their word, keep this draft, and shape the new feature first; `cruze next` holds this one until what it needs is built.
 4. **Start the document** with `cruze new feature <slug> --title "<title>"`, unless it exists.
 5. **Write the behaviour.** For the feature's intent, write the scenarios: the main case first, then each edge and each failure a user can meet, with concrete values. Each one is a Given, a When and a Then, in the user's words, with the exact message or output they see. Input errors that differ only in the input and the message are one scenario with a table of both.
 6. **Write the public API** as real code in the project's language: what a user or another feature uses, with its errors. That is commands and their exact output, file formats, messages, and the types and functions other features call. A port's operations live in `docs/architecture.md`; name the port here and change it there. Write "No change." when the feature has none.
@@ -34,7 +39,7 @@ Read `.agents/skills/cruze-asking/SKILL.md` and `.agents/skills/cruze-formats/SK
 
 ## Changing an approved feature
 
-Shape also runs when build finds that a scenario or the public API must change. Edit the document, show the user exactly what changed, with the before and after as code or output, and approve again. `cruze status` shows the feature as edited until then.
+Shape also runs when build finds that a scenario or the public API must change, as step 3's change. Edit the document, show the user exactly what changed, with the before and after as code or output, and approve again. `cruze status` shows the feature as edited until then.
 
 ## Next step
 
