@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2026-10-23
+
+Conventions change; the format doesn't. Documents from 0.0.17 stay valid.
+
 ### Changed
 
 - `build` corrects a scenario that is wrong about a fact it can show, such as how a platform behaves or a command that doesn't exist, when the correction keeps what the scenario was for, and shows every correction for one approval at the end. It stops mid-build only when what a scenario is for or covers, or the public API, has to change. On the last project build stopped 16 times for such corrections, and the user took the recommendation every time.
@@ -362,7 +366,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.17...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.18...HEAD
+[0.0.18]: https://github.com/PrintPractical/cruze/compare/v0.0.17...v0.0.18
 [0.0.17]: https://github.com/PrintPractical/cruze/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/PrintPractical/cruze/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/PrintPractical/cruze/compare/v0.0.14...v0.0.15
