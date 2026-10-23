@@ -1,6 +1,6 @@
 ---
 name: cruze-asking
-description: When to ask the user and when to decide, and how to show a question so the user can answer it cold, with plain words, code sketches and diagrams. Use before asking the user anything during envision, shape, build, review, fix, refactor or align.
+description: When to ask the user and when to decide, and how to show a question so the user can answer it cold, with plain words, code sketches and diagrams. Use before asking the user anything during envision, brainstorm, shape, build, review, fix, refactor or align.
 ---
 
 # Asking the user
@@ -21,7 +21,7 @@ Decide everything else yourself: internal structure, private names, which module
 
 ## How many
 
-At most one question round per step, of five questions or fewer. A question about scope may come before any draft; the rest come with the draft, or once its review is in. When a choice has a sensible default, take it and list it under Decisions instead of asking. When the user defers ("you decide"), decide, and don't ask again. Answer every note the user adds to an answer in your next message, if only in one line.
+At most one question round per step, of five questions or fewer. A question about scope may come before any draft; the rest come with the draft, or once its review is in. When a choice has a sensible default, take it and list it under Decisions instead of asking. When the user defers ("you decide"), decide, and don't ask again. Answer every note the user adds to an answer in your next message, if only in one line. When the user would rather work a design out together than answer, at any step, run `.agents/skills/cruze-brainstorm/SKILL.md`, where they set the number of rounds, and carry on with its settled list.
 
 ## Showing a question
 

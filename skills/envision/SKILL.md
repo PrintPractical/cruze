@@ -5,7 +5,7 @@ description: Starts a project, or a major shift in one, by putting the user's vi
 
 # Envision
 
-Envision runs at the start of a project, and again when the product changes direction or a release is done. It turns the user's idea into three things everything later reads: a vision with future features, the release broken into features, and an architecture map designed with all of them in view. The user approves two documents once each, and the agent decides everything else.
+Envision runs at the start of a project, when a release is done, and when the product changes direction: new users, a new major capability, something dropped, or a non-goal changed. A single feature or a change to features that exist goes to shape instead, even when it touches the architecture or a term. It turns the user's idea into three things everything later reads: a vision with future features, the release broken into features, and an architecture map designed with all of them in view. The user approves two documents once each, and the agent decides everything else.
 
 Read `.agents/skills/cruze-asking/SKILL.md` before the first question, and `.agents/skills/cruze-formats/SKILL.md` before writing a document.
 

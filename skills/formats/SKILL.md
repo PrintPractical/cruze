@@ -18,7 +18,7 @@ Only `cruze approve` writes `.cruze/approvals.json`.
 
 ## The vision's Release table
 
-`## Release` holds a table with the columns `Feature | Summary | Needs`, one row per feature of the release, in the order they should be built. Feature is the slug of its `docs/features/` file. Needs lists the slugs, comma-separated, of the features it can't be built without; leave it blank when there are none. `cruze next` picks the first feature not yet shaped whose needs are all built, and `cruze validate` refuses an unknown slug and a circle of needs.
+`## Release` holds a table with the columns `Feature | Summary | Needs`, one row per feature of the release, in the order they should be built. Feature is the slug of its `docs/features/` file. Needs lists the slugs, comma-separated, of the features it can't be built without; leave it blank when there are none. `cruze next` picks the first feature not yet shaped whose needs are all built, and `cruze validate` refuses an unknown slug and a circle of needs, and warns about a feature in progress with no row.
 
 `## Future features` uses `Feature | Summary | Must stay possible`. These shape boundaries in the architecture; nothing is built for them until they join a release.
 

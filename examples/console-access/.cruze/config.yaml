@@ -1,7 +1,7 @@
 # Cruze project configuration, created by cruze 0.0.14.
 # The format is described in .agents/skills/cruze-formats/config.md.
 version: 2
-cruze: "0.0.18"
+cruze: "0.0.19"
 project: "Console Access"
 
 source: ["src/**/*.rs"]
