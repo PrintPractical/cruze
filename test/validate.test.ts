@@ -71,7 +71,7 @@ describe("validating the documents", () => {
 
   it("refuses a config from an older Cruze, and warns when the skills don't match this CLI", async () => {
     const h = await exampleProject();
-    assert.deepEqual(await rules(h.deps), h.deps.bundle.version === "0.0.18" ? [] : [[".cruze/config.yaml", "cruze-version"]]);
+    assert.deepEqual(await rules(h.deps), h.deps.bundle.version === "0.0.19" ? [] : [[".cruze/config.yaml", "cruze-version"]]);
     setVersion(h.files, "0.0.1");
     assert.deepEqual(await rules(h.deps), [[".cruze/config.yaml", "cruze-version"]]);
     edit(h.files, ".cruze/config.yaml", "version: 2", "version: 1");

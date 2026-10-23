@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.19] - 2026-10-23
+
+Conventions change; the format doesn't. Documents from 0.0.18 stay valid, though `cruze validate` now warns about a feature in progress with no Release row.
+
 ### Added
 
 - A `brainstorm` step for working out a design with the user before anything is written, for as many rounds as they want. It starts from the same research shape does, discusses one question at a time with options shown as code or diagrams and a recommendation, keeps a list of what is settled and what is open, and hands the settled list to shape, envision or refactor, which take it as given. Any step runs it when the user would rather talk a question through than answer it, and shape offers it when the work has more than one reasonable design.
@@ -377,7 +381,8 @@ The first preview release. It covers the whole greenfield workflow, from an idea
   - `cruze review` runs a review role in a fresh agent context.
   - `cruze feedback export` bundles the journal, redacted by default, for improving Cruze.
 
-[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.18...HEAD
+[Unreleased]: https://github.com/PrintPractical/cruze/compare/v0.0.19...HEAD
+[0.0.19]: https://github.com/PrintPractical/cruze/compare/v0.0.18...v0.0.19
 [0.0.18]: https://github.com/PrintPractical/cruze/compare/v0.0.17...v0.0.18
 [0.0.17]: https://github.com/PrintPractical/cruze/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/PrintPractical/cruze/compare/v0.0.15...v0.0.16
