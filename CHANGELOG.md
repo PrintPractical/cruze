@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `shape` decides first whether the work is a new feature, a change to features that exist, or a shared piece to split out. A change, such as merging two types a built feature owns, edits each owning feature in place instead of adding a feature, sets a built one back to `shaped`, and fixes every other document that describes the old behaviour in the same pass. `build` then builds only the scenarios and public API that changed since the feature was last built, and a test follows its scenario only when the user approved that scenario's change. Before, such work became a new feature, the features it changed kept describing the old behaviour, and a built feature edited in place was never built again.
+
 ## [0.0.17] - 2026-10-21
 
 Conventions change; the format doesn't. Documents from 0.0.16 stay valid, and the `align` step brings them up to date.

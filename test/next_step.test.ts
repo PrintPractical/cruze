@@ -65,6 +65,18 @@ describe("choosing the next step", () => {
     assert.deepEqual(await suggestNext(h.deps), { step: "build", target: "open-serial", reason: "open-serial is approved and not built" });
   });
 
+  it("builds a built feature again once shape changes it, before the features that need it", async () => {
+    const h = await exampleProject();
+    await approveEnvision(h.deps);
+    await approveDocument(h.deps, "open-serial");
+    const listDevices = "docs/features/list-devices.md";
+    edit(h.files, listDevices, "- Status: built", "- Status: shaped");
+    edit(h.files, listDevices, "in name order", "in name order, with its state");
+    assert.deepEqual(await suggestNext(h.deps), { step: "shape", target: "list-devices", reason: "list-devices is shaped but not approved" });
+    await approveDocument(h.deps, "list-devices");
+    assert.deepEqual(await suggestNext(h.deps), { step: "build", target: "list-devices", reason: "list-devices is approved and not built" });
+  });
+
   it("asks envision for the next release once every release feature is built", async () => {
     const h = await exampleProject();
     await approveEnvision(h.deps);

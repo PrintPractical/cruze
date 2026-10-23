@@ -26,7 +26,7 @@ align:     review every document in parallel ──► fix form and drift ──
 | Step | Who | What comes out | Your part |
 | --- | --- | --- | --- |
 | `envision` | you and the agent | `docs/vision.md`: the problem, users, the release's features and what each needs, future features and what must stay possible. `docs/architecture.md`: ports, adapters, runtime, technology, layers | Answer one round of questions, approve both documents |
-| `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took, after research into what the code already has and a fresh-context review that runs while you read | Approve it, or say what to change; agree when a shared piece it needs should be a feature of its own, built first |
+| `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took, after research into what the code already has and a fresh-context review that runs while you read | Approve it, or say what to change; agree when a shared piece it needs should be a feature of its own, built first, or when the work changes features already built, which shape edits in place for build to take again |
 | `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | Nothing, unless a scenario or the public API has to change; then you see the change and approve again |
 | `review` | a fresh-context reviewer | Fixes for what it finds, a note on how to try the feature, a pull request | Decide only findings that would change what you approved |
 | `fix` | the agent | A failing test that reproduces the bug, the fix, a review, a pull request | Nothing, unless the right behaviour is your call |
@@ -117,7 +117,7 @@ Every command prints JSON when stdout isn't a terminal, and text on a terminal; 
 | Skill | What it holds |
 | --- | --- |
 | `cruze-envision` | The vision with future features, the release broken into features with their needs, and the architecture map |
-| `cruze-shape` | One feature's behaviour, public API and stack sketch, reviewed in a fresh context and approved by you |
+| `cruze-shape` | One feature's behaviour, public API and stack sketch, or a change to features already built, reviewed in a fresh context and approved by you |
 | `cruze-build` | Building an approved feature test-first, scenario by scenario, and the foundation's CI |
 | `cruze-review` | The fresh-context code review, fixes, and the pull request |
 | `cruze-fix` | A bug from report to reviewed fix |

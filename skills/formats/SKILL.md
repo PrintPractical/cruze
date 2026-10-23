@@ -36,7 +36,7 @@ The status is `shaped` until build finishes the feature, then `built`. The secti
 
 Each scenario under `## Behaviour` is a heading `### SCN-<slug>.<name>: <title>`, where `<slug>` is the feature's and `<name>` is lowercase words joined by hyphens, followed by Given, When and Then bullets in the user's words. A scenario ID is never reused, even after its scenario is removed, and the test that proves a scenario carries its ID in a comment or string, such as `// SCN-sign-in.wrong-password`. `cruze trace` fails when a built feature's scenario has no test, or a test names a scenario no feature defines.
 
-A later feature that changes an earlier one's behaviour edits that feature's file in place, and git keeps the history.
+Work that changes what a feature does edits that feature's file in place, rather than adding a feature, and sets a built one back to `shaped`; git keeps the history.
 
 ## One home for each thing
 

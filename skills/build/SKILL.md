@@ -1,6 +1,6 @@
 ---
 name: cruze-build
-description: Builds an approved feature test-first, one scenario at a time, with ports and adapters as the architecture maps them, checks its own code for failure modes, and stops for the user only when a scenario or the public API has to change.
+description: Builds an approved feature, or the changes to one built before, test-first, one scenario at a time, with ports and adapters as the architecture maps them, checks its own code for failure modes, and stops for the user only when a scenario or the public API has to change.
 ---
 
 # Build
@@ -14,9 +14,9 @@ Build turns an approved feature into working, tested code without asking the use
    - `.agents/skills/cruze-behavioural-testing/SKILL.md`
    - `.agents/skills/cruze-hexagonal-design/SKILL.md`, and its language file when one exists for the project's language
    - `.agents/skills/cruze-dependency-approval/SKILL.md`
-3. **Read the design:** the feature file, and the sections of `docs/architecture.md` its stack sketch touches. Done when you can name, for each scenario, the use case it runs and the ports it crosses.
+3. **Read the design:** the feature file, and the sections of `docs/architecture.md` its stack sketch touches. For a feature built before, build only what its file changed since the commit that marked it built. Done when you can name, for each scenario you build, the use case it runs and the ports it crosses.
 4. **Build the foundation first,** when this is the release's first feature. See "The foundation" below.
-5. **Build each scenario in order,** with the loop below.
+5. **Build each scenario in order,** with the loop below. A changed scenario's test takes its new values; a removed one's goes.
 6. **Check your own failure modes.** Read your diff for what tests rarely reach. For each task, loop, wait, lock, retry and queue you added: what happens when it is cancelled midway, when two failures fall due at once, when a notice arrives during a pass, and when the other side never answers. For each fake: does it do what the real adapter does on every platform the project runs on, including the states in between, such as an address not yet usable? Fix what you find, with a test. Done when you have asked each question of each one.
 7. **Finish.** Run the formatter, the linter, the build and the full test suite, then `cruze check --ci` and `cruze trace <slug>`, and fix what they report. Set the feature's status line to `- Status: built`, and commit. Done when every one of them passes.
 
@@ -56,7 +56,7 @@ The first feature of a release also sets up what every later feature relies on:
 
 ## Protecting the check
 
-Never weaken, skip or delete a test to get green. A failing test means the code is wrong, or the scenario is, and a wrong scenario goes through `shape`.
+Never weaken, skip or delete a test to get green. A failing test means the code is wrong, or the scenario is, and a wrong scenario goes through `shape`. Change a test to match only when the user approved a change to its scenario.
 
 ## Next step
 
