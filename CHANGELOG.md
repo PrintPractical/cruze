@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `build` corrects a scenario that is wrong about a fact it can show, such as how a platform behaves or a command that doesn't exist, when the correction keeps what the scenario was for, and shows every correction for one approval at the end. It stops mid-build only when what a scenario is for or covers, or the public API, has to change. On the last project build stopped 16 times for such corrections, and the user took the recommendation every time.
+- `build` finishes by running every check the project's CI runs, since CI may not run.
+- `shape` shows the draft while the document reviewer runs, and asks its questions once the review is in, together with the review's, in one round. It reviews again when the scope or public API changed after the review. Before, the review's questions came after the user had answered, as a second round.
+- `shape` asks what is in and out of the feature before writing any scenario when the release leaves the scope open, and a split says what a user can do once its first piece ships.
+- `shape`'s research lists the open bugs against the feature and what it needs, and offers `fix` first when one breaks what the feature builds on. `align` names `fix` as its next step for the bugs it files.
+- `align` reviews the documents the user names, or every one when they ask for all or name none.
+- The document reviewer checks each diagram's boxes and arrows against the code, and keeps a concern only when it names a concrete way an implementer would go wrong.
+- Every note the user adds to an answer gets a reply in the agent's next message.
+
 - `shape` decides first whether the work is a new feature, a change to features that exist, or a shared piece to split out. A change, such as merging two types a built feature owns, edits each owning feature in place instead of adding a feature, sets a built one back to `shaped`, and fixes every other document that describes the old behaviour in the same pass. `build` then builds only the scenarios and public API that changed since the feature was last built, and a test follows its scenario only when the user approved that scenario's change. Before, such work became a new feature, the features it changed kept describing the old behaviour, and a built feature edited in place was never built again.
 
 ## [0.0.17] - 2026-10-21

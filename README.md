@@ -20,18 +20,18 @@ envision ──► shape ──► build ──► review ──► pull request
 
 fix:       reproduce ──► failing test ──► fix ──► review ──► pull request
 refactor:  map the change ──► small green steps ──► review ──► pull request
-align:     review every document in parallel ──► fix form and drift ──► pull request
+align:     review the documents in parallel ──► fix form and drift ──► pull request
 ```
 
 | Step | Who | What comes out | Your part |
 | --- | --- | --- | --- |
 | `envision` | you and the agent | `docs/vision.md`: the problem, users, the release's features and what each needs, future features and what must stay possible. `docs/architecture.md`: ports, adapters, runtime, technology, layers | Answer one round of questions, approve both documents |
 | `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took, after research into what the code already has and a fresh-context review that runs while you read | Approve it, or say what to change; agree when a shared piece it needs should be a feature of its own, built first, or when the work changes features already built, which shape edits in place for build to take again |
-| `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | Nothing, unless a scenario or the public API has to change; then you see the change and approve again |
+| `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | At the end, approve the scenarios it corrected for a fact, each shown before and after; it stops sooner only when what a scenario is for, or the public API, has to change |
 | `review` | a fresh-context reviewer | Fixes for what it finds, a note on how to try the feature, a pull request | Decide only findings that would change what you approved |
 | `fix` | the agent | A failing test that reproduces the bug, the fix, a review, a pull request | Nothing, unless the right behaviour is your call |
 | `refactor` | the agent | The code restructured in small steps with every test green and none weakened, a review, a pull request | Nothing, unless the architecture or a public API you approved changes; then you see it before and after and approve |
-| `align` | the agent | Every document brought up to the current format and conventions and up to date with the code, after upgrading Cruze or whenever you want | Approve the changes in meaning, each shown before and after |
+| `align` | the agent | Every document, or the ones you name, brought up to the current format and conventions and up to date with the code, after upgrading Cruze or whenever you want | Approve the changes in meaning, each shown before and after |
 
 What it holds to:
 

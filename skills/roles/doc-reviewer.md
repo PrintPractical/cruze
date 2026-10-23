@@ -27,7 +27,7 @@ Review against these items and nothing else. Each finding names one.
    A case a user can meet needs a scenario. An internal one needs its rule and number in the architecture's Runtime.
 4. **Reuse.** What the feature would build that the code or another feature already has, with its path. A shared piece it needs that doesn't exist yet and that other features would use, such as a kit, a port or a shared module: say it should be a feature of its own, shaped and built first.
 5. **Need.** Anything no scenario of this release uses, with its rough cost in scenarios and code.
-6. **Code,** for a built feature, the architecture or the vision. Each public type, operation, command, output, port and runtime claim matches the code; quote both sides. Code that breaks an approved scenario is a bug, not a document fix: say so.
+6. **Code,** for a built feature, the architecture or the vision. Each public type, operation, command, output, port and runtime claim matches the code, and so does each diagram's boxes and arrows; quote both sides. Code that breaks an approved scenario is a bug, not a document fix: say so.
 7. **Conventions.** The document follows the formats skill: each thing written in its one home, a public API of what users and other features use, and nothing a reader needn't read.
 
 ## Findings
@@ -44,7 +44,7 @@ Each finding has this shape:
 ```
 
 - A **blocker** is a contradiction, a guess that build would likely get wrong, a case whose wrong handling would hang, lose data or hold up other work, a needed piece that should be its own feature, or a document that says the code does what it doesn't.
-- Everything else is a **concern**.
+- Everything else is a **concern**, when its Problem names a concrete way an implementer would go wrong; drop it otherwise.
 - List every blocker, and at most 8 concerns, the most important first. Count the rest as nits by number only. No findings is a valid report.
 
 ## Report
