@@ -11,7 +11,7 @@ export const MAX_FILE_WORDS = 2100;
  * as every fix added rules and nothing was removed; 0.0.14 cut them to this. Lower it when text is
  * cut. Raising it is the maintainer's decision, with the reason in the commit that raises it.
  */
-export const BUNDLE_WORD_BUDGET = 20370;
+export const BUNDLE_WORD_BUDGET = 20920;
 
 /** Data the CLI reads or renders, rather than instructions an agent reads. */
 const NOT_INSTRUCTIONS = /(^|\/)(templates|notes)\//;

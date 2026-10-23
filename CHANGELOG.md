@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A `brainstorm` step for working out a design with the user before anything is written, for as many rounds as they want. It starts from the same research shape does, discusses one question at a time with options shown as code or diagrams and a recommendation, keeps a list of what is settled and what is open, and hands the settled list to shape, envision or refactor, which take it as given. Any step runs it when the user would rather talk a question through than answer it, and shape offers it when the work has more than one reasonable design.
+- `cruze validate` warns about a feature in progress that the vision's Release table doesn't list.
+- The README says which step to run for what.
+
+### Changed
+
+- `shape` adds a Release row, with what it needs, for a feature the vision doesn't list yet, and sends an idea that is several features or a new direction to `envision`.
+- `envision` says when it runs: a project's start, a release done, or a change of direction. A single feature or a change to features that exist goes to `shape`.
+
 ## [0.0.18] - 2026-10-23
 
 Conventions change; the format doesn't. Documents from 0.0.17 stay valid.

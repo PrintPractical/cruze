@@ -40,6 +40,17 @@ describe("validating the documents", () => {
     assert.deepEqual(problems.map((p) => p.message), ["list-devices needs teleport, which isn't a feature of this release", "features need each other in a circle: list-devices → run-commands → open-serial → list-devices"]);
   });
 
+  it("warns about a feature in progress the Release table doesn't list, and not about a built one", async () => {
+    const h = await exampleProject();
+    setVersion(h.files, h.deps.bundle.version);
+    h.files.files.set("docs/features/export-logs.md", (h.files.files.get(OPEN_SERIAL) ?? "").replaceAll("open-serial", "export-logs"));
+    h.files.files.set("docs/features/old-menu.md", "# Old menu\n\n- Status: built\n");
+    const problems = (await validate(h.deps)).problems.filter((p) => p.rule === "release-missing");
+    assert.deepEqual(problems.map((p) => [p.path, p.severity, p.message]), [
+      ["docs/features/export-logs.md", "warning", "export-logs isn't in the vision's Release table; add its row, with what it needs, so cruze next orders it"],
+    ]);
+  });
+
   it("reports leftover template guides, and never a document's length", async () => {
     const h = await exampleProject();
     setVersion(h.files, h.deps.bundle.version);

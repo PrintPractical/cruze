@@ -3,7 +3,7 @@ import { PATHS } from "../project/layout.ts";
 import type { ProjectDocs } from "../project/project_docs.ts";
 import { error, warning, type Problem } from "./problem.ts";
 
-/** The vision's Release table: feature slugs, what each needs, and no cycles. */
+/** The vision's Release table: feature slugs, what each needs, no cycles, and a row for each feature in progress. */
 export function releaseProblems(docs: ProjectDocs): Problem[] {
   if (docs.vision === undefined) return [];
   if (docs.release.length === 0) return [warning(PATHS.vision, undefined, "release", "## Release has no Feature | Summary | Needs table with features in it yet")];
@@ -18,6 +18,10 @@ export function releaseProblems(docs: ProjectDocs): Problem[] {
     for (const need of row.needs.filter((n) => !slugs.has(n))) {
       problems.push(error(PATHS.vision, row.line, "release-needs", `${row.slug} needs ${need}, which isn't a feature of this release`));
     }
+  }
+  // A built feature leaves the table when its release is done; one in progress belongs in it.
+  for (const feature of docs.features.filter((f) => f.status !== "built" && !slugs.has(f.slug))) {
+    problems.push(warning(feature.path, undefined, "release-missing", `${feature.slug} isn't in the vision's Release table; add its row, with what it needs, so cruze next orders it`));
   }
   const cycle = findCycle(docs.release.map((r) => [r.slug, r.needs.filter((n) => slugs.has(n))] as const));
   if (cycle !== undefined) problems.push(error(PATHS.vision, docs.release.find((r) => r.slug === cycle[0])?.line, "release-needs", `features need each other in a circle: ${cycle.join(" → ")}`));
