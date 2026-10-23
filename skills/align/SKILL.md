@@ -1,16 +1,16 @@
 ---
 name: cruze-align
-description: Brings every project document up to the current Cruze format and conventions and up to date with the code, from parallel fresh-context reviews of each document, showing the user each change in meaning before approving it.
+description: Brings the project's documents, every one or those the user names, up to the current Cruze format and conventions and up to date with the code, from parallel fresh-context reviews of each document, showing the user each change in meaning before approving it.
 ---
 
 # Align
 
-Documents fall behind when Cruze changes its format or conventions, and when the code moves on. Align reviews every document at once and changes how documents say things, or what they say about reviewed code. It never changes code, nor an approved scenario to match code that breaks it.
+Documents fall behind when Cruze changes its format or conventions, and when the code moves on. Align reviews the documents the user asks for, in parallel, and changes how documents say things, or what they say about reviewed code. It never changes code, nor an approved scenario to match code that breaks it.
 
 ## Steps
 
 1. **Start clean,** on a branch such as `docs/align` from an up-to-date `main` with nothing uncommitted. Run `cruze validate`, `cruze check` and `cruze trace`, and keep what they report. Done when you have the three reports.
-2. **Review every document at once.** Start one doc reviewer per feature file, `cruze review doc-reviewer --feature <slug>`, and one with no feature for the architecture and the vision, each in a fresh context as `.agents/skills/cruze-roles/SKILL.md` says, in parallel where your agent can. Done when every report is back.
+2. **Review the documents the user asks for at once:** the ones they name, or every one when they ask for all or name none. Start one doc reviewer per feature file, `cruze review doc-reviewer --feature <slug>`, and one with no feature for the architecture and the vision when they are asked for, each in a fresh context as `.agents/skills/cruze-roles/SKILL.md` says, in parallel where your agent can. Done when every report is back.
 3. **Check each finding** against the documents and the code, and drop one whose evidence doesn't hold, with the reason in one line. Add what step 1's reports found.
 4. **Sort them:**
    - **Form:** the old format, a copy of something whose home is another document, internal types in a public API, repetition, a guide left in. Fix it; the meaning stays the same.
@@ -31,4 +31,4 @@ Documents fall behind when Cruze changes its format or conventions, and when the
 
 ## Next step
 
-`cruze next`.
+`fix`, for the bugs filed, then `cruze next`.

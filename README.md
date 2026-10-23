@@ -20,18 +20,18 @@ envision ──► shape ──► build ──► review ──► pull request
 
 fix:       reproduce ──► failing test ──► fix ──► review ──► pull request
 refactor:  map the change ──► small green steps ──► review ──► pull request
-align:     review every document in parallel ──► fix form and drift ──► pull request
+align:     review the documents in parallel ──► fix form and drift ──► pull request
 ```
 
 | Step | Who | What comes out | Your part |
 | --- | --- | --- | --- |
 | `envision` | you and the agent | `docs/vision.md`: the problem, users, the release's features and what each needs, future features and what must stay possible. `docs/architecture.md`: ports, adapters, runtime, technology, layers | Answer one round of questions, approve both documents |
 | `shape` | you and the agent | `docs/features/<slug>.md`: behaviour as scenarios, the public API as code, a sketch of how it crosses the stack, the decisions the agent took, after research into what the code already has and a fresh-context review that runs while you read | Approve it, or say what to change; agree when a shared piece it needs should be a feature of its own, built first, or when the work changes features already built, which shape edits in place for build to take again |
-| `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | Nothing, unless a scenario or the public API has to change; then you see the change and approve again |
+| `build` | the agent | Code built test-first, one scenario at a time; the first feature also sets up CI with a coverage gate | At the end, approve the scenarios it corrected for a fact, each shown before and after; it stops sooner only when what a scenario is for, or the public API, has to change |
 | `review` | a fresh-context reviewer | Fixes for what it finds, a note on how to try the feature, a pull request | Decide only findings that would change what you approved |
 | `fix` | the agent | A failing test that reproduces the bug, the fix, a review, a pull request | Nothing, unless the right behaviour is your call |
 | `refactor` | the agent | The code restructured in small steps with every test green and none weakened, a review, a pull request | Nothing, unless the architecture or a public API you approved changes; then you see it before and after and approve |
-| `align` | the agent | Every document brought up to the current format and conventions and up to date with the code, after upgrading Cruze or whenever you want | Approve the changes in meaning, each shown before and after |
+| `align` | the agent | Every document, or the ones you name, brought up to the current format and conventions and up to date with the code, after upgrading Cruze or whenever you want | Approve the changes in meaning, each shown before and after |
 
 What it holds to:
 
@@ -52,7 +52,7 @@ The skills run `cruze` commands, so the agent needs `cruze` on its path. Install
 From a GitHub Release, without npm:
 
 ```sh
-npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.17/printpractical-cruze-0.0.17.tgz
+npm install -g https://github.com/PrintPractical/cruze/releases/download/v0.0.18/printpractical-cruze-0.0.18.tgz
 ```
 
 From npm, once a version is published there:
@@ -64,7 +64,7 @@ npm install -g @printpractical/cruze
 From the git repository, at a tag or `#main`. npm 11 needs `--install-links` for a global git install, and the first `cruze` command builds the CLI:
 
 ```sh
-npm install -g --install-links github:PrintPractical/cruze#v0.0.17
+npm install -g --install-links github:PrintPractical/cruze#v0.0.18
 ```
 
 ### 2. Set up a repository
@@ -78,7 +78,7 @@ cruze init
 When you didn't install from npm, tell `init` where Cruze came from, so the CI it writes runs the same source:
 
 ```sh
-cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.17/printpractical-cruze-0.0.17.tgz
+cruze init --package https://github.com/PrintPractical/cruze/releases/download/v0.0.18/printpractical-cruze-0.0.18.tgz
 ```
 
 `init` asks for the project name and your coding agent: `claude` for Claude Code, or `other` for any agent that reads `AGENTS.md` and `.agents/skills/`. It creates `README.md`, `CHANGELOG.md`, `AGENTS.md` (and `CLAUDE.md` for Claude Code), `.cruze/config.yaml`, a CI workflow that runs `cruze validate`, `check` and `trace`, and the skills in `.agents/skills/`, linked into `.claude/skills/` for Claude Code. It never overwrites an existing file.

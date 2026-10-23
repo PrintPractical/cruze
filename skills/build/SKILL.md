@@ -18,7 +18,7 @@ Build turns an approved feature into working, tested code without asking the use
 4. **Build the foundation first,** when this is the release's first feature. See "The foundation" below.
 5. **Build each scenario in order,** with the loop below. A changed scenario's test takes its new values; a removed one's goes.
 6. **Check your own failure modes.** Read your diff for what tests rarely reach. For each task, loop, wait, lock, retry and queue you added: what happens when it is cancelled midway, when two failures fall due at once, when a notice arrives during a pass, and when the other side never answers. For each fake: does it do what the real adapter does on every platform the project runs on, including the states in between, such as an address not yet usable? Fix what you find, with a test. Done when you have asked each question of each one.
-7. **Finish.** Run the formatter, the linter, the build and the full test suite, then `cruze check --ci` and `cruze trace <slug>`, and fix what they report. Set the feature's status line to `- Status: built`, and commit. Done when every one of them passes.
+7. **Finish.** Run every check the project's CI runs, and at least the formatter, the linter, the build and the full test suite, then `cruze check --ci` and `cruze trace <slug>`, and fix what they report. Show the user each scenario you corrected, as before and after, and run `cruze approve <slug>` on their word. Set the feature's status line to `- Status: built`, and commit. Done when every check passes and the user has approved.
 
 ## The loop
 
@@ -35,9 +35,11 @@ Done for a scenario when its test passes, the checks pass and the commit exists.
 
 Decide everything local yourself: private helpers, file splits, internal types, test fixtures, an ordinary library. Note any choice a reviewer or the user might question in the feature's `## Decisions`, one line with the reason. Ask nothing about these.
 
+When a scenario is wrong about a fact you can show, such as how a platform behaves, a command that doesn't exist or a number that doesn't add up, and the corrected wording keeps what it was for, correct it and carry on. Never correct one to match code you wrote. Finish shows the corrections for one approval.
+
 Stop and run `shape` when the code needs any of these:
 
-- a scenario's behaviour or message to change, or a new scenario;
+- a change to what a scenario is for or covers, or a new scenario;
 - a change to the public API the user approved;
 - a significant dependency the architecture doesn't name;
 - a port or a runtime change the architecture doesn't allow;
@@ -56,7 +58,7 @@ The first feature of a release also sets up what every later feature relies on:
 
 ## Protecting the check
 
-Never weaken, skip or delete a test to get green. A failing test means the code is wrong, or the scenario is, and a wrong scenario goes through `shape`. Change a test to match only when the user approved a change to its scenario.
+Never weaken, skip or delete a test to get green. A failing test means the code is wrong, or the scenario is, and a wrong scenario goes through `shape`. Change a test to match only when its scenario changed, approved by the user or corrected as "Deciding as you go" says.
 
 ## Next step
 

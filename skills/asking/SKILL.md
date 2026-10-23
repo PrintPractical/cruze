@@ -21,7 +21,7 @@ Decide everything else yourself: internal structure, private names, which module
 
 ## How many
 
-At most one question round per step, of five questions or fewer, before you show the document. When a choice has a sensible default, take it and list it under Decisions instead of asking. When the user defers ("you decide"), decide, and don't ask again.
+At most one question round per step, of five questions or fewer. A question about scope may come before any draft; the rest come with the draft, or once its review is in. When a choice has a sensible default, take it and list it under Decisions instead of asking. When the user defers ("you decide"), decide, and don't ask again. Answer every note the user adds to an answer in your next message, if only in one line.
 
 ## Showing a question
 
